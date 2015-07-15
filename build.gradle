@@ -1,0 +1,71 @@
+
+subprojects {
+
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+
+	repositories {
+		mavenCentral()
+	}
+
+	dependencies {
+		
+	}
+
+}
+
+project(':BRFDocument') {
+
+	group = 'org.aph.brfdocument'
+	archivesBaseName = 'BRFDocument'
+	version = '0.1'	
+
+}
+
+project(':BrailleZephyrGUI') {
+
+	group = 'org.aph.braillezephyr'
+	archivesBaseName = 'BrailleZephyr'
+	version = '0.1'	
+
+	dependencies {
+		compile project(':BRFDocument')
+		compile group: 'org.eclipse.swt', name: 'org.eclipse.swt.gtk.linux.x86_64', version: '4.3'
+	}
+
+	jar {
+		manifest {
+			attributes("Main-Class": "org.aph.braillezephyr.Main")
+		}
+		from project(':BRFDocument').sourceSets.main.output.classesDir
+	}
+	
+	apply plugin: 'application'
+	mainClassName = "org.aph.braillezephyr.Main"
+}
+
+project(':BrailleZephyrCMD') {
+
+	group = 'org.aph.braillezephyrcmd'
+	archivesBaseName = 'BrailleZephyrCMD'
+	version = '0.1'	
+
+	dependencies {
+		compile project(':BRFDocument')
+	}
+
+	jar {
+		manifest {
+			attributes("Main-Class": "org.aph.braillezephyrcmd.Main")
+		}
+		from project(':BRFDocument').sourceSets.main.output.classesDir
+	}
+	
+	apply plugin: 'application'
+	mainClassName = "org.aph.braillezephyrcmd.Main"
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.4'
+}
+
