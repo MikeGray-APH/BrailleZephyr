@@ -17,7 +17,7 @@ package org.aph.braillezephyr;
 
 /**
  *
- * @author Mike Gray <mgray@aph.org>
+ * @author Mike Gray mgray@aph.org
  *
  */
 public class Main
