@@ -15,6 +15,10 @@
 
 package org.aph.braillezephyr;
 
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+
 /**
  *
  * @author Mike Gray mgray@aph.org
@@ -22,8 +26,25 @@ package org.aph.braillezephyr;
  */
 public class Main
 {
+	static BZStyledText bzStyledText;
+
 	public static void main(String args[])
 	{
+		Display display = new Display();
+		Shell shell = new Shell(display);
+		shell.setLayout(new GridLayout());
+		shell.setText("BrailleZephyr");
+		shell.setSize(640, 480);
+
+		new BZMenu(shell);
+		bzStyledText = new BZStyledText(shell);
+
+		shell.open();
+		while(!shell.isDisposed())
+		{
+			if(!display.readAndDispatch())
+				display.sleep();
+		}
 	}
 }
 
