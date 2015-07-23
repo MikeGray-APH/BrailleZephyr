@@ -1,15 +1,14 @@
 .gradle/
-build/
+**/build/
 
 #   Eclipse files
-.project
-.settings/
-*/.classpath
-*/.project
-*/.settings
-*/bin
+**/.project
+**/.classpath
+**/.settings/
+**/bin/
+
 
 #   IntellJ files
 .idea/
-*.iml
+**/*.iml
 
