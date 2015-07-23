@@ -25,23 +25,108 @@ project(':BRFDocument') {
 project(':BrailleZephyrGUI') {
 
 	group = 'org.aph.braillezephyr'
-	archivesBaseName = 'BrailleZephyr'
 	version = '0.1'	
 
 	dependencies {
 		compile project(':BRFDocument')
 		compile group: 'org.eclipse.swt', name: 'org.eclipse.swt.gtk.linux.x86_64', version: '4.3'
+		archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.gtk.linux.x86_64', version: '4.3'
+		archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.gtk.linux.x86', version: '4.3'
+		archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.win32.win32.x86_64', version: '4.3'
+		archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.win32.win32.x86', version: '4.3'
+		archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.cocoa.macosx.x86_64', version: '4.3'
 	}
 
 	jar {
 		manifest {
 			attributes("Main-Class": "org.aph.braillezephyr.Main")
 		}
+		
+		baseName = 'BrailleZephyr'
+		
 		from project(':BRFDocument').sourceSets.main.output.classesDir
 	}
 	
 	apply plugin: 'application'
 	mainClassName = "org.aph.braillezephyr.Main"
+
+	task linux32Jar(type: Jar) {	
+		manifest {
+			attributes("Main-Class": "org.aph.braillezephyr.Main")
+		}
+		
+		appendix = 'linux-x86'
+		
+		from {
+			zipTree configurations.archives.find { it.getName().contains('linux.x86-') }
+		}
+		
+		with jar
+	}
+
+	task linux64Jar(type: Jar) {	
+		manifest {
+			attributes("Main-Class": "org.aph.braillezephyr.Main")
+		}
+		
+		appendix = 'linux-x86_64'
+		
+		from {
+			zipTree configurations.archives.find { it.getName().contains('linux.x86_64') }
+		}
+		
+		with jar
+	}
+
+	task win32Jar(type: Jar) {	
+		manifest {
+			attributes("Main-Class": "org.aph.braillezephyr.Main")
+		}
+		
+		appendix = 'win32-x86'
+		
+		from {
+			zipTree configurations.archives.find { it.getName().contains('win32.x86-') }
+		}
+		
+		with jar
+	}
+
+	task win64Jar(type: Jar) {	
+		manifest {
+			attributes("Main-Class": "org.aph.braillezephyr.Main")
+		}
+		
+		appendix = 'win32-x86_64'
+		
+		from {
+			zipTree configurations.archives.find { it.getName().contains('win32.x86_64') }
+		}
+		
+		with jar
+	}
+
+	task mac64Jar(type: Jar) {	
+		manifest {
+			attributes("Main-Class": "org.aph.braillezephyr.Main")
+		}
+		
+		appendix = 'macosx-x86_64'
+		
+		from {
+			zipTree configurations.archives.find { it.getName().contains('macosx.x86_64') }
+		}
+		
+		with jar
+	}
+	
+	task allJars {
+		dependsOn linux32Jar
+		dependsOn linux64Jar
+		dependsOn win32Jar
+		dependsOn win64Jar
+		dependsOn mac64Jar
+	}
 }
 
 project(':BrailleZephyrCMD') {
