@@ -95,11 +95,49 @@ public class BZStyledText
 
 	public void setText(Reader reader) throws IOException
 	{
-		styledText.setText("");
+		boolean checkLinesPerPage = true;
+		boolean removeFormFeed = true;
 		char buffer[] = new char[65536];
-		int cnt;
+		int cnt, trim;
+
+		styledText.setText("");
 		while((cnt = reader.read(buffer)) > 0)
-			styledText.append(new String(buffer));
+		{
+			if(checkLinesPerPage)
+			{
+				checkLinesPerPage = false;
+				int lines = 0, i;
+				outer:for(i = 0; i < 65536; i++)
+				switch(buffer[i])
+				{
+				case '\n':  lines++;  break;
+				case 0xc:
+
+					linesPerPage = lines;
+					break outer;
+				}
+
+				if(i == 65536)
+					removeFormFeed = false;
+			}
+
+			if(removeFormFeed)
+			{
+				trim = 0;
+				for(int i = 0; i < cnt; i++)
+				{
+					if(buffer[i] != 0xc)
+					{
+						buffer[trim] = buffer[i];
+						trim++;
+					}
+				}
+			}
+			else
+				trim = cnt;
+
+			styledText.append(new String(buffer, 0, trim));
+		}
 	}
 
 	private boolean isFirstLineOnPage(int index)
