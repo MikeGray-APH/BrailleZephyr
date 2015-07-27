@@ -36,6 +36,7 @@ public class BZStyledText
 	private StyledText styledText;
 
 	private int linesPerPage = 10;
+	private int charsPerLine = 40;
 
 	private Color pageSeparatorColor;
 
@@ -50,27 +51,6 @@ public class BZStyledText
 			styledText.setFont(font);
 
 		pageSeparatorColor = styledText.getDisplay().getSystemColor(SWT.COLOR_BLACK);
-	}
-
-	class BZStyledTextPaintListener implements Listener
-	{
-		@Override
-		public void handleEvent(Event event)
-		{
-			event.gc.setForeground(pageSeparatorColor);
-			int lineHeight = styledText.getLineHeight();
-			int drawHeight = styledText.getClientArea().height;
-			int drawWidth = styledText.getClientArea().width;
-			int at = 0;
-			for(int i = styledText.getTopIndex(); i < styledText.getLineCount(); i++)
-			{
-				at = styledText.getLinePixel(i);
-				if((i % linesPerPage) == 0)
-					event.gc.drawLine(0, at, drawWidth, at);
-				if(at + lineHeight > drawHeight)
-					break;
-			}
-		}
 	}
 
 	void openFile()
@@ -106,6 +86,37 @@ public class BZStyledText
 		if(fontData == null)
 			return;
 		styledText.setFont(new Font(styledText.getDisplay(), fontData));
+	}
+
+	private boolean isFirstLineOnPage(int index)
+	{
+		return index % linesPerPage == 0;
+	}
+
+	private boolean isLastLineOnPage(int index)
+	{
+		return index - 1 % linesPerPage == 0;
+	}
+
+	private class BZStyledTextPaintListener implements Listener
+	{
+		@Override
+		public void handleEvent(Event event)
+		{
+			event.gc.setForeground(pageSeparatorColor);
+			int lineHeight = styledText.getLineHeight();
+			int drawHeight = styledText.getClientArea().height;
+			int drawWidth = styledText.getClientArea().width;
+			int at = 0;
+			for(int i = styledText.getTopIndex(); i < styledText.getLineCount(); i++)
+			{
+				at = styledText.getLinePixel(i);
+				if(isFirstLineOnPage(i))
+					event.gc.drawLine(0, at, drawWidth, at);
+				if(at + lineHeight > drawHeight)
+					break;
+			}
+		}
 	}
 }
 
