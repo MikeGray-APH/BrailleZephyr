@@ -88,6 +88,11 @@ public class BZStyledText
 		styledText.setFont(font);
 	}
 
+	public void redraw()
+	{
+		styledText.redraw();
+	}
+
 	public void setText(Reader reader) throws IOException
 	{
 		styledText.setText("");
