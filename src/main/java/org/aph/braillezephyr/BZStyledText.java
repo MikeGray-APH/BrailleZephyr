@@ -107,7 +107,7 @@ public class BZStyledText
 			{
 				checkLinesPerPage = false;
 				int lines = 0, i;
-				outer:for(i = 0; i < 65536; i++)
+				outer:for(i = 0; i < cnt; i++)
 				switch(buffer[i])
 				{
 				case '\n':  lines++;  break;
@@ -117,7 +117,7 @@ public class BZStyledText
 					break outer;
 				}
 
-				if(i == 65536)
+				if(i == cnt)
 					removeFormFeed = false;
 			}
 
