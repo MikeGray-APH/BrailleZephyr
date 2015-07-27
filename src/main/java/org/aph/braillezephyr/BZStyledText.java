@@ -35,12 +35,12 @@ public class BZStyledText
 {
 	private StyledText styledText;
 
-	private int linesPerPage = 10;
+	private int linesPerPage = 25;
 	private int charsPerLine = 40;
 
 	private Color pageSeparatorColor;
 
-	BZStyledText(Shell shell)
+	public BZStyledText(Shell shell)
 	{
 		styledText = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
 		styledText.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -51,6 +51,36 @@ public class BZStyledText
 			styledText.setFont(font);
 
 		pageSeparatorColor = styledText.getDisplay().getSystemColor(SWT.COLOR_BLACK);
+	}
+
+	public int getLinesPerPage()
+	{
+		return linesPerPage;
+	}
+
+	public void setLinesPerPage(int linesPerPage)
+	{
+		this.linesPerPage = linesPerPage;
+	}
+
+	public int getCharsPerLine()
+	{
+		return charsPerLine;
+	}
+
+	public void setCharsPerLine(int charsPerLine)
+	{
+		this.charsPerLine = charsPerLine;
+	}
+
+	public Color getPageSeparatorColor()
+	{
+		return pageSeparatorColor;
+	}
+
+	public void setPageSeparatorColor(Color pageSeparatorColor)
+	{
+		this.pageSeparatorColor = pageSeparatorColor;
 	}
 
 	void openFile()
