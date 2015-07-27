@@ -34,10 +34,11 @@ public class BZMenu
 		Menu menu;
 		MenuItem item;
 
+		//   file menu
 		menu = new Menu(menuBar);
 		item = new MenuItem(menuBar, SWT.CASCADE);
 		item.setText("file");
-		item.setMenu(menu = new Menu(menuBar));
+		item.setMenu(menu);
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("open");
@@ -49,5 +50,34 @@ public class BZMenu
 				Main.bzStyledText.openFile();
 			}
 		});
+
+		//   edit menu
+		menu = new Menu(menuBar);
+		item = new MenuItem(menuBar, SWT.CASCADE);
+		item.setText("edit");
+		item.setMenu(menu);
+
+		//   view menu
+		menu = new Menu(menuBar);
+		item = new MenuItem(menuBar, SWT.CASCADE);
+		item.setText("view");
+		item.setMenu(menu);
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("font");
+		item.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				Main.bzStyledText.openFont();
+			}
+		});
+
+		//   help menu
+		menu = new Menu(menuBar);
+		item = new MenuItem(menuBar, SWT.CASCADE);
+		item.setText("help");
+		item.setMenu(menu);
 	}
 }

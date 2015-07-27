@@ -34,7 +34,7 @@ public class Main
 		Shell shell = new Shell(display);
 		shell.setLayout(new GridLayout());
 		shell.setText("BrailleZephyr");
-		shell.setSize(480, 640);
+		shell.setSize(640, 640);
 
 		new BZMenu(shell);
 		bzStyledText = new BZStyledText(shell);

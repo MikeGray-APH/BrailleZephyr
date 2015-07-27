@@ -18,9 +18,12 @@ package org.aph.braillezephyr;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
@@ -41,6 +44,11 @@ public class BZStyledText
 		styledText = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
 		styledText.setLayoutData(new GridData(GridData.FILL_BOTH));
 		styledText.addListener(SWT.Paint, new BZStyledTextPaintListener());
+
+		Font font = new Font(styledText.getDisplay(), "SimBraille", 15, SWT.NORMAL);
+		if(font != null)
+			styledText.setFont(font);
+
 		pageSeparatorColor = styledText.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 	}
 
@@ -78,7 +86,7 @@ public class BZStyledText
 			char buffer[] = new char[65536];
 			int cnt;
 			while((cnt = fileReader.read(buffer)) > 0)
-				styledText.append(new String(buffer));
+				styledText.setText(new String(buffer));
 		}
 		catch(FileNotFoundException e)
 		{
@@ -88,6 +96,16 @@ public class BZStyledText
 		{
 			e.printStackTrace();
 		}
+	}
+
+	void openFont()
+	{
+		FontDialog dialog = new FontDialog(styledText.getShell(), SWT.OPEN);
+		dialog.setFontList(styledText.getFont().getFontData());
+		FontData fontData = dialog.open();
+		if(fontData == null)
+			return;
+		styledText.setFont(new Font(styledText.getDisplay(), fontData));
 	}
 }
 
