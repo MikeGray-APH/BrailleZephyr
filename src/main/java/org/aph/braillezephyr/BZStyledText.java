@@ -19,17 +19,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 public class BZStyledText
 {
@@ -83,39 +78,23 @@ public class BZStyledText
 		this.pageSeparatorColor = pageSeparatorColor;
 	}
 
-	void openFile()
+	public Font getFont()
 	{
-		FileDialog dialog = new FileDialog(styledText.getShell(), SWT.OPEN);
-		String fileName = dialog.open();
-		if(fileName == null)
-			return;
-
-		try
-		{
-			FileReader fileReader = new FileReader(fileName);
-			char buffer[] = new char[65536];
-			int cnt;
-			while((cnt = fileReader.read(buffer)) > 0)
-				styledText.setText(new String(buffer));
-		}
-		catch(FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
+		return styledText.getFont();
 	}
 
-	void openFont()
+	public void setFont(Font font)
 	{
-		FontDialog dialog = new FontDialog(styledText.getShell(), SWT.OPEN);
-		dialog.setFontList(styledText.getFont().getFontData());
-		FontData fontData = dialog.open();
-		if(fontData == null)
-			return;
-		styledText.setFont(new Font(styledText.getDisplay(), fontData));
+		styledText.setFont(font);
+	}
+
+	public void setText(Reader reader) throws IOException
+	{
+		styledText.setText("");
+		char buffer[] = new char[65536];
+		int cnt;
+		while((cnt = reader.read(buffer)) > 0)
+			styledText.append(new String(buffer));
 	}
 
 	private boolean isFirstLineOnPage(int index)

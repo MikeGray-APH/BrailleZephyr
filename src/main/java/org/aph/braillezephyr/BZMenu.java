@@ -18,16 +18,25 @@ package org.aph.braillezephyr;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
+import java.io.*;
+
 public class BZMenu
 {
 	private Menu menuBar;
+	private Shell shell;
 
 	BZMenu(Shell shell)
 	{
+		this.shell = shell;
+
 		menuBar = new Menu(shell, SWT.BAR);
 		shell.setMenuBar(menuBar);
 
@@ -42,14 +51,7 @@ public class BZMenu
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("open");
-		item.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				Main.bzStyledText.openFile();
-			}
-		});
+		item.addSelectionListener(new FileOpen());
 
 		//   edit menu
 		menu = new Menu(menuBar);
@@ -65,19 +67,52 @@ public class BZMenu
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("font");
-		item.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				Main.bzStyledText.openFont();
-			}
-		});
+		item.addSelectionListener(new ViewFont());
 
 		//   help menu
 		menu = new Menu(menuBar);
 		item = new MenuItem(menuBar, SWT.CASCADE);
 		item.setText("help");
 		item.setMenu(menu);
+	}
+
+	private class FileOpen extends SelectionAdapter
+	{
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+			String fileName = dialog.open();
+			if(fileName == null)
+				return;
+
+			try
+			{
+				FileReader fileReader = new FileReader(fileName);
+				Main.bzStyledText.setText(fileReader);
+			}
+			catch(FileNotFoundException e)
+			{
+				e.printStackTrace();
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private class ViewFont extends SelectionAdapter
+	{
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			FontDialog dialog = new FontDialog(shell, SWT.OPEN);
+			dialog.setFontList(Main.bzStyledText.getFont().getFontData());
+			FontData fontData = dialog.open();
+			if(fontData == null)
+				return;
+			Main.bzStyledText.setFont(new Font(shell.getDisplay(), fontData));
+		}
 	}
 }
