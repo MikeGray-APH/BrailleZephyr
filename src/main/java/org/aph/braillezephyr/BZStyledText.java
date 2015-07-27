@@ -17,8 +17,11 @@ package org.aph.braillezephyr;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import java.io.FileNotFoundException;
@@ -29,10 +32,37 @@ public class BZStyledText
 {
 	private StyledText styledText;
 
+	private int linesPerPage = 10;
+
+	private Color pageSeparatorColor;
+
 	BZStyledText(Shell shell)
 	{
 		styledText = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
 		styledText.setLayoutData(new GridData(GridData.FILL_BOTH));
+		styledText.addListener(SWT.Paint, new BZStyledTextPaintListener());
+		pageSeparatorColor = styledText.getDisplay().getSystemColor(SWT.COLOR_BLACK);
+	}
+
+	class BZStyledTextPaintListener implements Listener
+	{
+		@Override
+		public void handleEvent(Event event)
+		{
+			event.gc.setForeground(pageSeparatorColor);
+			int lineHeight = styledText.getLineHeight();
+			int drawHeight = styledText.getClientArea().height;
+			int drawWidth = styledText.getClientArea().width;
+			int at = 0;
+			for(int i = styledText.getTopIndex(); i < styledText.getLineCount(); i++)
+			{
+				at = styledText.getLinePixel(i);
+				if((i % linesPerPage) == 0)
+					event.gc.drawLine(0, at, drawWidth, at);
+				if(at + lineHeight > drawHeight)
+					break;
+			}
+		}
 	}
 
 	void openFile()
@@ -60,3 +90,4 @@ public class BZStyledText
 		}
 	}
 }
+
