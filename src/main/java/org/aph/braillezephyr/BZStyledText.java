@@ -32,6 +32,7 @@ public class BZStyledText
 
 	private int linesPerPage = 25;
 	private int charsPerLine = 40;
+	String eol = System.getProperty("line.separator");
 
 	private Color pageSeparatorColor;
 
@@ -93,6 +94,29 @@ public class BZStyledText
 		styledText.redraw();
 	}
 
+	private boolean isFirstLineOnPage(int index)
+	{
+		return index % linesPerPage == 0;
+	}
+
+	private boolean isLastLineOnPage(int index)
+	{
+		return (index + 1) % linesPerPage == 0;
+	}
+
+	public void getText(Writer writer) throws IOException
+	{
+		writer.write(styledText.getLine(0));
+		for(int i = 1; i < styledText.getLineCount(); i++)
+		{
+			writer.write(eol);
+			if(isFirstLineOnPage(i))
+				writer.write(0xc);
+			writer.write(styledText.getLine(i));
+		}
+		writer.flush();
+	}
+
 	public void setText(Reader reader) throws IOException
 	{
 		boolean checkLinesPerPage = true;
@@ -101,6 +125,7 @@ public class BZStyledText
 		int cnt, trim;
 
 		styledText.setText("");
+		eol = null;
 		while((cnt = reader.read(buffer)) > 0)
 		{
 			if(checkLinesPerPage)
@@ -110,6 +135,12 @@ public class BZStyledText
 				outer:for(i = 0; i < cnt; i++)
 				switch(buffer[i])
 				{
+				case '\r':
+
+					if(eol == null)
+						eol = new String("\r\n");
+					break;
+
 				case '\n':  lines++;  break;
 				case 0xc:
 
@@ -117,6 +148,8 @@ public class BZStyledText
 					break outer;
 				}
 
+				if(eol == null)
+					eol = new String("\n");
 				if(i == cnt)
 					removeFormFeed = false;
 			}
@@ -138,16 +171,6 @@ public class BZStyledText
 
 			styledText.append(new String(buffer, 0, trim));
 		}
-	}
-
-	private boolean isFirstLineOnPage(int index)
-	{
-		return index % linesPerPage == 0;
-	}
-
-	private boolean isLastLineOnPage(int index)
-	{
-		return index - 1 % linesPerPage == 0;
 	}
 
 	private class BZStyledTextPaintListener implements Listener

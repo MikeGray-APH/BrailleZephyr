@@ -36,6 +36,7 @@ public class BZMenu
 {
 	private Menu menuBar;
 	private Shell shell;
+	private String fileName;
 
 	BZMenu(Shell shell)
 	{
@@ -50,23 +51,29 @@ public class BZMenu
 		//   file menu
 		menu = new Menu(menuBar);
 		item = new MenuItem(menuBar, SWT.CASCADE);
-		item.setText("file");
+		item.setText("&File");
 		item.setMenu(menu);
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("open");
+		item.setAccelerator(SWT.CONTROL | 'O');
 		item.addSelectionListener(new FileOpenListener());
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("save as");
+		item.setAccelerator(SWT.SHIFT | SWT.CONTROL | 'S');
+		item.addSelectionListener(new FileSaveAsListener());
 
 		//   edit menu
 		menu = new Menu(menuBar);
 		item = new MenuItem(menuBar, SWT.CASCADE);
-		item.setText("edit");
+		item.setText("&Edit");
 		item.setMenu(menu);
 
 		//   view menu
 		menu = new Menu(menuBar);
 		item = new MenuItem(menuBar, SWT.CASCADE);
-		item.setText("view");
+		item.setText("&View");
 		item.setMenu(menu);
 
 		item = new MenuItem(menu, SWT.PUSH);
@@ -76,7 +83,7 @@ public class BZMenu
 		//   format menu
 		menu = new Menu(menuBar);
 		item = new MenuItem(menuBar, SWT.CASCADE);
-		item.setText("format");
+		item.setText("F&ormat");
 		item.setMenu(menu);
 
 		item = new MenuItem(menu, SWT.PUSH);
@@ -86,7 +93,7 @@ public class BZMenu
 		//   help menu
 		menu = new Menu(menuBar);
 		item = new MenuItem(menuBar, SWT.CASCADE);
-		item.setText("help");
+		item.setText("&Help");
 		item.setMenu(menu);
 	}
 
@@ -96,7 +103,7 @@ public class BZMenu
 		public void widgetSelected(SelectionEvent event)
 		{
 			FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-			String fileName = dialog.open();
+			fileName = dialog.open();
 			if(fileName == null)
 				return;
 
@@ -104,10 +111,36 @@ public class BZMenu
 			{
 				FileReader fileReader = new FileReader(fileName);
 				Main.bzStyledText.setText(fileReader);
+				fileReader.close();
+				shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			}
 			catch(FileNotFoundException e)
 			{
 				e.printStackTrace();
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private class FileSaveAsListener extends SelectionAdapter
+	{
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+			dialog.setFileName(fileName);
+			fileName = dialog.open();
+			if(fileName == null)
+				return;
+
+			try
+			{
+				FileWriter fileWriter = new FileWriter(fileName);
+				Main.bzStyledText.getText(fileWriter);
+				fileWriter.close();
 			}
 			catch(IOException e)
 			{
