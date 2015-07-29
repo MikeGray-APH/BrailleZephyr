@@ -55,12 +55,16 @@ public class BZMenu
 		item.setMenu(menu);
 
 		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("open");
+		item.setText("New");
+		item.addSelectionListener(new FileNewListener());
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Open");
 		item.setAccelerator(SWT.CONTROL | 'O');
 		item.addSelectionListener(new FileOpenListener());
 
 		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("save as");
+		item.setText("Save As");
 		item.setAccelerator(SWT.SHIFT | SWT.CONTROL | 'S');
 		item.addSelectionListener(new FileSaveAsListener());
 
@@ -77,7 +81,7 @@ public class BZMenu
 		item.setMenu(menu);
 
 		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("font");
+		item.setText("Font");
 		item.addSelectionListener(new ViewFontListener());
 
 		//   format menu
@@ -87,7 +91,7 @@ public class BZMenu
 		item.setMenu(menu);
 
 		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("lines per page");
+		item.setText("Lines Per Page");
 		item.addSelectionListener(new LinesPerPageListener(shell));
 
 		//   help menu
@@ -95,6 +99,18 @@ public class BZMenu
 		item = new MenuItem(menuBar, SWT.CASCADE);
 		item.setText("&Help");
 		item.setMenu(menu);
+	}
+
+	private class FileNewListener extends SelectionAdapter
+	{
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			Main.bzStyledText.setText("");
+			fileName = null;
+			shell.setText("BrailleZephyr");
+		}
+
 	}
 
 	private class FileOpenListener extends SelectionAdapter

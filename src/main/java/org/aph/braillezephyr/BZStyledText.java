@@ -117,6 +117,11 @@ public class BZStyledText
 		writer.flush();
 	}
 
+	public void setText(String text)
+	{
+		styledText.setText(text);
+	}
+
 	public void setText(Reader reader) throws IOException
 	{
 		boolean checkLinesPerPage = true;
