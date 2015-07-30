@@ -30,7 +30,12 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
 public class BZMenu
@@ -57,17 +62,17 @@ public class BZMenu
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("New");
-		item.addSelectionListener(new FileNewListener());
+		item.addSelectionListener(new FileNewHandler());
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Open");
 		item.setAccelerator(SWT.CONTROL | 'O');
-		item.addSelectionListener(new FileOpenListener());
+		item.addSelectionListener(new FileOpenHandler());
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Save As");
 		item.setAccelerator(SWT.SHIFT | SWT.CONTROL | 'S');
-		item.addSelectionListener(new FileSaveAsListener());
+		item.addSelectionListener(new FileSaveAsHandler());
 
 		//   edit menu
 		menu = new Menu(menuBar);
@@ -83,7 +88,7 @@ public class BZMenu
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Font");
-		item.addSelectionListener(new ViewFontListener());
+		item.addSelectionListener(new ViewFontHandler());
 
 		//   format menu
 		menu = new Menu(menuBar);
@@ -93,7 +98,11 @@ public class BZMenu
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Lines Per Page");
-		item.addSelectionListener(new LinesPerPageListener(shell));
+		item.addSelectionListener(new LinesPerPageHandler(shell));
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Chars Per Line");
+		item.addSelectionListener(new CharsPerLineHandler(shell));
 
 		//   help menu
 		menu = new Menu(menuBar);
@@ -102,7 +111,7 @@ public class BZMenu
 		item.setMenu(menu);
 	}
 
-	private class FileNewListener extends SelectionAdapter
+	private class FileNewHandler extends SelectionAdapter
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
@@ -114,7 +123,7 @@ public class BZMenu
 
 	}
 
-	private class FileOpenListener extends SelectionAdapter
+	private class FileOpenHandler extends SelectionAdapter
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
@@ -142,7 +151,7 @@ public class BZMenu
 		}
 	}
 
-	private class FileSaveAsListener extends SelectionAdapter
+	private class FileSaveAsHandler extends SelectionAdapter
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
@@ -167,7 +176,7 @@ public class BZMenu
 		}
 	}
 
-	private class ViewFontListener extends SelectionAdapter
+	private class ViewFontHandler extends SelectionAdapter
 	{
 		@Override
 		public void widgetSelected(SelectionEvent e)
@@ -181,11 +190,11 @@ public class BZMenu
 		}
 	}
 
-	private class LinesPerPageListener extends SelectionAdapter
+	private class LinesPerPageHandler extends SelectionAdapter
 	{
 		private Shell parent;
 
-		LinesPerPageListener(Shell parent)
+		LinesPerPageHandler(Shell parent)
 		{
 			this.parent = parent;
 		}
@@ -233,6 +242,64 @@ public class BZMenu
 			if(event.getSource() == okButton)
 			{
 				Main.bzStyledText.setLinesPerPage(spinner.getSelection());
+				Main.bzStyledText.redraw();
+			}
+			shell.dispose();
+		}
+	}
+
+	private class CharsPerLineHandler extends SelectionAdapter
+	{
+		private Shell parent;
+
+		CharsPerLineHandler(Shell parent)
+		{
+			this.parent = parent;
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e)
+		{
+			new CharsPerLineDialog(parent);
+		}
+	}
+
+	private class CharsPerLineDialog extends SelectionAdapter
+	{
+		private Shell shell;
+		private Button okButton, cancelButton;
+		private Spinner spinner;
+
+		public CharsPerLineDialog(Shell parent)
+		{
+			shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+			shell.setText("Characters Per Line");
+			shell.setLayout(new GridLayout(3, true));
+
+			spinner = new Spinner(shell, 0);
+			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+			spinner.setValues(Main.bzStyledText.getCharsPerLine(), 0, 27720, 0, 1, 10);
+
+			okButton = new Button(shell, SWT.PUSH);
+			okButton.setText("OK");
+			okButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+			okButton.addSelectionListener(this);
+
+			cancelButton = new Button(shell, SWT.PUSH);
+			cancelButton.setText("Cancel");
+			cancelButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+			cancelButton.addSelectionListener(this);
+
+			shell.pack();
+			shell.open();
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			if(event.getSource() == okButton)
+			{
+				Main.bzStyledText.setCharsPerLine(spinner.getSelection());
 				Main.bzStyledText.redraw();
 			}
 			shell.dispose();
