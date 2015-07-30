@@ -17,6 +17,10 @@ package org.aph.braillezephyr;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
@@ -40,6 +44,9 @@ public class BZStyledText
 	{
 		styledText = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
 		styledText.setLayoutData(new GridData(GridData.FILL_BOTH));
+		KeyHandler keyHandler = new KeyHandler();
+		styledText.addKeyListener(keyHandler);
+		styledText.addVerifyKeyListener(keyHandler);
 		styledText.addListener(SWT.Paint, new BZStyledTextPaintListener());
 
 		Font font = new Font(styledText.getDisplay(), "SimBraille", 15, SWT.NORMAL);
@@ -175,6 +182,113 @@ public class BZStyledText
 				trim = cnt;
 
 			styledText.append(new String(buffer, 0, trim));
+		}
+	}
+
+	private class KeyHandler implements KeyListener, VerifyKeyListener
+	{
+		char dotState = 0, dotChar = 0x2800;
+
+		@Override
+		public void keyPressed(KeyEvent event)
+		{
+			switch(event.character)
+			{
+			case 'f':
+
+				dotState |= 0x01;
+				dotChar |= 0x01;
+				break;
+
+			case 'd':
+
+				dotState |= 0x02;
+				dotChar |= 0x02;
+				break;
+
+			case 's':
+
+				dotState |= 0x04;
+				dotChar |= 0x04;
+				break;
+
+			case 'j':
+
+				dotState |= 0x08;
+				dotChar |= 0x08;
+				break;
+
+			case 'k':
+
+				dotState |= 0x10;
+				dotChar |= 0x10;
+				break;
+
+			case 'l':
+
+				dotState |= 0x20;
+				dotChar |= 0x20;
+				break;
+
+			}
+			//System.out.printf("pressed  %c %x\n", dotChar, (int)dotState);
+		}
+
+		@Override
+		public void keyReleased(KeyEvent event)
+		{
+			switch(event.character)
+			{
+			case 'f':
+
+				dotState &= ~0x01;
+				break;
+
+			case 'd':
+
+				dotState &= ~0x02;
+				break;
+
+			case 's':
+
+				dotState &= ~0x04;
+				break;
+
+			case 'j':
+
+				dotState &= ~0x08;
+				break;
+
+			case 'k':
+
+				dotState &= ~0x10;
+				break;
+
+			case 'l':
+
+				dotState &= ~0x20;
+				break;
+
+			}
+			//System.out.printf("released %c %x\n", dotChar, (int)dotState);
+
+			if(dotState == 0 && (dotChar & 0xff) != 0)
+			{
+				dotChar = asciiBraille.charAt((dotChar & 0xff));
+				styledText.insert(Character.toString(dotChar));
+				styledText.setCaretOffset(styledText.getCaretOffset() + 1);
+				dotChar = 0x2800;
+			}
+		}
+
+		private String asciiBraille = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
+
+		@Override
+		public void verifyKey(VerifyEvent event)
+		{
+			//System.out.println("verify " + event);
+			if(event.character > ' ' && event.character < 0x80)
+				event.doit = false;
 		}
 	}
 
