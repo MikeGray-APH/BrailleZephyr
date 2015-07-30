@@ -23,6 +23,7 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -34,6 +35,8 @@ import java.io.Writer;
 
 public class BZStyledText
 {
+	private final static char PARAGRAPH_END = 0xfeff;
+
 	private StyledText styledText;
 
 	private int linesPerPage = 25;
@@ -174,7 +177,7 @@ public class BZStyledText
 		}
 	}
 
-	public void write(Writer writer) throws IOException
+	public void writeBRF(Writer writer) throws IOException
 	{
 		writer.write(styledText.getLine(0));
 		for(int i = 1; i < styledText.getLineCount(); i++)
@@ -182,7 +185,11 @@ public class BZStyledText
 			writer.write(eol);
 			if(isFirstLineOnPage(i))
 				writer.write(0xc);
-			writer.write(styledText.getLine(i));
+			String line = styledText.getLine(i);
+			if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
+				writer.write(line.substring(0, line.length() - 1));
+			else
+				writer.write(line);
 		}
 		writer.flush();
 	}
@@ -288,6 +295,17 @@ public class BZStyledText
 		{
 			if(event.character > ' ' && event.character < 0x80)
 				event.doit = false;
+
+			//if((event.stateMask & SWT.SHIFT) != 0)
+			if(event.character == '\r' || event.character == '\n')
+			{
+				event.doit = false;
+				int caret = styledText.getCaretOffset();
+				int offset = styledText.getLineAtOffset(caret);
+				String line = styledText.getLine(offset);
+				if(line.length() > 0 && line.charAt(line.length() - 1) != PARAGRAPH_END)
+					styledText.replaceTextRange(styledText.getOffsetAtLine(offset), line.length(), line + Character.toString(PARAGRAPH_END));
+			}
 		}
 	}
 
@@ -297,6 +315,7 @@ public class BZStyledText
 		public void handleEvent(Event event)
 		{
 			event.gc.setForeground(pageSeparatorColor);
+			event.gc.setBackground(pageSeparatorColor);
 			int lineHeight = styledText.getLineHeight();
 			int drawHeight = styledText.getClientArea().height;
 			int drawWidth = styledText.getClientArea().width;
@@ -306,6 +325,15 @@ public class BZStyledText
 				at = styledText.getLinePixel(i);
 				if(isFirstLineOnPage(i))
 					event.gc.drawLine(0, at, drawWidth, at);
+
+				String line = styledText.getLine(i);
+				if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
+				{
+					Point point = event.gc.stringExtent(line);
+					int span = point.y / 2;
+					event.gc.fillOval(point.x + span / 2, at + span / 2, span, span);
+				}
+
 				if(at + lineHeight > drawHeight)
 					break;
 			}
