@@ -70,6 +70,11 @@ public class BZMenu
 		item.addSelectionListener(new FileOpenHandler());
 
 		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Save");
+		item.setAccelerator(SWT.CONTROL | 'S');
+		item.addSelectionListener(new FileSaveHandler());
+
+		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Save As");
 		item.setAccelerator(SWT.SHIFT | SWT.CONTROL | 'S');
 		item.addSelectionListener(new FileSaveAsHandler());
@@ -148,7 +153,47 @@ public class BZMenu
 			}
 			catch(FileNotFoundException e)
 			{
+				//TODO:  do something when this happens (everywhere)
 				e.printStackTrace();
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private class FileSaveHandler extends SelectionAdapter
+	{
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			if(fileName == null)
+			{
+				//   save as handler never uses event so just pass it this one
+				new FileSaveAsHandler().widgetSelected(event);
+				return;
+			}
+			try
+			{
+				OutputStreamWriter writer = null;
+				if(fileName.endsWith("brf"))
+				{
+					writer = new OutputStreamWriter(new FileOutputStream(fileName), Charset.forName("US-ASCII"));
+					Main.bzStyledText.writeBRF(writer);
+				}
+				else if(fileName.endsWith("bzy"))
+				{
+					writer = new OutputStreamWriter(new FileOutputStream(fileName));
+					Main.bzStyledText.writeBZY(writer);
+				}
+				else
+				{
+					writer = new OutputStreamWriter(new FileOutputStream(fileName));
+					Main.bzStyledText.writeBRF(writer);
+				}
+				writer.close();
+				shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			}
 			catch(IOException e)
 			{
