@@ -139,7 +139,10 @@ public class BZMenu
 			try
 			{
 				FileReader fileReader = new FileReader(fileName);
-				Main.bzStyledText.readBRF(fileReader);
+				if(fileName.endsWith("bzy"))
+					Main.bzStyledText.readBZY(fileReader);
+				else
+					Main.bzStyledText.readBRF(fileReader);
 				fileReader.close();
 				shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			}

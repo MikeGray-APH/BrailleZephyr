@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -196,6 +197,27 @@ public class BZStyledText
 				writer.write(line);
 		}
 		writer.flush();
+	}
+
+	public void readBZY(Reader reader) throws IOException
+	{
+		styledText.setText("");
+		eol = System.getProperty("line.separator");
+		BufferedReader buffer = new BufferedReader(reader);
+
+		//TODO:  verify file format
+		String line = buffer.readLine();
+		charsPerLine = Integer.parseInt(line.substring(17));
+		line = buffer.readLine();
+		linesPerPage = Integer.parseInt(line.substring(17));
+
+		while((line = buffer.readLine()) != null)
+		{
+			if(line.length() > 0 && line.charAt(line.length() - 1) == 0xb6)
+				styledText.append(line.substring(0, line.length() - 1) + PARAGRAPH_END + eol);
+			else
+				styledText.append(line + eol);
+		}
 	}
 
 	public void writeBZY(Writer writer) throws IOException
