@@ -34,8 +34,6 @@ import java.io.Writer;
 
 public class BZStyledText
 {
-	private final static char PAGE_START = 0xfeff;
-
 	private StyledText styledText;
 
 	private int linesPerPage = 25;
@@ -115,35 +113,15 @@ public class BZStyledText
 		return (index + 1) % linesPerPage == 0;
 	}
 
-	public void resetLinesPerPage(int linesPerPage)
-	{
-		this.linesPerPage = linesPerPage;
-		for(int i = 1; i < styledText.getLineCount(); i++)
-		{
-			String line = styledText.getLine(i);
-
-			if(line.length() > 0 && line.charAt(0) == PAGE_START)
-				styledText.replaceTextRange(styledText.getOffsetAtLine(i), line.length(), line.substring(1));
-
-			if(isFirstLineOnPage(i))
-				styledText.replaceTextRange(styledText.getOffsetAtLine(i), 0, Character.toString((char)PAGE_START));
-		}
-	}
-
 	public void getText(Writer writer) throws IOException
 	{
 		writer.write(styledText.getLine(0));
 		for(int i = 1; i < styledText.getLineCount(); i++)
 		{
 			writer.write(eol);
-			String line = styledText.getLine(i);
-			if(line.length() > 0 && line.charAt(0) == PAGE_START)
-			{
+			if(isFirstLineOnPage(i))
 				writer.write(0xc);
-				writer.write(line.substring(1));
-			}
-			else
-				writer.write(line);
+			writer.write(styledText.getLine(i));
 		}
 		writer.flush();
 	}
@@ -156,9 +134,9 @@ public class BZStyledText
 	public void setText(Reader reader) throws IOException
 	{
 		boolean checkLinesPerPage = true;
-		boolean changeFormFeed = true;
+		boolean removeFormFeed = true;
 		char buffer[] = new char[65536];
-		int cnt;
+		int cnt, trim;
 
 		styledText.setText("");
 		eol = null;
@@ -169,35 +147,43 @@ public class BZStyledText
 				checkLinesPerPage = false;
 				int lines = 0, i;
 				outer:for(i = 0; i < cnt; i++)
-				switch(buffer[i])
-				{
-				case '\r':
+					switch(buffer[i])
+					{
+					case '\r':
 
-					if(eol == null)
-						eol = new String("\r\n");
-					break;
+						if(eol == null)
+							eol = new String("\r\n");
+						break;
 
-				case '\n':  lines++;  break;
-				case 0xc:
+					case '\n':  lines++;  break;
+					case 0xc:
 
-					linesPerPage = lines;
-					break outer;
-				}
+						linesPerPage = lines;
+						break outer;
+					}
 
 				if(eol == null)
 					eol = new String("\n");
 				if(i == cnt)
-					changeFormFeed = false;
+					removeFormFeed = false;
 			}
 
-			if(changeFormFeed)
+			if(removeFormFeed)
 			{
+				trim = 0;
 				for(int i = 0; i < cnt; i++)
-				if(buffer[i] == 0xc)
-					buffer[i] = PAGE_START;
+				{
+					if(buffer[i] != 0xc)
+					{
+						buffer[trim] = buffer[i];
+						trim++;
+					}
+				}
 			}
+			else
+				trim = cnt;
 
-			styledText.append(new String(buffer, 0, cnt));
+			styledText.append(new String(buffer, 0, trim));
 		}
 	}
 
@@ -247,7 +233,6 @@ public class BZStyledText
 				break;
 
 			}
-			//System.out.printf("pressed  %c %x\n", dotChar, (int)dotState);
 		}
 
 		@Override
@@ -286,7 +271,6 @@ public class BZStyledText
 				break;
 
 			}
-			//System.out.printf("released %c %x\n", dotChar, (int)dotState);
 
 			if(dotState == 0 && (dotChar & 0xff) != 0)
 			{
@@ -302,7 +286,6 @@ public class BZStyledText
 		@Override
 		public void verifyKey(VerifyEvent event)
 		{
-			//System.out.println("verify " + event);
 			if(event.character > ' ' && event.character < 0x80)
 				event.doit = false;
 		}

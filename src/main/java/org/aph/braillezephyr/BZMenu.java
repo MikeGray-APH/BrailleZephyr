@@ -241,7 +241,7 @@ public class BZMenu
 		{
 			if(event.getSource() == okButton)
 			{
-				Main.bzStyledText.resetLinesPerPage(spinner.getSelection());
+				Main.bzStyledText.setLinesPerPage(spinner.getSelection());
 				Main.bzStyledText.redraw();
 			}
 			shell.dispose();
