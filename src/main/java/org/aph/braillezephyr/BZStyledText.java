@@ -123,17 +123,10 @@ public class BZStyledText
 			String line = styledText.getLine(i);
 
 			if(line.length() > 0 && line.charAt(0) == PARAGRAPH_END)
-			{
-				int offset = styledText.getOffsetAtLine(i);
-				int length = line.length();
-				String substring = line.substring(1);
 				styledText.replaceTextRange(styledText.getOffsetAtLine(i), line.length(), line.substring(1));
-			}
 
 			if(isFirstLineOnPage(i))
-			{
 				styledText.replaceTextRange(styledText.getOffsetAtLine(i), 0, Character.toString((char)PARAGRAPH_END));
-			}
 		}
 	}
 
