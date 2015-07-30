@@ -121,7 +121,7 @@ public class BZStyledText
 		return (index + 1) % linesPerPage == 0;
 	}
 
-	public void read(Reader reader) throws IOException
+	public void readBRF(Reader reader) throws IOException
 	{
 		boolean checkLinesPerPage = true;
 		boolean removeFormFeed = true;
@@ -179,18 +179,39 @@ public class BZStyledText
 
 	public void writeBRF(Writer writer) throws IOException
 	{
-		writer.write(styledText.getLine(0));
+		String line = styledText.getLine(0);
+		if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
+			writer.write(line.substring(0, line.length() - 1));
+		else
+			writer.write(line);
 		for(int i = 1; i < styledText.getLineCount(); i++)
 		{
 			writer.write(eol);
 			if(isFirstLineOnPage(i))
 				writer.write(0xc);
-			String line = styledText.getLine(i);
+			line = styledText.getLine(i);
 			if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
 				writer.write(line.substring(0, line.length() - 1));
 			else
 				writer.write(line);
 		}
+		writer.flush();
+	}
+
+	public void writeBZY(Writer writer) throws IOException
+	{
+		writer.write("Chars Per Line:  " + charsPerLine + eol);
+		writer.write("Lines Per Page:  " + linesPerPage + eol);
+
+		for(int i = 0; i < styledText.getLineCount(); i++)
+		{
+			String line = styledText.getLine(i);
+			if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
+				writer.write(line.substring(0, line.length() - 1) + (char)0xb6 + eol);
+			else
+				writer.write(line + eol);
+		}
+
 		writer.flush();
 	}
 

@@ -139,7 +139,7 @@ public class BZMenu
 			try
 			{
 				FileReader fileReader = new FileReader(fileName);
-				Main.bzStyledText.read(fileReader);
+				Main.bzStyledText.readBRF(fileReader);
 				fileReader.close();
 				shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			}
@@ -162,11 +162,8 @@ public class BZMenu
 			FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 			dialog.setFileName(fileName);
 			dialog.setFilterExtensions(new String[]{"*.brf", "*.bzy", "*.*"});
-			dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "All Files" });
-			if(fileName.endsWith("bzy"))
-				dialog.setFilterIndex(1);
-			else if(!fileName.endsWith("brf"))
-				dialog.setFilterIndex(2);
+			dialog.setFilterNames(new String[]{"Braille Ready Format File", "BrailleZephyr File", "All Files"});
+			dialog.setFilterIndex(2);
 			fileName = dialog.open();
 			if(fileName == null)
 				return;
@@ -175,12 +172,20 @@ public class BZMenu
 			{
 				OutputStreamWriter writer = null;
 				if(fileName.endsWith("brf"))
+				{
 					writer = new OutputStreamWriter(new FileOutputStream(fileName), Charset.forName("US-ASCII"));
+					Main.bzStyledText.writeBRF(writer);
+				}
 				else if(fileName.endsWith("bzy"))
-					writer = new OutputStreamWriter(new FileOutputStream(fileName), Charset.forName("UTF-8"));
-				else
+				{
 					writer = new OutputStreamWriter(new FileOutputStream(fileName));
-				Main.bzStyledText.writeBRF(writer);
+					Main.bzStyledText.writeBZY(writer);
+				}
+				else
+				{
+					writer = new OutputStreamWriter(new FileOutputStream(fileName));
+					Main.bzStyledText.writeBRF(writer);
+				}
 				writer.close();
 				shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			}
