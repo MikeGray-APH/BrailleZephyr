@@ -34,7 +34,7 @@ import java.io.Writer;
 
 public class BZStyledText
 {
-	private final static char PARAGRAPH_END = 0xfeff;
+	private final static char PAGE_START = 0xfeff;
 
 	private StyledText styledText;
 
@@ -122,11 +122,11 @@ public class BZStyledText
 		{
 			String line = styledText.getLine(i);
 
-			if(line.length() > 0 && line.charAt(0) == PARAGRAPH_END)
+			if(line.length() > 0 && line.charAt(0) == PAGE_START)
 				styledText.replaceTextRange(styledText.getOffsetAtLine(i), line.length(), line.substring(1));
 
 			if(isFirstLineOnPage(i))
-				styledText.replaceTextRange(styledText.getOffsetAtLine(i), 0, Character.toString((char)PARAGRAPH_END));
+				styledText.replaceTextRange(styledText.getOffsetAtLine(i), 0, Character.toString((char)PAGE_START));
 		}
 	}
 
@@ -137,7 +137,7 @@ public class BZStyledText
 		{
 			writer.write(eol);
 			String line = styledText.getLine(i);
-			if(line.length() > 0 && line.charAt(0) == PARAGRAPH_END)
+			if(line.length() > 0 && line.charAt(0) == PAGE_START)
 			{
 				writer.write(0xc);
 				writer.write(line.substring(1));
@@ -194,7 +194,7 @@ public class BZStyledText
 			{
 				for(int i = 0; i < cnt; i++)
 				if(buffer[i] == 0xc)
-					buffer[i] = PARAGRAPH_END;
+					buffer[i] = PAGE_START;
 			}
 
 			styledText.append(new String(buffer, 0, cnt));
