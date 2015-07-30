@@ -98,6 +98,11 @@ public class BZStyledText
 		styledText.setFont(font);
 	}
 
+	public void setText(String text)
+	{
+		styledText.setText(text);
+	}
+
 	public void redraw()
 	{
 		styledText.redraw();
@@ -113,25 +118,7 @@ public class BZStyledText
 		return (index + 1) % linesPerPage == 0;
 	}
 
-	public void getText(Writer writer) throws IOException
-	{
-		writer.write(styledText.getLine(0));
-		for(int i = 1; i < styledText.getLineCount(); i++)
-		{
-			writer.write(eol);
-			if(isFirstLineOnPage(i))
-				writer.write(0xc);
-			writer.write(styledText.getLine(i));
-		}
-		writer.flush();
-	}
-
-	public void setText(String text)
-	{
-		styledText.setText(text);
-	}
-
-	public void setText(Reader reader) throws IOException
+	public void read(Reader reader) throws IOException
 	{
 		boolean checkLinesPerPage = true;
 		boolean removeFormFeed = true;
@@ -185,6 +172,19 @@ public class BZStyledText
 
 			styledText.append(new String(buffer, 0, trim));
 		}
+	}
+
+	public void write(Writer writer) throws IOException
+	{
+		writer.write(styledText.getLine(0));
+		for(int i = 1; i < styledText.getLineCount(); i++)
+		{
+			writer.write(eol);
+			if(isFirstLineOnPage(i))
+				writer.write(0xc);
+			writer.write(styledText.getLine(i));
+		}
+		writer.flush();
 	}
 
 	private class KeyHandler implements KeyListener, VerifyKeyListener
