@@ -339,15 +339,17 @@ public class BZStyledText
 			if(event.character > ' ' && event.character < 0x80)
 				event.doit = false;
 
-			//if((event.stateMask & SWT.SHIFT) != 0)
 			if(event.character == '\r' || event.character == '\n')
 			{
 				event.doit = false;
 				int caret = styledText.getCaretOffset();
 				int offset = styledText.getLineAtOffset(caret);
 				String line = styledText.getLine(offset);
-				if(line.length() > 0 && line.charAt(line.length() - 1) != PARAGRAPH_END)
+				if(line.length() > 0)
+				if(line.charAt(line.length() - 1) != PARAGRAPH_END)
 					styledText.replaceTextRange(styledText.getOffsetAtLine(offset), line.length(), line + Character.toString(PARAGRAPH_END));
+				else
+					styledText.replaceTextRange(styledText.getOffsetAtLine(offset), line.length(), line.substring(0, line.length() - 1));
 			}
 		}
 	}
