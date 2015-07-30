@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
 import java.io.*;
+import java.nio.charset.Charset;
 
 public class BZMenu
 {
@@ -154,9 +155,10 @@ public class BZMenu
 
 			try
 			{
-				FileWriter fileWriter = new FileWriter(fileName);
-				Main.bzStyledText.getText(fileWriter);
-				fileWriter.close();
+				OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(fileName), Charset.forName("US-ASCII"));
+				Main.bzStyledText.getText(writer);
+				writer.close();
+				shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			}
 			catch(IOException e)
 			{
