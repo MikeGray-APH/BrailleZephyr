@@ -34,6 +34,8 @@ import java.io.Writer;
 
 public class BZStyledText
 {
+	private final static char PARAGRAPH_END = 0xfeff;
+
 	private StyledText styledText;
 
 	private int linesPerPage = 25;
@@ -113,15 +115,42 @@ public class BZStyledText
 		return (index + 1) % linesPerPage == 0;
 	}
 
+	public void resetLinesPerPage(int linesPerPage)
+	{
+		this.linesPerPage = linesPerPage;
+		for(int i = 1; i < styledText.getLineCount(); i++)
+		{
+			String line = styledText.getLine(i);
+
+			if(line.length() > 0 && line.charAt(0) == PARAGRAPH_END)
+			{
+				int offset = styledText.getOffsetAtLine(i);
+				int length = line.length();
+				String substring = line.substring(1);
+				styledText.replaceTextRange(styledText.getOffsetAtLine(i), line.length(), line.substring(1));
+			}
+
+			if(isFirstLineOnPage(i))
+			{
+				styledText.replaceTextRange(styledText.getOffsetAtLine(i), 0, Character.toString((char)PARAGRAPH_END));
+			}
+		}
+	}
+
 	public void getText(Writer writer) throws IOException
 	{
 		writer.write(styledText.getLine(0));
 		for(int i = 1; i < styledText.getLineCount(); i++)
 		{
 			writer.write(eol);
-			if(isFirstLineOnPage(i))
+			String line = styledText.getLine(i);
+			if(line.length() > 0 && line.charAt(0) == PARAGRAPH_END)
+			{
 				writer.write(0xc);
-			writer.write(styledText.getLine(i));
+				writer.write(line.substring(1));
+			}
+			else
+				writer.write(line);
 		}
 		writer.flush();
 	}
@@ -134,9 +163,9 @@ public class BZStyledText
 	public void setText(Reader reader) throws IOException
 	{
 		boolean checkLinesPerPage = true;
-		boolean removeFormFeed = true;
+		boolean changeFormFeed = true;
 		char buffer[] = new char[65536];
-		int cnt, trim;
+		int cnt;
 
 		styledText.setText("");
 		eol = null;
@@ -165,25 +194,17 @@ public class BZStyledText
 				if(eol == null)
 					eol = new String("\n");
 				if(i == cnt)
-					removeFormFeed = false;
+					changeFormFeed = false;
 			}
 
-			if(removeFormFeed)
+			if(changeFormFeed)
 			{
-				trim = 0;
 				for(int i = 0; i < cnt; i++)
-				{
-					if(buffer[i] != 0xc)
-					{
-						buffer[trim] = buffer[i];
-						trim++;
-					}
-				}
+				if(buffer[i] == 0xc)
+					buffer[i] = PARAGRAPH_END;
 			}
-			else
-				trim = cnt;
 
-			styledText.append(new String(buffer, 0, trim));
+			styledText.append(new String(buffer, 0, cnt));
 		}
 	}
 
