@@ -237,6 +237,62 @@ public class BZStyledText
 		writer.flush();
 	}
 
+	public void rewrapFromCaret()
+	{
+		for(int i = styledText.getLineAtOffset(styledText.getCaretOffset()); i < styledText.getLineCount(); i++)
+		{
+			String line = styledText.getLine(i);
+			if(line.length() == 0)
+				continue;
+
+			//   line too long
+			if(line.length() > charsPerLine)
+			{
+				int wordWrap = 0;
+				int wordEnd = 0;
+
+				//   find beginning of word being wrapped
+				if(line.charAt(charsPerLine - 1) != ' ')
+				{
+					for(wordWrap = charsPerLine - 1; wordWrap > charsPerLine / 2; wordWrap--)
+						if(line.charAt(wordWrap) == ' ')
+							break;
+					if(wordWrap == charsPerLine / 2)
+						continue;
+					wordWrap++;
+				}
+				else
+				{
+					for(wordWrap = charsPerLine - 1; wordWrap < line.length(); wordWrap++)
+						if(line.charAt(wordWrap) != ' ')
+							break;
+					if(wordWrap == line.length())
+						continue;
+				}
+
+				//   find end of word
+				for(wordEnd = wordWrap - 1; wordEnd > charsPerLine / 4; wordEnd--)
+					if(line.charAt(wordEnd) != ' ')
+						break;
+				if(wordEnd == charsPerLine / 4)
+					continue;
+				wordEnd++;
+
+				String next = styledText.getLine(i + 1);
+				StringBuilder builder = new StringBuilder();
+				builder.append(line.substring(0, wordEnd));
+				builder.append(eol);
+				builder.append(line.substring(wordWrap, line.length()));
+				builder.append(" ");
+				builder.append(next);
+
+				int offset = styledText.getOffsetAtLine(i);
+				int length = line.length() + eol.length() + next.length();
+				styledText.replaceTextRange(offset, length, builder.toString());
+			}
+		}
+	}
+
 	private class KeyHandler implements KeyListener, VerifyKeyListener
 	{
 		char dotState = 0, dotChar = 0x2800;
@@ -336,10 +392,7 @@ public class BZStyledText
 		@Override
 		public void verifyKey(VerifyEvent event)
 		{
-			if(event.character > ' ' && event.character < 0x7f)
-				event.doit = false;
-
-			if(event.character == '\r' || event.character == '\n')
+			if(event.keyCode == '\r' || event.keyCode == '\n')
 			if((event.stateMask & SWT.SHIFT) != 0)
 			{
 				event.doit = false;
@@ -350,7 +403,19 @@ public class BZStyledText
 					styledText.replaceTextRange(styledText.getOffsetAtLine(index), line.length(), line + Character.toString(PARAGRAPH_END));
 				else
 					styledText.replaceTextRange(styledText.getOffsetAtLine(index), line.length(), line.substring(0, line.length() - 1));
+				return;
 			}
+
+			if((event.stateMask & SWT.CONTROL) != 0)
+			if(event.keyCode == 'f')
+			{
+				event.doit = false;
+				rewrapFromCaret();
+				return;
+			}
+
+			if(event.character > ' ' && event.character < 0x7f)
+				event.doit = false;
 		}
 	}
 

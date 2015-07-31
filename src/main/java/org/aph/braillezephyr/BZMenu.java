@@ -134,22 +134,22 @@ public class BZMenu
 		public void widgetSelected(SelectionEvent event)
 		{
 			FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-			dialog.setFilterExtensions(new String[] { "*.brf", "*.bzy", "*.*" });
+			dialog.setFilterExtensions(new String[]{"*.brf", "*.bzy", "*.*"});
 			dialog.setFilterNames(new String[]{"Braille Ready Format File", "BrailleZephyr File", "All Files"});
 			dialog.setFilterIndex(2);
-			fileName = dialog.open();
-			if(fileName == null)
+			String _fileName = dialog.open();
+			if(_fileName == null)
 				return;
 
 			try
 			{
-				FileReader fileReader = new FileReader(fileName);
-				if(fileName.endsWith("bzy"))
+				FileReader fileReader = new FileReader(_fileName);
+				if(_fileName.endsWith("bzy"))
 					Main.bzStyledText.readBZY(fileReader);
 				else
 					Main.bzStyledText.readBRF(fileReader);
 				fileReader.close();
-				shell.setText(new File(fileName).getName() + " - BrailleZephyr");
+				shell.setText(new File(_fileName).getName() + " - BrailleZephyr");
 			}
 			catch(FileNotFoundException e)
 			{
@@ -159,6 +159,10 @@ public class BZMenu
 			catch(IOException e)
 			{
 				e.printStackTrace();
+			}
+			finally
+			{
+				fileName = _fileName;
 			}
 		}
 	}
@@ -170,7 +174,7 @@ public class BZMenu
 		{
 			if(fileName == null)
 			{
-				//   save as handler never uses event so just pass it this one
+				//   save as handler never uses event object so just pass it this one
 				new FileSaveAsHandler().widgetSelected(event);
 				return;
 			}
@@ -212,34 +216,38 @@ public class BZMenu
 			dialog.setFilterExtensions(new String[]{"*.brf", "*.bzy", "*.*"});
 			dialog.setFilterNames(new String[]{"Braille Ready Format File", "BrailleZephyr File", "All Files"});
 			dialog.setFilterIndex(2);
-			fileName = dialog.open();
-			if(fileName == null)
+			String _fileName = dialog.open();
+			if(_fileName == null)
 				return;
 
 			try
 			{
 				OutputStreamWriter writer = null;
-				if(fileName.endsWith("brf"))
+				if(_fileName.endsWith("brf"))
 				{
-					writer = new OutputStreamWriter(new FileOutputStream(fileName), Charset.forName("US-ASCII"));
+					writer = new OutputStreamWriter(new FileOutputStream(_fileName), Charset.forName("US-ASCII"));
 					Main.bzStyledText.writeBRF(writer);
 				}
-				else if(fileName.endsWith("bzy"))
+				else if(_fileName.endsWith("bzy"))
 				{
-					writer = new OutputStreamWriter(new FileOutputStream(fileName));
+					writer = new OutputStreamWriter(new FileOutputStream(_fileName));
 					Main.bzStyledText.writeBZY(writer);
 				}
 				else
 				{
-					writer = new OutputStreamWriter(new FileOutputStream(fileName));
+					writer = new OutputStreamWriter(new FileOutputStream(_fileName));
 					Main.bzStyledText.writeBRF(writer);
 				}
 				writer.close();
-				shell.setText(new File(fileName).getName() + " - BrailleZephyr");
+				shell.setText(new File(_fileName).getName() + " - BrailleZephyr");
 			}
 			catch(IOException e)
 			{
 				e.printStackTrace();
+			}
+			finally
+			{
+				fileName = _fileName;
 			}
 		}
 	}
