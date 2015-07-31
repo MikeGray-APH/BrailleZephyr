@@ -20,13 +20,13 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import java.io.BufferedReader;
@@ -53,7 +53,7 @@ public class BZStyledText
 		KeyHandler keyHandler = new KeyHandler();
 		styledText.addKeyListener(keyHandler);
 		styledText.addVerifyKeyListener(keyHandler);
-		styledText.addListener(SWT.Paint, new BZStyledTextPaintListener());
+		styledText.addPaintListener(new PaintHandler());
 
 		Font font = new Font(styledText.getDisplay(), "SimBraille", 15, SWT.NORMAL);
 		if(font != null)
@@ -421,10 +421,10 @@ public class BZStyledText
 		}
 	}
 
-	private class BZStyledTextPaintListener implements Listener
+	private class PaintHandler implements PaintListener
 	{
 		@Override
-		public void handleEvent(Event event)
+		public void paintControl(PaintEvent event)
 		{
 			event.gc.setForeground(pageSeparatorColor);
 			event.gc.setBackground(pageSeparatorColor);
