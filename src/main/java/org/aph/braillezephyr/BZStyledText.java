@@ -38,13 +38,13 @@ public class BZStyledText
 {
 	private final static char PARAGRAPH_END = 0xfeff;
 
-	private StyledText styledText;
+	private final StyledText styledText;
 
 	private int linesPerPage = 25;
 	private int charsPerLine = 40;
-	String eol = System.getProperty("line.separator");
+	private String eol = System.getProperty("line.separator");
 
-	private Color pageSeparatorColor;
+	private final Color color;
 
 	public BZStyledText(Shell shell)
 	{
@@ -56,10 +56,9 @@ public class BZStyledText
 		styledText.addPaintListener(new PaintHandler());
 
 		Font font = new Font(styledText.getDisplay(), "SimBraille", 15, SWT.NORMAL);
-		if(font != null)
-			styledText.setFont(font);
+		styledText.setFont(font);
 
-		pageSeparatorColor = styledText.getDisplay().getSystemColor(SWT.COLOR_BLACK);
+		color = styledText.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 	}
 
 	public int getLinesPerPage()
@@ -82,16 +81,6 @@ public class BZStyledText
 		this.charsPerLine = charsPerLine;
 	}
 
-	public Color getPageSeparatorColor()
-	{
-		return pageSeparatorColor;
-	}
-
-	public void setPageSeparatorColor(Color pageSeparatorColor)
-	{
-		this.pageSeparatorColor = pageSeparatorColor;
-	}
-
 	public Font getFont()
 	{
 		return styledText.getFont();
@@ -102,6 +91,7 @@ public class BZStyledText
 		styledText.setFont(font);
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	public void setText(String text)
 	{
 		styledText.setText(text);
@@ -115,11 +105,6 @@ public class BZStyledText
 	private boolean isFirstLineOnPage(int index)
 	{
 		return index % linesPerPage == 0;
-	}
-
-	private boolean isLastLineOnPage(int index)
-	{
-		return (index + 1) % linesPerPage == 0;
 	}
 
 	public void readBRF(Reader reader) throws IOException
@@ -143,7 +128,7 @@ public class BZStyledText
 					case '\r':
 
 						if(eol == null)
-							eol = new String("\r\n");
+							eol = "\r\n";
 						break;
 
 					case '\n':  lines++;  break;
@@ -154,7 +139,7 @@ public class BZStyledText
 					}
 
 				if(eol == null)
-					eol = new String("\n");
+					eol = "\n";
 				if(i == cnt)
 					removeFormFeed = false;
 			}
@@ -237,6 +222,7 @@ public class BZStyledText
 		writer.flush();
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public void rewrapFromCaret()
 	{
 		for(int i = styledText.getLineAtOffset(styledText.getCaretOffset()); i < styledText.getLineCount(); i++)
@@ -248,8 +234,7 @@ public class BZStyledText
 			//   line too long
 			if(line.length() > charsPerLine)
 			{
-				int wordWrap = 0;
-				int wordEnd = 0;
+				int wordWrap, wordEnd;
 
 				//   find beginning of word being wrapped
 				if(line.charAt(charsPerLine) != ' ')
@@ -280,12 +265,13 @@ public class BZStyledText
 
 				//   build replacement text
 				int length = line.length();
-				StringBuilder builder = new StringBuilder(line.substring(0, wordEnd) + eol + line.substring(wordWrap,  length));
+				StringBuilder builder = new StringBuilder();
+				builder.append(line.substring(0, wordEnd)).append(eol).append(line.substring(wordWrap, length));
 				if(length > 0 && line.charAt(length - 1) != PARAGRAPH_END)
 				if(i < styledText.getLineCount() - 1)
 				{
 					String next = styledText.getLine(i + 1);
-					builder.append(" " + next);
+					builder.append(" ").append(next);
 					length += eol.length() + next.length();
 				}
 
@@ -390,7 +376,7 @@ public class BZStyledText
 			}
 		}
 
-		private String asciiBraille = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
+		private final String asciiBraille = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
 
 		@Override
 		public void verifyKey(VerifyEvent event)
@@ -427,8 +413,8 @@ public class BZStyledText
 		@Override
 		public void paintControl(PaintEvent event)
 		{
-			event.gc.setForeground(pageSeparatorColor);
-			event.gc.setBackground(pageSeparatorColor);
+			event.gc.setForeground(color);
+			event.gc.setBackground(color);
 			int lineHeight = styledText.getLineHeight();
 			int drawHeight = styledText.getClientArea().height;
 			int drawWidth = styledText.getClientArea().width;
@@ -436,7 +422,7 @@ public class BZStyledText
 
 			event.gc.drawLine(rightMargin, 0, rightMargin, drawHeight);
 
-			int at = 0;
+			int at;
 			for(int i = styledText.getTopIndex(); i < styledText.getLineCount(); i++)
 			{
 				at = styledText.getLinePixel(i);

@@ -31,7 +31,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -40,15 +39,14 @@ import java.nio.charset.Charset;
 
 public class BZMenu
 {
-	private Menu menuBar;
-	private Shell shell;
+	private final Shell shell;
 	private String fileName;
 
 	BZMenu(Shell shell)
 	{
 		this.shell = shell;
 
-		menuBar = new Menu(shell, SWT.BAR);
+		Menu menuBar = new Menu(shell, SWT.BAR);
 		shell.setMenuBar(menuBar);
 
 		Menu menu;
@@ -130,6 +128,7 @@ public class BZMenu
 
 	private class FileOpenHandler extends SelectionAdapter
 	{
+		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
@@ -151,13 +150,9 @@ public class BZMenu
 				fileReader.close();
 				shell.setText(new File(_fileName).getName() + " - BrailleZephyr");
 			}
-			catch(FileNotFoundException e)
-			{
-				//TODO:  do something when this happens (everywhere)
-				e.printStackTrace();
-			}
 			catch(IOException e)
 			{
+				//TODO:  do something when this happens (everywhere)
 				e.printStackTrace();
 			}
 			finally
@@ -169,6 +164,7 @@ public class BZMenu
 
 	private class FileSaveHandler extends SelectionAdapter
 	{
+		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
@@ -180,7 +176,7 @@ public class BZMenu
 			}
 			try
 			{
-				OutputStreamWriter writer = null;
+				OutputStreamWriter writer;
 				if(fileName.endsWith("brf"))
 				{
 					writer = new OutputStreamWriter(new FileOutputStream(fileName), Charset.forName("US-ASCII"));
@@ -208,6 +204,7 @@ public class BZMenu
 
 	private class FileSaveAsHandler extends SelectionAdapter
 	{
+		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
@@ -222,7 +219,7 @@ public class BZMenu
 
 			try
 			{
-				OutputStreamWriter writer = null;
+				OutputStreamWriter writer;
 				if(_fileName.endsWith("brf"))
 				{
 					writer = new OutputStreamWriter(new FileOutputStream(_fileName), Charset.forName("US-ASCII"));
@@ -266,11 +263,11 @@ public class BZMenu
 		}
 	}
 
-	private class LinesPerPageHandler extends SelectionAdapter
+	private static class LinesPerPageHandler extends SelectionAdapter
 	{
-		private Shell parent;
+		private final Shell parent;
 
-		LinesPerPageHandler(Shell parent)
+		private LinesPerPageHandler(Shell parent)
 		{
 			this.parent = parent;
 		}
@@ -282,11 +279,12 @@ public class BZMenu
 		}
 	}
 
-	private class LinesPerPageDialog extends SelectionAdapter
+	private static class LinesPerPageDialog extends SelectionAdapter
 	{
-		private Shell shell;
-		private Button okButton, cancelButton;
-		private Spinner spinner;
+		private final Shell shell;
+		private final Button okButton;
+		private final Button cancelButton;
+		private final Spinner spinner;
 
 		public LinesPerPageDialog(Shell parent)
 		{
@@ -324,11 +322,11 @@ public class BZMenu
 		}
 	}
 
-	private class CharsPerLineHandler extends SelectionAdapter
+	private static class CharsPerLineHandler extends SelectionAdapter
 	{
-		private Shell parent;
+		private final Shell parent;
 
-		CharsPerLineHandler(Shell parent)
+		private CharsPerLineHandler(Shell parent)
 		{
 			this.parent = parent;
 		}
@@ -340,11 +338,12 @@ public class BZMenu
 		}
 	}
 
-	private class CharsPerLineDialog extends SelectionAdapter
+	private static class CharsPerLineDialog extends SelectionAdapter
 	{
-		private Shell shell;
-		private Button okButton, cancelButton;
-		private Spinner spinner;
+		private final Shell shell;
+		private final Button okButton;
+		private final Button cancelButton;
+		private final Spinner spinner;
 
 		public CharsPerLineDialog(Shell parent)
 		{
