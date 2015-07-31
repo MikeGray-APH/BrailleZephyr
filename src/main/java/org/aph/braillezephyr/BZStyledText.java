@@ -278,18 +278,21 @@ public class BZStyledText
 					continue;
 				wordEnd++;
 
-				String next = styledText.getLine(i + 1);
-				StringBuilder builder = new StringBuilder();
-				builder.append(line.substring(0, wordEnd));
-				builder.append(eol);
-				builder.append(line.substring(wordWrap, line.length()));
-				builder.append(" ");
-				builder.append(next);
-
-				int offset = styledText.getOffsetAtLine(i);
-				int length = line.length() + eol.length() + next.length();
-				styledText.replaceTextRange(offset, length, builder.toString());
+				StringBuilder builder = new StringBuilder(line.substring(0, wordEnd));
+				int length = line.length();
+				if(i < styledText.getLineCount() - 1)
+				{
+					String next = styledText.getLine(i + 1);
+					builder.append(eol);
+					builder.append(line.substring(wordWrap, line.length()));
+					builder.append(" ");
+					builder.append(next);
+					length += eol.length() + next.length();
+				}
+				styledText.replaceTextRange(styledText.getOffsetAtLine(i), length, builder.toString());
 			}
+			else if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
+				break;
 		}
 	}
 
