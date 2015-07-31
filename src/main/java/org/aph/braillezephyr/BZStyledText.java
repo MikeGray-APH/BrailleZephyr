@@ -431,6 +431,10 @@ public class BZStyledText
 			int lineHeight = styledText.getLineHeight();
 			int drawHeight = styledText.getClientArea().height;
 			int drawWidth = styledText.getClientArea().width;
+			int rightMargin = event.gc.stringExtent(" ").x * charsPerLine;
+
+			event.gc.drawLine(rightMargin, 0, rightMargin, drawHeight);
+
 			int at = 0;
 			for(int i = styledText.getTopIndex(); i < styledText.getLineCount(); i++)
 			{
