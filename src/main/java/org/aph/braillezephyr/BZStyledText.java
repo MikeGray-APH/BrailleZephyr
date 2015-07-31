@@ -336,20 +336,20 @@ public class BZStyledText
 		@Override
 		public void verifyKey(VerifyEvent event)
 		{
-			if(event.character > ' ' && event.character < 0x80)
+			if(event.character > ' ' && event.character < 0x7f)
 				event.doit = false;
 
 			if(event.character == '\r' || event.character == '\n')
+			if((event.stateMask & SWT.SHIFT) != 0)
 			{
 				event.doit = false;
-				int caret = styledText.getCaretOffset();
-				int offset = styledText.getLineAtOffset(caret);
-				String line = styledText.getLine(offset);
+				int index = styledText.getLineAtOffset(styledText.getCaretOffset());
+				String line = styledText.getLine(index);
 				if(line.length() > 0)
 				if(line.charAt(line.length() - 1) != PARAGRAPH_END)
-					styledText.replaceTextRange(styledText.getOffsetAtLine(offset), line.length(), line + Character.toString(PARAGRAPH_END));
+					styledText.replaceTextRange(styledText.getOffsetAtLine(index), line.length(), line + Character.toString(PARAGRAPH_END));
 				else
-					styledText.replaceTextRange(styledText.getOffsetAtLine(offset), line.length(), line.substring(0, line.length() - 1));
+					styledText.replaceTextRange(styledText.getOffsetAtLine(index), line.length(), line.substring(0, line.length() - 1));
 			}
 		}
 	}
