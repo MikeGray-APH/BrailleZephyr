@@ -252,9 +252,9 @@ public class BZStyledText
 				int wordEnd = 0;
 
 				//   find beginning of word being wrapped
-				if(line.charAt(charsPerLine - 1) != ' ')
+				if(line.charAt(charsPerLine) != ' ')
 				{
-					for(wordWrap = charsPerLine - 1; wordWrap > charsPerLine / 2; wordWrap--)
+					for(wordWrap = charsPerLine; wordWrap > charsPerLine / 2; wordWrap--)
 						if(line.charAt(wordWrap) == ' ')
 							break;
 					if(wordWrap == charsPerLine / 2)
@@ -263,14 +263,14 @@ public class BZStyledText
 				}
 				else
 				{
-					for(wordWrap = charsPerLine - 1; wordWrap < line.length(); wordWrap++)
+					for(wordWrap = charsPerLine; wordWrap < line.length(); wordWrap++)
 						if(line.charAt(wordWrap) != ' ')
 							break;
 					if(wordWrap == line.length())
 						continue;
 				}
 
-				//   find end of word
+				//   find end of word before word being wrapped
 				for(wordEnd = wordWrap - 1; wordEnd > charsPerLine / 4; wordEnd--)
 					if(line.charAt(wordEnd) != ' ')
 						break;
@@ -278,6 +278,7 @@ public class BZStyledText
 					continue;
 				wordEnd++;
 
+				//   build replacement text
 				int length = line.length();
 				StringBuilder builder = new StringBuilder(line.substring(0, wordEnd) + eol + line.substring(wordWrap,  length));
 				if(length > 0 && line.charAt(length - 1) != PARAGRAPH_END)
