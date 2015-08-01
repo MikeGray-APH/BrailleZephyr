@@ -107,6 +107,10 @@ public class BZMenu
 		item.setText("Chars Per Line");
 		item.addSelectionListener(new CharsPerLineHandler(shell));
 
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Rewrap From Cursor");
+		item.addSelectionListener(new RewrapFromCursorHandler());
+
 		//   help menu
 		menu = new Menu(menuBar);
 		item = new MenuItem(menuBar, SWT.CASCADE);
@@ -123,7 +127,6 @@ public class BZMenu
 			fileName = null;
 			shell.setText("BrailleZephyr");
 		}
-
 	}
 
 	private class FileOpenHandler extends SelectionAdapter
@@ -378,6 +381,15 @@ public class BZMenu
 				Main.bzStyledText.redraw();
 			}
 			shell.dispose();
+		}
+	}
+
+	private class RewrapFromCursorHandler extends SelectionAdapter
+	{
+		@Override
+		public void widgetSelected(SelectionEvent e)
+		{
+			Main.bzStyledText.rewrapFromCaret();
 		}
 	}
 }
