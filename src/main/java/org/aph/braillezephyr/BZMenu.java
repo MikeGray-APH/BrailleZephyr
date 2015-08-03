@@ -59,22 +59,22 @@ public class BZMenu
 		item.setMenu(menu);
 
 		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("New");
+		item.setText("&New");
 		item.addSelectionListener(new FileNewHandler());
 
 		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Open");
-		item.setAccelerator(SWT.CONTROL | 'O');
+		item.setText("&Open\tCtrl+O");
+		item.setAccelerator(SWT.CONTROL | 'o');
 		item.addSelectionListener(new FileOpenHandler());
 
 		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Save");
-		item.setAccelerator(SWT.CONTROL | 'S');
+		item.setText("&Save\tCtrl+S");
+		item.setAccelerator(SWT.CONTROL | 's');
 		item.addSelectionListener(new FileSaveHandler());
 
 		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Save As");
-		item.setAccelerator(SWT.SHIFT | SWT.CONTROL | 'S');
+		item.setText("Save As\tCtrl+Shift+O");
+		item.setAccelerator(SWT.CONTROL | SWT.SHIFT | 's');
 		item.addSelectionListener(new FileSaveAsHandler());
 
 		//   edit menu
@@ -108,7 +108,8 @@ public class BZMenu
 		item.addSelectionListener(new CharsPerLineHandler(shell));
 
 		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Rewrap From Cursor");
+		item.setText("Rewrap From Cursor\tCtrl+F");
+		item.setAccelerator(SWT.CONTROL | 'F');
 		item.addSelectionListener(new RewrapFromCursorHandler());
 
 		//   help menu

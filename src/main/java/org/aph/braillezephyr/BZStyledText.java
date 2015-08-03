@@ -395,14 +395,6 @@ public class BZStyledText
 				return;
 			}
 
-			if((event.stateMask & SWT.CONTROL) != 0)
-			if(event.keyCode == 'f')
-			{
-				event.doit = false;
-				rewrapFromCaret();
-				return;
-			}
-
 			if(event.character > ' ' && event.character < 0x7f)
 				event.doit = false;
 		}
