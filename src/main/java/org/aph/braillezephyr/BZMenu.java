@@ -64,17 +64,17 @@ public class BZMenu
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("&Open\tCtrl+O");
-		item.setAccelerator(SWT.CONTROL | 'o');
+		item.setAccelerator(SWT.MOD1 | 'o');
 		item.addSelectionListener(new FileOpenHandler());
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("&Save\tCtrl+S");
-		item.setAccelerator(SWT.CONTROL | 's');
+		item.setAccelerator(SWT.MOD1 | 's');
 		item.addSelectionListener(new FileSaveHandler());
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Save As\tCtrl+Shift+O");
-		item.setAccelerator(SWT.CONTROL | SWT.SHIFT | 's');
+		item.setAccelerator(SWT.MOD1 | SWT.MOD2 | 's');
 		item.addSelectionListener(new FileSaveAsHandler());
 
 		//   edit menu
@@ -113,7 +113,7 @@ public class BZMenu
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Rewrap From Cursor\tCtrl+F");
-		item.setAccelerator(SWT.CONTROL | 'F');
+		item.setAccelerator(SWT.MOD1 | 'F');
 		item.addSelectionListener(new RewrapFromCursorHandler());
 
 		//   help menu
@@ -216,7 +216,7 @@ public class BZMenu
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+			FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 			dialog.setFileName(fileName);
 			dialog.setFilterExtensions(new String[]{"*.brf", "*.bzy", "*.*"});
 			dialog.setFilterNames(new String[]{"Braille Ready Format File", "BrailleZephyr File", "All Files"});
