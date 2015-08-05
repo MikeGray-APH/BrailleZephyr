@@ -90,8 +90,12 @@ public class BZMenu
 		item.setMenu(menu);
 
 		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Font");
-		item.addSelectionListener(new ViewFontHandler());
+		item.setText("Braille Font");
+		item.addSelectionListener(new ViewBrailleFontHandler());
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("ASCII Font");
+		item.addSelectionListener(new ViewAsciiFontHandler());
 
 		//   format menu
 		menu = new Menu(menuBar);
@@ -253,17 +257,31 @@ public class BZMenu
 		}
 	}
 
-	private class ViewFontHandler extends SelectionAdapter
+	private class ViewBrailleFontHandler extends SelectionAdapter
 	{
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
 			FontDialog dialog = new FontDialog(shell, SWT.OPEN);
-			dialog.setFontList(Main.bzStyledText.getFont().getFontData());
+			dialog.setFontList(Main.bzStyledText.getBrailleFont().getFontData());
 			FontData fontData = dialog.open();
 			if(fontData == null)
 				return;
-			Main.bzStyledText.setFont(new Font(shell.getDisplay(), fontData));
+			Main.bzStyledText.setBrailleFont(new Font(shell.getDisplay(), fontData));
+		}
+	}
+
+	private class ViewAsciiFontHandler extends SelectionAdapter
+	{
+		@Override
+		public void widgetSelected(SelectionEvent e)
+		{
+			FontDialog dialog = new FontDialog(shell, SWT.OPEN);
+			dialog.setFontList(Main.bzStyledText.getAsciiFont().getFontData());
+			FontData fontData = dialog.open();
+			if(fontData == null)
+				return;
+			Main.bzStyledText.setAsciiFont(new Font(shell.getDisplay(), fontData));
 		}
 	}
 
