@@ -16,6 +16,8 @@
 package org.aph.braillezephyr;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CaretEvent;
+import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.StyledTextContent;
 import org.eclipse.swt.custom.VerifyKeyListener;
@@ -56,25 +58,28 @@ public class BZStyledText
 	{
 		color = shell.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 
-		brailleText = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
+		brailleText = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		brailleText.setLayoutData(new GridData(GridData.FILL_BOTH));
 		brailleText.setFont(new Font(shell.getDisplay(), "SimBraille", 15, SWT.NORMAL));
 
 		brailleText.addFocusListener(new FocusHandler(brailleText));
-		brailleText.addPaintListener(new PaintHandler(brailleText));
+		brailleText.addCaretListener(new CaretHandler(brailleText));
 		BrailleKeyHandler brailleKeyHandler = new BrailleKeyHandler();
 		brailleText.addKeyListener(brailleKeyHandler);
 		brailleText.addVerifyKeyListener(brailleKeyHandler);
 
 		content = brailleText.getContent();
 
-		asciiText = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
+		asciiText = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		asciiText.setContent(content);
 		asciiText.setLayoutData(new GridData(GridData.FILL_BOTH));
 		asciiText.setFont(new Font(shell.getDisplay(), "Courier", 15, SWT.NORMAL));
 
 		asciiText.addFocusListener(new FocusHandler(asciiText));
-		asciiText.addPaintListener(new PaintHandler(asciiText));
+		asciiText.addCaretListener(new CaretHandler(asciiText));
+
+		brailleText.addPaintListener(new PaintHandler(brailleText, asciiText));
+		asciiText.addPaintListener(new PaintHandler(asciiText, brailleText));
 
 		currentText = brailleText;
 	}
@@ -144,7 +149,6 @@ public class BZStyledText
 		char buffer[] = new char[65536];
 		int cnt, trim;
 
-		content.setText("");
 		eol = null;
 		while((cnt = reader.read(buffer)) > 0)
 		{
@@ -189,7 +193,7 @@ public class BZStyledText
 			else
 				trim = cnt;
 
-			currentText.append(new String(buffer, 0, trim));
+			content.setText(new String(buffer, 0, trim));
 		}
 	}
 
@@ -229,9 +233,9 @@ public class BZStyledText
 		while((line = buffer.readLine()) != null)
 		{
 			if(line.length() > 0 && line.charAt(line.length() - 1) == 0xb6)
-				currentText.append(line.substring(0, line.length() - 1) + PARAGRAPH_END + eol);
+				content.replaceTextRange(content.getCharCount(), 0, line.substring(0, line.length() - 1) + PARAGRAPH_END + eol);
 			else
-				currentText.append(line + eol);
+				content.replaceTextRange(content.getCharCount(), 0, line + eol);
 		}
 	}
 
@@ -331,13 +335,31 @@ public class BZStyledText
 		public void focusLost(FocusEvent event){}
 	}
 
-	private class PaintHandler implements PaintListener
+	private class CaretHandler implements CaretListener
 	{
 		private StyledText styledText;
 
-		PaintHandler(StyledText styledText)
+		CaretHandler(StyledText styledText)
 		{
 			this.styledText = styledText;
+		}
+
+		@Override
+		public void caretMoved(CaretEvent event)
+		{
+			if(styledText == currentText)
+				styledText.redraw();
+		}
+	}
+
+	private class PaintHandler implements PaintListener
+	{
+		private StyledText source, other;
+
+		PaintHandler(StyledText source, StyledText other)
+		{
+			this.source = source;
+			this.other = other;
 		}
 
 		@Override
@@ -345,21 +367,21 @@ public class BZStyledText
 		{
 			event.gc.setForeground(color);
 			event.gc.setBackground(color);
-			int lineHeight = styledText.getLineHeight();
-			int drawHeight = styledText.getClientArea().height;
-			int drawWidth = styledText.getClientArea().width;
+			int lineHeight = source.getLineHeight();
+			int drawHeight = source.getClientArea().height;
+			int drawWidth = source.getClientArea().width;
 			int rightMargin = event.gc.getFontMetrics().getAverageCharWidth() * charsPerLine;
 
 			event.gc.drawLine(rightMargin, 0, rightMargin, drawHeight);
 
 			int at;
-			for(int i = styledText.getTopIndex(); i < styledText.getLineCount(); i++)
+			for(int i = source.getTopIndex(); i < source.getLineCount(); i++)
 			{
-				at = styledText.getLinePixel(i);
+				at = source.getLinePixel(i);
 				if(isFirstLineOnPage(i))
 					event.gc.drawLine(0, at, drawWidth, at);
 
-				String line = styledText.getLine(i);
+				String line = source.getLine(i);
 				if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
 				{
 					Point point = event.gc.stringExtent(line);
@@ -370,6 +392,14 @@ public class BZStyledText
 				if(at + lineHeight > drawHeight)
 					break;
 			}
+
+			if(source != currentText)
+				return;
+			int lineOffset = source.getLineAtOffset(source.getCaretOffset());
+			int srcLinePixel = source.getLinePixel(lineOffset);
+			int othLineHeight = other.getLineHeight();
+			int othLineRealPixel = lineOffset * othLineHeight;
+			other.setTopPixel(othLineRealPixel - srcLinePixel);
 		}
 	}
 

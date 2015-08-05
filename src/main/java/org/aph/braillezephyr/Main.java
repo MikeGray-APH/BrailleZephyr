@@ -32,9 +32,9 @@ public class Main
 	{
 		Display display = new Display();
 		Shell shell = new Shell(display);
-		shell.setLayout(new GridLayout());
+		shell.setLayout(new GridLayout(2, true));
 		shell.setText("BrailleZephyr");
-		shell.setSize(640, 640);
+		shell.setSize(1000, 600);
 
 		new BZMenu(shell);
 		bzStyledText = new BZStyledText(shell);
