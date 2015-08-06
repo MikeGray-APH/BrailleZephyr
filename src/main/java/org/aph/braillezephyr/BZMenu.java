@@ -89,6 +89,8 @@ public class BZMenu
 		item.setText("&View");
 		item.setMenu(menu);
 
+		new ViewVisibleHandler(menu);
+
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Braille Font");
 		item.addSelectionListener(new ViewBrailleFontHandler());
@@ -253,6 +255,64 @@ public class BZMenu
 			finally
 			{
 				fileName = _fileName;
+			}
+		}
+	}
+
+	private class ViewVisibleHandler extends SelectionAdapter
+	{
+		private MenuItem braille;
+		private MenuItem ascii;
+
+		private ViewVisibleHandler(Menu menu)
+		{
+			braille = new MenuItem(menu, SWT.PUSH);
+			braille.setText("Hide Braille");
+			braille.addSelectionListener(this);
+
+			ascii = new MenuItem(menu, SWT.PUSH);
+			ascii.setText("Hide ASCII");
+			ascii.addSelectionListener(this);
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			if(event.widget == braille)
+			{
+				if(Main.bzStyledText.getBrailleVisible())
+				{
+					Main.bzStyledText.setBrailleVisible(false);
+					braille.setText("Show Braille");
+//					if(!Main.bzStyledText.getAsciiVisible())
+//					{
+//						Main.bzStyledText.setAsciiVisible(true);
+//						ascii.setText("Hide ASCII");
+//					}
+				}
+				else
+				{
+					Main.bzStyledText.setBrailleVisible(true);
+					braille.setText("Hide Braille");
+				}
+			}
+			else
+			{
+				if(Main.bzStyledText.getAsciiVisible())
+				{
+					Main.bzStyledText.setAsciiVisible(false);
+					ascii.setText("Show ASCII");
+//					if(!Main.bzStyledText.getBrailleVisible())
+//					{
+//						Main.bzStyledText.setBrailleVisible(true);
+//						braille.setText("Hide Braille");
+//					}
+				}
+				else
+				{
+					Main.bzStyledText.setAsciiVisible(true);
+					ascii.setText("Hide ASCII");
+				}
 			}
 		}
 	}

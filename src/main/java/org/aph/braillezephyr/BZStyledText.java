@@ -32,6 +32,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
 import java.io.BufferedReader;
@@ -45,6 +47,7 @@ public class BZStyledText
 
 	private final StyledTextContent content;
 	private final StyledText brailleText, asciiText;
+	private final Composite composite;
 
 	private StyledText currentText;
 
@@ -58,7 +61,10 @@ public class BZStyledText
 	{
 		color = shell.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 
-		brailleText = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		composite = new Composite(shell, 0);
+		composite.setLayout(new GridLayout(2, true));
+
+		brailleText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		brailleText.setLayoutData(new GridData(GridData.FILL_BOTH));
 		brailleText.setFont(new Font(shell.getDisplay(), "SimBraille", 15, SWT.NORMAL));
 
@@ -70,7 +76,7 @@ public class BZStyledText
 
 		content = brailleText.getContent();
 
-		asciiText = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		asciiText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		asciiText.setContent(content);
 		asciiText.setLayoutData(new GridData(GridData.FILL_BOTH));
 		asciiText.setFont(new Font(shell.getDisplay(), "Courier", 15, SWT.NORMAL));
@@ -102,6 +108,33 @@ public class BZStyledText
 	public void setCharsPerLine(int charsPerLine)
 	{
 		this.charsPerLine = charsPerLine;
+	}
+
+	public boolean getBrailleVisible()
+	{
+		return brailleText.getVisible();
+	}
+
+	public void setBrailleVisible(boolean visible)
+	{
+		((GridData)brailleText.getLayoutData()).exclude = !visible;
+		brailleText.setVisible(visible);
+		((GridLayout)composite.getLayout()).makeColumnsEqualWidth = visible && asciiText.getVisible();
+		composite.layout();
+
+	}
+
+	public boolean getAsciiVisible()
+	{
+		return asciiText.getVisible();
+	}
+
+	public void setAsciiVisible(boolean visible)
+	{
+		((GridData)asciiText.getLayoutData()).exclude = !visible;
+		asciiText.setVisible(visible);
+		((GridLayout)composite.getLayout()).makeColumnsEqualWidth = visible && brailleText.getVisible();
+		composite.layout();
 	}
 
 	public Font getBrailleFont()

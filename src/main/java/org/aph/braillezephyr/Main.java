@@ -15,7 +15,7 @@
 
 package org.aph.braillezephyr;
 
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -32,7 +32,7 @@ public class Main
 	{
 		Display display = new Display();
 		Shell shell = new Shell(display);
-		shell.setLayout(new GridLayout(2, true));
+		shell.setLayout(new FillLayout());
 		shell.setText("BrailleZephyr");
 		shell.setSize(1000, 600);
 
