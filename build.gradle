@@ -4,8 +4,24 @@ apply plugin: 'java'
 group = 'org.aph.braillezephyr'
 version = '0.1'	
 
+String swtJar
+switch(System.getProperty('os.name').toLowerCase().split()[0])
+{
+case 'mac':
+	swtJar = 'org.eclipse.swt.cocoa.macosx.x86_64'
+	break
+
+case 'windows':
+	swtJar = 'org.eclipse.swt.win32.win32.x86_64'
+	break
+
+default:
+	swtJar = 'org.eclipse.swt.gtk.linux.x86_64'
+	break
+}
+
 dependencies {
-	compile group: 'org.eclipse.swt', name: 'org.eclipse.swt.gtk.linux.x86_64', version: '4.+'
+	compile group: 'org.eclipse.swt', name: swtJar, version: '4.+'
 	archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.gtk.linux.x86_64', version: '4.+'
 	archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.gtk.linux.x86', version: '4.+'
 	archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.win32.win32.x86_64', version: '4.+'
@@ -101,6 +117,8 @@ task allJars {
 
 apply plugin: 'application'
 mainClassName = "org.aph.braillezephyr.Main"
+if(System.getProperty('os.name').toLowerCase().split()[0] == 'mac')
+	applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
 
 apply plugin: 'eclipse'
 
