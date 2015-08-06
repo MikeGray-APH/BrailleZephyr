@@ -49,6 +49,8 @@ public class BZStyledText
 	private final StyledText brailleText, asciiText;
 	private final Composite composite;
 
+	private final boolean windowBug = System.getProperty("os.name").toLowerCase().startsWith("windows");
+
 	private StyledText currentText;
 
 	private int linesPerPage = 25;
@@ -487,7 +489,9 @@ public class BZStyledText
 		@Override
 		public void keyReleased(KeyEvent event)
 		{
-			switch(event.character)
+			if(windowBug)
+			    dotState = 0;
+			else switch(event.character)
 			{
 			case 'f':
 
