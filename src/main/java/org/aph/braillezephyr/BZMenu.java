@@ -261,8 +261,8 @@ public class BZMenu
 
 	private class ViewVisibleHandler extends SelectionAdapter
 	{
-		private MenuItem braille;
-		private MenuItem ascii;
+		private final MenuItem braille;
+		private final MenuItem ascii;
 
 		private ViewVisibleHandler(Menu menu)
 		{

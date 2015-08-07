@@ -353,9 +353,9 @@ public class BZStyledText
 
 	private class FocusHandler implements FocusListener
 	{
-		private StyledText styledText;
+		private final StyledText styledText;
 
-		FocusHandler(StyledText styledText)
+		private FocusHandler(StyledText styledText)
 		{
 			this.styledText = styledText;
 		}
@@ -372,9 +372,9 @@ public class BZStyledText
 
 	private class CaretHandler implements CaretListener
 	{
-		private StyledText styledText;
+		private final StyledText styledText;
 
-		CaretHandler(StyledText styledText)
+		private CaretHandler(StyledText styledText)
 		{
 			this.styledText = styledText;
 		}
@@ -389,9 +389,9 @@ public class BZStyledText
 
 	private class PaintHandler implements PaintListener
 	{
-		private StyledText source, other;
+		private final StyledText source, other;
 
-		PaintHandler(StyledText source, StyledText other)
+		private PaintHandler(StyledText source, StyledText other)
 		{
 			this.source = source;
 			this.other = other;
