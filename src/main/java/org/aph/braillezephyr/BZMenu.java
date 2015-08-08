@@ -16,8 +16,11 @@
 package org.aph.braillezephyr;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
@@ -367,7 +370,7 @@ public class BZMenu
 		}
 	}
 
-	private static class LinesPerPageDialog extends SelectionAdapter
+	private static class LinesPerPageDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
@@ -383,6 +386,7 @@ public class BZMenu
 			spinner = new Spinner(shell, 0);
 			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 			spinner.setValues(Main.bzStyledText.getLinesPerPage(), 0, 225, 0, 1, 10);
+			spinner.addKeyListener(this);
 
 			okButton = new Button(shell, SWT.PUSH);
 			okButton.setText("OK");
@@ -398,16 +402,35 @@ public class BZMenu
 			shell.open();
 		}
 
+		private void setLinesPerPage()
+		{
+			Main.bzStyledText.setLinesPerPage(spinner.getSelection());
+			Main.bzStyledText.redraw();
+		}
+
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			if(event.getSource() == okButton)
-			{
-				Main.bzStyledText.setLinesPerPage(spinner.getSelection());
-				Main.bzStyledText.redraw();
-			}
+			if(event.widget == okButton)
+				setLinesPerPage();
 			shell.dispose();
 		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent event){}
+
+		@Override
+		public void keyPressed(KeyEvent event)
+		{
+			if(event.keyCode == '\r' || event.keyCode == '\n')
+			{
+				setLinesPerPage();
+				shell.dispose();
+			}
+		}
+
+		@Override
+		public void keyReleased(KeyEvent event){}
 	}
 
 	private static class CharsPerLineHandler extends SelectionAdapter
@@ -426,7 +449,7 @@ public class BZMenu
 		}
 	}
 
-	private static class CharsPerLineDialog extends SelectionAdapter
+	private static class CharsPerLineDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
@@ -442,6 +465,7 @@ public class BZMenu
 			spinner = new Spinner(shell, 0);
 			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 			spinner.setValues(Main.bzStyledText.getCharsPerLine(), 0, 27720, 0, 1, 10);
+			spinner.addKeyListener(this);
 
 			okButton = new Button(shell, SWT.PUSH);
 			okButton.setText("OK");
@@ -457,16 +481,36 @@ public class BZMenu
 			shell.open();
 		}
 
+		private void setCharsPerLine()
+		{
+			Main.bzStyledText.setCharsPerLine(spinner.getSelection());
+			Main.bzStyledText.redraw();
+		}
+
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			if(event.getSource() == okButton)
-			{
-				Main.bzStyledText.setCharsPerLine(spinner.getSelection());
-				Main.bzStyledText.redraw();
-			}
+			if(event.widget == okButton)
+				setCharsPerLine();
 			shell.dispose();
 		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent event){}
+
+		@Override
+		public void keyPressed(KeyEvent event)
+		{
+			//TODO:  is the \r necessary?
+			if(event.keyCode == '\r' || event.keyCode == '\n')
+			{
+				setCharsPerLine();
+				shell.dispose();
+			}
+		}
+
+		@Override
+		public void keyReleased(KeyEvent event){}
 	}
 
 	private static class BellMarginHandler extends SelectionAdapter
@@ -485,7 +529,7 @@ public class BZMenu
 		}
 	}
 
-	private static class BellMarginDialog extends SelectionAdapter
+	private static class BellMarginDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
@@ -501,6 +545,7 @@ public class BZMenu
 			spinner = new Spinner(shell, 0);
 			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 			spinner.setValues(Main.bzStyledText.getBellMargin(), 0, 27720, 0, 1, 10);
+			spinner.addKeyListener(this);
 
 			okButton = new Button(shell, SWT.PUSH);
 			okButton.setText("OK");
@@ -516,16 +561,35 @@ public class BZMenu
 			shell.open();
 		}
 
+		private void setBellMargin()
+		{
+			Main.bzStyledText.setBellMargin(spinner.getSelection());
+			Main.bzStyledText.redraw();
+		}
+
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			if(event.getSource() == okButton)
-			{
-				Main.bzStyledText.setBellMargin(spinner.getSelection());
-				Main.bzStyledText.redraw();
-			}
+			if(event.widget == okButton)
+				setBellMargin();
 			shell.dispose();
 		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent event){}
+
+		@Override
+		public void keyPressed(KeyEvent event)
+		{
+			if(event.keyCode == '\r' || event.keyCode == '\n')
+			{
+				setBellMargin();
+				shell.dispose();
+			}
+		}
+
+		@Override
+		public void keyReleased(KeyEvent event){}
 	}
 
 	private class RewrapFromCursorHandler extends SelectionAdapter
