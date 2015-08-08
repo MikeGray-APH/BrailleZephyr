@@ -40,3 +40,9 @@ To clean the distribution:
 
 To obtain a complete list of tasks available:
 ./gradlew tasks --all
+
+Miscellaneous
+=============
+
+Typewriter bell:
+http://www.freesound.org/people/ramsamba/sounds/318687/
