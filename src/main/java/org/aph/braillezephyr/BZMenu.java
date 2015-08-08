@@ -114,6 +114,12 @@ public class BZMenu
 		item.addSelectionListener(new CharsPerLineHandler(shell));
 
 		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Bell Margin");
+		item.addSelectionListener(new BellMarginHandler(shell));
+		if(Main.bzStyledText.getBellMargin() == -1)
+			item.setEnabled(false);
+
+		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Rewrap From Cursor\tCtrl+F");
 		item.setAccelerator(SWT.MOD1 | 'F');
 		item.addSelectionListener(new RewrapFromCursorHandler());
@@ -457,6 +463,65 @@ public class BZMenu
 			if(event.getSource() == okButton)
 			{
 				Main.bzStyledText.setCharsPerLine(spinner.getSelection());
+				Main.bzStyledText.redraw();
+			}
+			shell.dispose();
+		}
+	}
+
+	private static class BellMarginHandler extends SelectionAdapter
+	{
+		private final Shell parent;
+
+		private BellMarginHandler(Shell parent)
+		{
+			this.parent = parent;
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e)
+		{
+			new BellMarginDialog(parent);
+		}
+	}
+
+	private static class BellMarginDialog extends SelectionAdapter
+	{
+		private final Shell shell;
+		private final Button okButton;
+		private final Button cancelButton;
+		private final Spinner spinner;
+
+		public BellMarginDialog(Shell parent)
+		{
+			shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+			shell.setText("Bell Margin");
+			shell.setLayout(new GridLayout(3, true));
+
+			spinner = new Spinner(shell, 0);
+			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+			spinner.setValues(Main.bzStyledText.getBellMargin(), 0, 27720, 0, 1, 10);
+
+			okButton = new Button(shell, SWT.PUSH);
+			okButton.setText("OK");
+			okButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+			okButton.addSelectionListener(this);
+
+			cancelButton = new Button(shell, SWT.PUSH);
+			cancelButton.setText("Cancel");
+			cancelButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+			cancelButton.addSelectionListener(this);
+
+			shell.pack();
+			shell.open();
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			if(event.getSource() == okButton)
+			{
+				Main.bzStyledText.setBellMargin(spinner.getSelection());
 				Main.bzStyledText.redraw();
 			}
 			shell.dispose();

@@ -36,8 +36,8 @@ public class Main
 		shell.setText("BrailleZephyr");
 		shell.setSize(1000, 600);
 
-		new BZMenu(shell);
 		bzStyledText = new BZStyledText(shell);
+		new BZMenu(shell);
 
 		shell.open();
 		while(!shell.isDisposed())

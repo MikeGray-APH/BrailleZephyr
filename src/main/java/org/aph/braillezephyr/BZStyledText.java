@@ -36,8 +36,15 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
 
@@ -49,15 +56,16 @@ public class BZStyledText
 	private final StyledText brailleText, asciiText;
 	private final Composite composite;
 
+	private final Color color;
 	private final boolean windowBug = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
 	private StyledText currentText;
 
+	private String eol = System.getProperty("line.separator");
 	private int linesPerPage = 25;
 	private int charsPerLine = 40;
-	private String eol = System.getProperty("line.separator");
-
-	private final Color color;
+	private int bellMargin = 31;
+	private Clip bellClip = null;
 
 	public BZStyledText(Shell shell)
 	{
@@ -90,6 +98,33 @@ public class BZStyledText
 		asciiText.addPaintListener(new PaintHandler(asciiText, brailleText));
 
 		currentText = brailleText;
+
+		try
+		{
+			InputStream inputStream = getClass().getResourceAsStream("/sounds/bell.wav");
+			if(inputStream != null)
+			{
+				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(inputStream);
+				DataLine.Info dataLineInfo = new DataLine.Info(Clip.class, audioInputStream.getFormat());
+				bellClip = (Clip)AudioSystem.getLine(dataLineInfo);
+				bellClip.open(audioInputStream);
+			}
+		}
+		catch(UnsupportedAudioFileException e)
+		{
+			e.printStackTrace();
+			bellClip = null;
+		}
+		catch(LineUnavailableException e)
+		{
+			e.printStackTrace();
+			bellClip = null;
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			bellClip = null;
+		}
 	}
 
 	public int getLinesPerPage()
@@ -109,7 +144,25 @@ public class BZStyledText
 
 	public void setCharsPerLine(int charsPerLine)
 	{
+		int bellDiff = this.charsPerLine - bellMargin;
 		this.charsPerLine = charsPerLine;
+		bellMargin = charsPerLine - bellDiff;
+		if(bellMargin < 0)
+			bellMargin = 0;
+	}
+
+	public int getBellMargin()
+	{
+		if(bellClip == null)
+			return -1;
+		return bellMargin;
+	}
+
+	public void setBellMargin(int bellMargin)
+	{
+		if(bellClip == null)
+			return;
+		this.bellMargin = bellMargin;
 	}
 
 	public boolean getBrailleVisible()
@@ -374,6 +427,8 @@ public class BZStyledText
 	{
 		private final StyledText styledText;
 
+		private int prevOffset;
+
 		private CaretHandler(StyledText styledText)
 		{
 			this.styledText = styledText;
@@ -382,6 +437,22 @@ public class BZStyledText
 		@Override
 		public void caretMoved(CaretEvent event)
 		{
+			if(bellClip != null && bellMargin > 0)
+			{
+				int caretOffset = currentText.getCaretOffset();
+				if(bellMargin > 0 && caretOffset == prevOffset + 1)
+				{
+					int lineOffset = currentText.getOffsetAtLine(currentText.getLineAtOffset(caretOffset));
+					if(caretOffset - lineOffset == bellMargin)
+						if(!bellClip.isActive())
+						{
+							bellClip.setFramePosition(0);
+							bellClip.start();
+						}
+				}
+				prevOffset = caretOffset;
+			}
+
 			if(styledText == currentText)
 				styledText.redraw();
 		}
