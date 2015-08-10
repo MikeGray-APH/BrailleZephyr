@@ -152,8 +152,8 @@ public class BZMenu
 		public void widgetSelected(SelectionEvent event)
 		{
 			FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-			dialog.setFilterExtensions(new String[]{"*.brf", "*.bzy", "*.*"});
-			dialog.setFilterNames(new String[]{"Braille Ready Format File", "BrailleZephyr File", "All Files"});
+			dialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
+			dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
 			dialog.setFilterIndex(2);
 			String _fileName = dialog.open();
 			if(_fileName == null)
@@ -229,8 +229,8 @@ public class BZMenu
 		{
 			FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 			dialog.setFileName(fileName);
-			dialog.setFilterExtensions(new String[]{"*.brf", "*.bzy", "*.*"});
-			dialog.setFilterNames(new String[]{"Braille Ready Format File", "BrailleZephyr File", "All Files"});
+			dialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
+			dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
 			dialog.setFilterIndex(2);
 			String _fileName = dialog.open();
 			if(_fileName == null)
