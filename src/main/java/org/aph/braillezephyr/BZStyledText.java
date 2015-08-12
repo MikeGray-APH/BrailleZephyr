@@ -42,6 +42,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,7 +102,7 @@ public class BZStyledText
 
 		try
 		{
-			InputStream inputStream = getClass().getResourceAsStream("/sounds/bell.wav");
+			InputStream inputStream = new BufferedInputStream(getClass().getResourceAsStream("/sounds/bell.wav"));
 			if(inputStream != null)
 			{
 				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(inputStream);
