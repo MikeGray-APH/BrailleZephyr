@@ -143,7 +143,11 @@ public class BZStyledText
 
 	public void setLinesPerPage(int linesPerPage)
 	{
+		int bellDiff = this.linesPerPage - bellPageMargin;
 		this.linesPerPage = linesPerPage;
+		bellPageMargin = linesPerPage - bellDiff;
+		if(bellPageMargin < 0)
+			bellPageMargin = 0;
 	}
 
 	public int getCharsPerLine()
