@@ -119,7 +119,13 @@ public class BZMenu
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Bell Margin");
 		item.addSelectionListener(new BellMarginHandler(shell));
-		if(Main.bzStyledText.getBellMargin() == -1)
+		if(Main.bzStyledText.getBellLineMargin() == -1)
+			item.setEnabled(false);
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Bell Page");
+		item.addSelectionListener(new BellPageHandler(shell));
+		if(Main.bzStyledText.getBellPageMargin() == -1)
 			item.setEnabled(false);
 
 		item = new MenuItem(menu, SWT.PUSH);
@@ -544,7 +550,7 @@ public class BZMenu
 
 			spinner = new Spinner(shell, 0);
 			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-			spinner.setValues(Main.bzStyledText.getBellMargin(), 0, 27720, 0, 1, 10);
+			spinner.setValues(Main.bzStyledText.getBellLineMargin(), 0, 27720, 0, 1, 10);
 			spinner.addKeyListener(this);
 
 			okButton = new Button(shell, SWT.PUSH);
@@ -563,7 +569,7 @@ public class BZMenu
 
 		private void setBellMargin()
 		{
-			Main.bzStyledText.setBellMargin(spinner.getSelection());
+			Main.bzStyledText.setBellLineMargin(spinner.getSelection());
 			Main.bzStyledText.redraw();
 		}
 
@@ -584,6 +590,85 @@ public class BZMenu
 			if(event.keyCode == '\r' || event.keyCode == '\n')
 			{
 				setBellMargin();
+				shell.dispose();
+			}
+		}
+
+		@Override
+		public void keyReleased(KeyEvent event){}
+	}
+
+	private static class BellPageHandler extends SelectionAdapter
+	{
+		private final Shell parent;
+
+		private BellPageHandler(Shell parent)
+		{
+			this.parent = parent;
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e)
+		{
+			new BellPageDialog(parent);
+		}
+	}
+
+	private static class BellPageDialog implements SelectionListener, KeyListener
+	{
+		private final Shell shell;
+		private final Button okButton;
+		private final Button cancelButton;
+		private final Spinner spinner;
+
+		public BellPageDialog(Shell parent)
+		{
+			shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+			shell.setText("Bell Page");
+			shell.setLayout(new GridLayout(3, true));
+
+			spinner = new Spinner(shell, 0);
+			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+			spinner.setValues(Main.bzStyledText.getBellPageMargin(), 0, 27720, 0, 1, 10);
+			spinner.addKeyListener(this);
+
+			okButton = new Button(shell, SWT.PUSH);
+			okButton.setText("OK");
+			okButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+			okButton.addSelectionListener(this);
+
+			cancelButton = new Button(shell, SWT.PUSH);
+			cancelButton.setText("Cancel");
+			cancelButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+			cancelButton.addSelectionListener(this);
+
+			shell.pack();
+			shell.open();
+		}
+
+		private void setPagelMargin()
+		{
+			Main.bzStyledText.setBellPageMargin(spinner.getSelection());
+			Main.bzStyledText.redraw();
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			if(event.widget == okButton)
+				setPagelMargin();
+			shell.dispose();
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent event){}
+
+		@Override
+		public void keyPressed(KeyEvent event)
+		{
+			if(event.keyCode == '\r' || event.keyCode == '\n')
+			{
+				setPagelMargin();
 				shell.dispose();
 			}
 		}

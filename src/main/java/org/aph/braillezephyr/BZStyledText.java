@@ -65,8 +65,10 @@ public class BZStyledText
 	private String eol = System.getProperty("line.separator");
 	private int linesPerPage = 25;
 	private int charsPerLine = 40;
-	private int bellMargin = 31;
-	private Clip bellClip = null;
+	private int bellLineMargin = 33;
+	private Clip clipMarginBell = null;
+	private int bellPageMargin = 25;
+	private Clip clipPageBell = null;
 
 	public BZStyledText(Shell shell)
 	{
@@ -102,29 +104,34 @@ public class BZStyledText
 
 		try
 		{
-			InputStream inputStream = new BufferedInputStream(getClass().getResourceAsStream("/sounds/bell.wav"));
-			if(inputStream != null)
+			InputStream inputStreamBellMargin = new BufferedInputStream(getClass().getResourceAsStream("/sounds/margin_bell.wav"));
+			InputStream inputStreamBellPage = new BufferedInputStream(getClass().getResourceAsStream("/sounds/page_bell.wav"));
+			if(inputStreamBellMargin != null)
 			{
-				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(inputStream);
-				DataLine.Info dataLineInfo = new DataLine.Info(Clip.class, audioInputStream.getFormat());
-				bellClip = (Clip)AudioSystem.getLine(dataLineInfo);
-				bellClip.open(audioInputStream);
+				AudioInputStream audioInputStreamMargin = AudioSystem.getAudioInputStream(inputStreamBellMargin);
+				AudioInputStream audioInputStreamPage = AudioSystem.getAudioInputStream(inputStreamBellPage);
+				DataLine.Info dataLineInfoMargin = new DataLine.Info(Clip.class, audioInputStreamMargin.getFormat());
+				DataLine.Info dataLineInfoPage = new DataLine.Info(Clip.class, audioInputStreamPage.getFormat());
+				clipMarginBell = (Clip)AudioSystem.getLine(dataLineInfoMargin);
+				clipPageBell = (Clip)AudioSystem.getLine(dataLineInfoPage);
+				clipMarginBell.open(audioInputStreamMargin);
+				clipPageBell.open(audioInputStreamPage);
 			}
 		}
 		catch(UnsupportedAudioFileException e)
 		{
 			e.printStackTrace();
-			bellClip = null;
+			clipMarginBell = null;
 		}
 		catch(LineUnavailableException e)
 		{
 			e.printStackTrace();
-			bellClip = null;
+			clipMarginBell = null;
 		}
 		catch(IOException e)
 		{
 			e.printStackTrace();
-			bellClip = null;
+			clipMarginBell = null;
 		}
 	}
 
@@ -145,25 +152,39 @@ public class BZStyledText
 
 	public void setCharsPerLine(int charsPerLine)
 	{
-		int bellDiff = this.charsPerLine - bellMargin;
+		int bellDiff = this.charsPerLine - bellLineMargin;
 		this.charsPerLine = charsPerLine;
-		bellMargin = charsPerLine - bellDiff;
-		if(bellMargin < 0)
-			bellMargin = 0;
+		bellLineMargin = charsPerLine - bellDiff;
+		if(bellLineMargin < 0)
+			bellLineMargin = 0;
 	}
 
-	public int getBellMargin()
+	public int getBellLineMargin()
 	{
-		if(bellClip == null)
+		if(clipMarginBell == null)
 			return -1;
-		return bellMargin;
+		return bellLineMargin;
 	}
 
-	public void setBellMargin(int bellMargin)
+	public void setBellLineMargin(int bellLineMargin)
 	{
-		if(bellClip == null)
+		if(clipMarginBell == null)
 			return;
-		this.bellMargin = bellMargin;
+		this.bellLineMargin = bellLineMargin;
+	}
+
+	public int getBellPageMargin()
+	{
+		if(clipPageBell == null)
+			return -1;
+		return bellPageMargin;
+	}
+
+	public void setBellPageMargin(int bellLineMargin)
+	{
+		if(clipPageBell == null)
+			return;
+		this.bellPageMargin = bellLineMargin;
 	}
 
 	public boolean getBrailleVisible()
@@ -438,18 +459,18 @@ public class BZStyledText
 		@Override
 		public void caretMoved(CaretEvent event)
 		{
-			if(bellClip != null && bellMargin > 0)
+			if(clipMarginBell != null && bellLineMargin > 0)
 			{
 				int caretOffset = currentText.getCaretOffset();
-				if(bellMargin > 0 && caretOffset == prevOffset + 1)
+				if(bellLineMargin > 0 && caretOffset == prevOffset + 1)
 				{
 					int lineOffset = currentText.getOffsetAtLine(currentText.getLineAtOffset(caretOffset));
-					if(caretOffset - lineOffset == bellMargin)
-						if(!bellClip.isActive())
-						{
-							bellClip.setFramePosition(0);
-							bellClip.start();
-						}
+					if(caretOffset - lineOffset == bellLineMargin)
+					if(!clipMarginBell.isActive())
+					{
+						clipMarginBell.setFramePosition(0);
+						clipMarginBell.start();
+					}
 				}
 				prevOffset = caretOffset;
 			}
@@ -512,7 +533,8 @@ public class BZStyledText
 
 	private class BrailleKeyHandler implements KeyListener, VerifyKeyListener
 	{
-		char dotState = 0, dotChar = 0x2800;
+		private char dotState = 0, dotChar = 0x2800;
+		private int prevLine;
 
 		@Override
 		public void keyPressed(KeyEvent event)
@@ -623,6 +645,17 @@ public class BZStyledText
 				else
 					brailleText.replaceTextRange(brailleText.getOffsetAtLine(index), line.length(), line.substring(0, line.length() - 1));
 				return;
+			}
+			else
+			{
+				int index = brailleText.getLineAtOffset(brailleText.getCaretOffset());
+				if(index == prevLine + 1 && index == bellPageMargin - 2)
+				if(!clipPageBell.isActive())
+				{
+					clipPageBell.setFramePosition(0);
+					clipPageBell.start();
+				}
+				prevLine = index;
 			}
 
 			if(event.character > ' ' && event.character < 0x7f)
