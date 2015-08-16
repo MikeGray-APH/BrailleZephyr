@@ -61,24 +61,10 @@ public class BZMenu
 		item.setText("&File");
 		item.setMenu(menu);
 
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("&New");
-		item.addSelectionListener(new FileNewHandler());
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("&Open\tCtrl+O");
-		item.setAccelerator(SWT.MOD1 | 'o');
-		item.addSelectionListener(new FileOpenHandler());
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("&Save\tCtrl+S");
-		item.setAccelerator(SWT.MOD1 | 's');
-		item.addSelectionListener(new FileSaveHandler());
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Save As\tCtrl+Shift+O");
-		item.setAccelerator(SWT.MOD1 | SWT.MOD2 | 's');
-		item.addSelectionListener(new FileSaveAsHandler());
+		new FileNewHandler().addMenuItemTo(menu, "&New", 0);
+		new FileOpenHandler().addMenuItemTo(menu, "&Open\tCtrl+O", SWT.MOD1 | 'o');
+		new FileSaveHandler().addMenuItemTo(menu, "&Save\tCtrl+S", SWT.MOD1 | 's');
+		new FileSaveAsHandler().addMenuItemTo(menu, "Save As\tCtrl+Shift+O", SWT.MOD1 | SWT.MOD2 | 's');
 
 		//   edit menu
 		menu = new Menu(menuBar);
@@ -93,14 +79,8 @@ public class BZMenu
 		item.setMenu(menu);
 
 		new ViewVisibleHandler(menu);
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Braille Font");
-		item.addSelectionListener(new ViewBrailleFontHandler());
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("ASCII Font");
-		item.addSelectionListener(new ViewAsciiFontHandler());
+		new ViewBrailleFontHandler().addMenuItemTo(menu, "Braille Font", 0);
+		new ViewAsciiFontHandler().addMenuItemTo(menu, "ASCII Font", 0);
 
 		//   format menu
 		menu = new Menu(menuBar);
@@ -108,30 +88,15 @@ public class BZMenu
 		item.setText("F&ormat");
 		item.setMenu(menu);
 
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Lines Per Page");
-		item.addSelectionListener(new LinesPerPageHandler(shell));
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Chars Per Line");
-		item.addSelectionListener(new CharsPerLineHandler(shell));
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Bell Margin");
-		item.addSelectionListener(new BellMarginHandler(shell));
+		new LinesPerPageHandler(shell).addMenuItemTo(menu, "Lines Per Page", 0);
+		new CharsPerLineHandler(shell).addMenuItemTo(menu, "Chars Per Line", 0);
+		item = new BellMarginHandler(shell).addMenuItemTo(menu, "Bell Margin", 0);
 		if(Main.bzStyledText.getBellLineMargin() == -1)
 			item.setEnabled(false);
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Bell Page");
-		item.addSelectionListener(new BellPageHandler(shell));
+		item = new BellPageHandler(shell).addMenuItemTo(menu, "Bell Page", 0);
 		if(Main.bzStyledText.getBellPageMargin() == -1)
 			item.setEnabled(false);
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Rewrap From Cursor\tCtrl+F");
-		item.setAccelerator(SWT.MOD1 | 'F');
-		item.addSelectionListener(new RewrapFromCursorHandler());
+		new RewrapFromCursorHandler().addMenuItemTo(menu, "Rewrap From Cursor\tCtrl+F", SWT.MOD1 | 'F');
 
 		//   help menu
 		menu = new Menu(menuBar);
@@ -140,7 +105,7 @@ public class BZMenu
 		item.setMenu(menu);
 	}
 
-	private class FileNewHandler extends SelectionAdapter
+	private class FileNewHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
@@ -151,7 +116,7 @@ public class BZMenu
 		}
 	}
 
-	private class FileOpenHandler extends SelectionAdapter
+	private class FileOpenHandler extends AbstractAction
 	{
 		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
@@ -187,7 +152,7 @@ public class BZMenu
 		}
 	}
 
-	private class FileSaveHandler extends SelectionAdapter
+	private class FileSaveHandler extends AbstractAction
 	{
 		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
@@ -227,7 +192,7 @@ public class BZMenu
 		}
 	}
 
-	private class FileSaveAsHandler extends SelectionAdapter
+	private class FileSaveAsHandler extends AbstractAction
 	{
 		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
@@ -332,7 +297,7 @@ public class BZMenu
 		}
 	}
 
-	private class ViewBrailleFontHandler extends SelectionAdapter
+	private class ViewBrailleFontHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent e)
@@ -346,7 +311,7 @@ public class BZMenu
 		}
 	}
 
-	private class ViewAsciiFontHandler extends SelectionAdapter
+	private class ViewAsciiFontHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent e)
@@ -360,7 +325,7 @@ public class BZMenu
 		}
 	}
 
-	private static class LinesPerPageHandler extends SelectionAdapter
+	private static class LinesPerPageHandler extends AbstractAction
 	{
 		private final Shell parent;
 
@@ -439,7 +404,7 @@ public class BZMenu
 		public void keyReleased(KeyEvent event){}
 	}
 
-	private static class CharsPerLineHandler extends SelectionAdapter
+	private static class CharsPerLineHandler extends AbstractAction
 	{
 		private final Shell parent;
 
@@ -519,7 +484,7 @@ public class BZMenu
 		public void keyReleased(KeyEvent event){}
 	}
 
-	private static class BellMarginHandler extends SelectionAdapter
+	private static class BellMarginHandler extends AbstractAction
 	{
 		private final Shell parent;
 
@@ -598,7 +563,7 @@ public class BZMenu
 		public void keyReleased(KeyEvent event){}
 	}
 
-	private static class BellPageHandler extends SelectionAdapter
+	private static class BellPageHandler extends AbstractAction
 	{
 		private final Shell parent;
 
@@ -677,7 +642,7 @@ public class BZMenu
 		public void keyReleased(KeyEvent event){}
 	}
 
-	private class RewrapFromCursorHandler extends SelectionAdapter
+	private class RewrapFromCursorHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent e)
@@ -685,4 +650,25 @@ public class BZMenu
 			Main.bzStyledText.rewrapFromCaret();
 		}
 	}
+}
+
+abstract class AbstractAction implements SelectionListener
+{
+	MenuItem addMenuItemTo(Menu menu,
+	                       String tag,
+	                       int accelerator)
+	{
+		MenuItem item = new MenuItem(menu, SWT.PUSH);
+		item.setText(tag);
+		if(accelerator != 0)
+			item.setAccelerator(accelerator);
+		item.addSelectionListener(this);
+		return item;
+	}
+
+	@Override
+	public void widgetSelected(SelectionEvent event){}
+
+	@Override
+	public void widgetDefaultSelected(SelectionEvent event){}
 }
