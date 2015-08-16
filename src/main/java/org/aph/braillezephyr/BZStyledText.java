@@ -83,7 +83,7 @@ public class BZStyledText
 
 		brailleText.addFocusListener(new FocusHandler(brailleText));
 		brailleText.addCaretListener(new CaretHandler(brailleText));
-		BrailleKeyHandler brailleKeyHandler = new BrailleKeyHandler();
+		BrailleKeyHandler brailleKeyHandler = new BrailleKeyHandler(true);
 		brailleText.addKeyListener(brailleKeyHandler);
 		brailleText.addVerifyKeyListener(brailleKeyHandler);
 
@@ -96,6 +96,7 @@ public class BZStyledText
 
 		asciiText.addFocusListener(new FocusHandler(asciiText));
 		asciiText.addCaretListener(new CaretHandler(asciiText));
+		asciiText.addVerifyKeyListener(new BrailleKeyHandler(false));
 
 		brailleText.addPaintListener(new PaintHandler(brailleText, asciiText));
 		asciiText.addPaintListener(new PaintHandler(asciiText, brailleText));
@@ -533,8 +534,15 @@ public class BZStyledText
 
 	private class BrailleKeyHandler implements KeyListener, VerifyKeyListener
 	{
+		private final boolean brailleEntry;
+
 		private char dotState = 0, dotChar = 0x2800;
 		private int prevLine;
+
+		private BrailleKeyHandler(boolean brailleEntry)
+		{
+			this.brailleEntry = brailleEntry;
+		}
 
 		@Override
 		public void keyPressed(KeyEvent event)
@@ -633,22 +641,23 @@ public class BZStyledText
 		@Override
 		public void verifyKey(VerifyEvent event)
 		{
+			StyledText styledText = (StyledText)event.widget;
 			if(event.keyCode == '\r' || event.keyCode == '\n')
 			if((event.stateMask & SWT.SHIFT) != 0)
 			{
 				event.doit = false;
-				int index = brailleText.getLineAtOffset(brailleText.getCaretOffset());
-				String line = brailleText.getLine(index);
+				int index = styledText.getLineAtOffset(styledText.getCaretOffset());
+				String line = styledText.getLine(index);
 				if(line.length() > 0)
 				if(line.charAt(line.length() - 1) != PARAGRAPH_END)
-					brailleText.replaceTextRange(brailleText.getOffsetAtLine(index), line.length(), line + Character.toString(PARAGRAPH_END));
+					styledText.replaceTextRange(styledText.getOffsetAtLine(index), line.length(), line + Character.toString(PARAGRAPH_END));
 				else
-					brailleText.replaceTextRange(brailleText.getOffsetAtLine(index), line.length(), line.substring(0, line.length() - 1));
+					styledText.replaceTextRange(styledText.getOffsetAtLine(index), line.length(), line.substring(0, line.length() - 1));
 				return;
 			}
 			else
 			{
-				int index = brailleText.getLineAtOffset(brailleText.getCaretOffset());
+				int index = styledText.getLineAtOffset(styledText.getCaretOffset());
 				if(index == prevLine + 1 && index == bellPageMargin - 2)
 				if(!clipPageBell.isActive())
 				{
@@ -658,6 +667,7 @@ public class BZStyledText
 				prevLine = index;
 			}
 
+			if(brailleEntry)
 			if(event.character > ' ' && event.character < 0x7f)
 				event.doit = false;
 		}
