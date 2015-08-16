@@ -44,5 +44,8 @@ To obtain a complete list of tasks available:
 Miscellaneous
 =============
 
-Typewriter bell:
+Margin bell:
 http://www.freesound.org/people/ramsamba/sounds/318687/
+
+Page bell:
+http://www.get-sounds.com/
