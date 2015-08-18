@@ -66,11 +66,11 @@ public class BZStyledText
 	private int linesPerPage = 25;
 	private int charsPerLine = 40;
 	private int bellLineMargin = 33;
-	private Clip clipMarginBell = null;
+	private Clip clipMarginBell;
 	private int bellPageMargin = 25;
-	private Clip clipPageBell = null;
+	private Clip clipPageBell;
 
-	private boolean needsRedraw = false;
+	private boolean needsRedraw;
 
 	public BZStyledText(Shell shell)
 	{
@@ -109,30 +109,30 @@ public class BZStyledText
 		{
 			InputStream inputStreamBellMargin = new BufferedInputStream(getClass().getResourceAsStream("/sounds/margin_bell.wav"));
 			InputStream inputStreamBellPage = new BufferedInputStream(getClass().getResourceAsStream("/sounds/page_bell.wav"));
-			if(inputStreamBellMargin != null)
-			{
-				AudioInputStream audioInputStreamMargin = AudioSystem.getAudioInputStream(inputStreamBellMargin);
-				AudioInputStream audioInputStreamPage = AudioSystem.getAudioInputStream(inputStreamBellPage);
-				DataLine.Info dataLineInfoMargin = new DataLine.Info(Clip.class, audioInputStreamMargin.getFormat());
-				DataLine.Info dataLineInfoPage = new DataLine.Info(Clip.class, audioInputStreamPage.getFormat());
-				clipMarginBell = (Clip)AudioSystem.getLine(dataLineInfoMargin);
-				clipPageBell = (Clip)AudioSystem.getLine(dataLineInfoPage);
-				clipMarginBell.open(audioInputStreamMargin);
-				clipPageBell.open(audioInputStreamPage);
-			}
+			AudioInputStream audioInputStreamMargin = AudioSystem.getAudioInputStream(inputStreamBellMargin);
+			AudioInputStream audioInputStreamPage = AudioSystem.getAudioInputStream(inputStreamBellPage);
+			DataLine.Info dataLineInfoMargin = new DataLine.Info(Clip.class, audioInputStreamMargin.getFormat());
+			DataLine.Info dataLineInfoPage = new DataLine.Info(Clip.class, audioInputStreamPage.getFormat());
+			clipMarginBell = (Clip)AudioSystem.getLine(dataLineInfoMargin);
+			clipPageBell = (Clip)AudioSystem.getLine(dataLineInfoPage);
+			clipMarginBell.open(audioInputStreamMargin);
+			clipPageBell.open(audioInputStreamPage);
 		}
 		catch(UnsupportedAudioFileException e)
 		{
+			//noinspection CallToPrintStackTrace
 			e.printStackTrace();
 			clipMarginBell = null;
 		}
 		catch(LineUnavailableException e)
 		{
+			//noinspection CallToPrintStackTrace
 			e.printStackTrace();
 			clipMarginBell = null;
 		}
 		catch(IOException e)
 		{
+			//noinspection CallToPrintStackTrace
 			e.printStackTrace();
 			clipMarginBell = null;
 		}
@@ -187,11 +187,11 @@ public class BZStyledText
 		return bellPageMargin;
 	}
 
-	public void setBellPageMargin(int bellLineMargin)
+	public void setBellPageMargin(int bellPageMargin)
 	{
 		if(clipPageBell == null)
 			return;
-		this.bellPageMargin = bellLineMargin;
+		this.bellPageMargin = bellPageMargin;
 	}
 
 	public boolean getBrailleVisible()
@@ -549,7 +549,7 @@ public class BZStyledText
 	{
 		private final boolean brailleEntry;
 
-		private char dotState = 0, dotChar = 0x2800;
+		private char dotState, dotChar = 0x2800;
 		private int prevLine;
 
 		private BrailleKeyHandler(boolean brailleEntry)
@@ -649,7 +649,7 @@ public class BZStyledText
 			}
 		}
 
-		private final String asciiBraille = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
+		private static final String asciiBraille = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
 
 		@Override
 		public void verifyKey(VerifyEvent event)

@@ -61,10 +61,10 @@ public class BZMenu
 		item.setText("&File");
 		item.setMenu(menu);
 
-		new FileNewHandler().addMenuItemTo(menu, "&New", 0);
-		new FileOpenHandler().addMenuItemTo(menu, "&Open\tCtrl+O", SWT.MOD1 | 'o');
-		new FileSaveHandler().addMenuItemTo(menu, "&Save\tCtrl+S", SWT.MOD1 | 's');
-		new FileSaveAsHandler().addMenuItemTo(menu, "Save As\tCtrl+Shift+O", SWT.MOD1 | SWT.MOD2 | 's');
+		new NewHandler().addMenuItemTo(menu, "&New", 0);
+		new OpenHandler().addMenuItemTo(menu, "&Open\tCtrl+O", SWT.MOD1 | 'o');
+		new SaveHandler().addMenuItemTo(menu, "&Save\tCtrl+S", SWT.MOD1 | 's');
+		new SaveAsHandler().addMenuItemTo(menu, "Save As\tCtrl+Shift+O", SWT.MOD1 | SWT.MOD2 | 's');
 
 		//   edit menu
 		menu = new Menu(menuBar);
@@ -78,9 +78,9 @@ public class BZMenu
 		item.setText("&View");
 		item.setMenu(menu);
 
-		new ViewVisibleHandler(menu);
-		new ViewBrailleFontHandler().addMenuItemTo(menu, "Braille Font", 0);
-		new ViewAsciiFontHandler().addMenuItemTo(menu, "ASCII Font", 0);
+		new VisibleHandler(menu);
+		new BrailleFontHandler().addMenuItemTo(menu, "Braille Font", 0);
+		new AsciiFontHandler().addMenuItemTo(menu, "ASCII Font", 0);
 
 		//   format menu
 		menu = new Menu(menuBar);
@@ -90,10 +90,10 @@ public class BZMenu
 
 		new LinesPerPageHandler(shell).addMenuItemTo(menu, "Lines Per Page", 0);
 		new CharsPerLineHandler(shell).addMenuItemTo(menu, "Chars Per Line", 0);
-		item = new BellMarginHandler(shell).addMenuItemTo(menu, "Bell Margin", 0);
+		item = new BellLineMarginHandler(shell).addMenuItemTo(menu, "Bell Margin", 0);
 		if(Main.bzStyledText.getBellLineMargin() == -1)
 			item.setEnabled(false);
-		item = new BellPageHandler(shell).addMenuItemTo(menu, "Bell Page", 0);
+		item = new BellPageMarginHandler(shell).addMenuItemTo(menu, "Bell Page", 0);
 		if(Main.bzStyledText.getBellPageMargin() == -1)
 			item.setEnabled(false);
 		new RewrapFromCursorHandler().addMenuItemTo(menu, "Rewrap From Cursor\tCtrl+F", SWT.MOD1 | 'F');
@@ -105,7 +105,7 @@ public class BZMenu
 		item.setMenu(menu);
 	}
 
-	private class FileNewHandler extends AbstractAction
+	private class NewHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
@@ -116,7 +116,7 @@ public class BZMenu
 		}
 	}
 
-	private class FileOpenHandler extends AbstractAction
+	private class OpenHandler extends AbstractAction
 	{
 		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
@@ -152,7 +152,7 @@ public class BZMenu
 		}
 	}
 
-	private class FileSaveHandler extends AbstractAction
+	private class SaveHandler extends AbstractAction
 	{
 		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
@@ -161,7 +161,7 @@ public class BZMenu
 			if(fileName == null)
 			{
 				//   save as handler never uses event object so just pass it this one
-				new FileSaveAsHandler().widgetSelected(event);
+				new SaveAsHandler().widgetSelected(event);
 				return;
 			}
 			try
@@ -192,7 +192,7 @@ public class BZMenu
 		}
 	}
 
-	private class FileSaveAsHandler extends AbstractAction
+	private class SaveAsHandler extends AbstractAction
 	{
 		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
@@ -239,12 +239,12 @@ public class BZMenu
 		}
 	}
 
-	private class ViewVisibleHandler extends SelectionAdapter
+	private static class VisibleHandler extends SelectionAdapter
 	{
 		private final MenuItem braille;
 		private final MenuItem ascii;
 
-		private ViewVisibleHandler(Menu menu)
+		private VisibleHandler(Menu menu)
 		{
 			braille = new MenuItem(menu, SWT.PUSH);
 			braille.setText("Hide Braille");
@@ -297,7 +297,7 @@ public class BZMenu
 		}
 	}
 
-	private class ViewBrailleFontHandler extends AbstractAction
+	private class BrailleFontHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent e)
@@ -311,7 +311,7 @@ public class BZMenu
 		}
 	}
 
-	private class ViewAsciiFontHandler extends AbstractAction
+	private class AsciiFontHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent e)
@@ -484,11 +484,11 @@ public class BZMenu
 		public void keyReleased(KeyEvent event){}
 	}
 
-	private static class BellMarginHandler extends AbstractAction
+	private static class BellLineMarginHandler extends AbstractAction
 	{
 		private final Shell parent;
 
-		private BellMarginHandler(Shell parent)
+		private BellLineMarginHandler(Shell parent)
 		{
 			this.parent = parent;
 		}
@@ -496,18 +496,18 @@ public class BZMenu
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
-			new BellMarginDialog(parent);
+			new BellLineMarginDialog(parent);
 		}
 	}
 
-	private static class BellMarginDialog implements SelectionListener, KeyListener
+	private static class BellLineMarginDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public BellMarginDialog(Shell parent)
+		public BellLineMarginDialog(Shell parent)
 		{
 			shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Bell Margin");
@@ -532,7 +532,7 @@ public class BZMenu
 			shell.open();
 		}
 
-		private void setBellMargin()
+		private void setBellLineMargin()
 		{
 			Main.bzStyledText.setBellLineMargin(spinner.getSelection());
 			Main.bzStyledText.redraw();
@@ -542,7 +542,7 @@ public class BZMenu
 		public void widgetSelected(SelectionEvent event)
 		{
 			if(event.widget == okButton)
-				setBellMargin();
+				setBellLineMargin();
 			shell.dispose();
 		}
 
@@ -554,7 +554,7 @@ public class BZMenu
 		{
 			if(event.keyCode == '\r' || event.keyCode == '\n')
 			{
-				setBellMargin();
+				setBellLineMargin();
 				shell.dispose();
 			}
 		}
@@ -563,11 +563,11 @@ public class BZMenu
 		public void keyReleased(KeyEvent event){}
 	}
 
-	private static class BellPageHandler extends AbstractAction
+	private static class BellPageMarginHandler extends AbstractAction
 	{
 		private final Shell parent;
 
-		private BellPageHandler(Shell parent)
+		private BellPageMarginHandler(Shell parent)
 		{
 			this.parent = parent;
 		}
@@ -575,18 +575,18 @@ public class BZMenu
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
-			new BellPageDialog(parent);
+			new BellPageMarginDialog(parent);
 		}
 	}
 
-	private static class BellPageDialog implements SelectionListener, KeyListener
+	private static class BellPageMarginDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public BellPageDialog(Shell parent)
+		public BellPageMarginDialog(Shell parent)
 		{
 			shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Bell Page");
@@ -611,7 +611,7 @@ public class BZMenu
 			shell.open();
 		}
 
-		private void setPagelMargin()
+		private void setBellPageMargin()
 		{
 			Main.bzStyledText.setBellPageMargin(spinner.getSelection());
 			Main.bzStyledText.redraw();
@@ -621,7 +621,7 @@ public class BZMenu
 		public void widgetSelected(SelectionEvent event)
 		{
 			if(event.widget == okButton)
-				setPagelMargin();
+				setBellPageMargin();
 			shell.dispose();
 		}
 
@@ -633,7 +633,7 @@ public class BZMenu
 		{
 			if(event.keyCode == '\r' || event.keyCode == '\n')
 			{
-				setPagelMargin();
+				setBellPageMargin();
 				shell.dispose();
 			}
 		}
@@ -642,7 +642,7 @@ public class BZMenu
 		public void keyReleased(KeyEvent event){}
 	}
 
-	private class RewrapFromCursorHandler extends AbstractAction
+	private static class RewrapFromCursorHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent e)

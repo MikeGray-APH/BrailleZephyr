@@ -33,7 +33,7 @@ jar {
 	manifest {
 		attributes("Main-Class": "org.aph.braillezephyr.Main")
 	}
-	
+
 	baseName = 'BrailleZephyr'
 }
 
@@ -41,13 +41,13 @@ task linux32Jar(type: Jar) {
 	manifest {
 		attributes("Main-Class": "org.aph.braillezephyr.Main")
 	}
-	
+
 	appendix = 'linux-x86'
-	
+
 	from {
 		zipTree configurations.archives.find { it.getName().contains('linux.x86-') }
 	}
-	
+
 	with jar
 }
 
@@ -55,13 +55,13 @@ task linux64Jar(type: Jar) {
 	manifest {
 		attributes("Main-Class": "org.aph.braillezephyr.Main")
 	}
-	
+
 	appendix = 'linux-x86_64'
-	
+
 	from {
 		zipTree configurations.archives.find { it.getName().contains('linux.x86_64') }
 	}
-	
+
 	with jar
 }
 
@@ -69,13 +69,13 @@ task win32Jar(type: Jar) {
 	manifest {
 		attributes("Main-Class": "org.aph.braillezephyr.Main")
 	}
-	
+
 	appendix = 'win32-x86'
-	
+
 	from {
 		zipTree configurations.archives.find { it.getName().contains('win32.x86-') }
 	}
-	
+
 	with jar
 }
 
@@ -83,13 +83,13 @@ task win64Jar(type: Jar) {
 	manifest {
 		attributes("Main-Class": "org.aph.braillezephyr.Main")
 	}
-	
+
 	appendix = 'win32-x86_64'
-	
+
 	from {
 		zipTree configurations.archives.find { it.getName().contains('win32.x86_64') }
 	}
-	
+
 	with jar
 }
 
@@ -97,13 +97,13 @@ task macxJar(type: Jar) {
 	manifest {
 		attributes("Main-Class": "org.aph.braillezephyr.Main")
 	}
-	
+
 	appendix = 'macosx-x86_64'
-	
+
 	from {
 		zipTree configurations.archives.find { it.getName().contains('macosx.x86_64') }
 	}
-	
+
 	with jar
 }
 
