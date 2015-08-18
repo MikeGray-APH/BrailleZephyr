@@ -46,7 +46,8 @@ public class Main
 				display.sleep();
 
 			//TODO:  needed or backspace key screw something up somewhere?
-			bzStyledText.redraw();
+			if(bzStyledText.getNeedsRedraw())
+				bzStyledText.redraw();
 		}
 	}
 }

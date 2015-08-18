@@ -70,6 +70,8 @@ public class BZStyledText
 	private int bellPageMargin = 25;
 	private Clip clipPageBell = null;
 
+	private boolean needsRedraw = false;
+
 	public BZStyledText(Shell shell)
 	{
 		color = shell.getDisplay().getSystemColor(SWT.COLOR_BLACK);
@@ -243,6 +245,11 @@ public class BZStyledText
 	public void setText(String text)
 	{
 		content.setText(text);
+	}
+
+	public boolean getNeedsRedraw()
+	{
+		return needsRedraw;
 	}
 
 	public void redraw()
@@ -533,6 +540,8 @@ public class BZStyledText
 			int othLineHeight = other.getLineHeight();
 			int othLineRealPixel = lineOffset * othLineHeight;
 			other.setTopPixel(othLineRealPixel - srcLinePixel);
+
+			needsRedraw = false;
 		}
 	}
 
@@ -674,6 +683,8 @@ public class BZStyledText
 			if(brailleEntry)
 			if(event.character > ' ' && event.character < 0x7f)
 				event.doit = false;
+
+			needsRedraw = true;
 		}
 	}
 }
