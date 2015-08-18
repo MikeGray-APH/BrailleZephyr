@@ -2,7 +2,10 @@
 apply plugin: 'java'
 
 group = 'org.aph.braillezephyr'
-version = '0.1'	
+version = '0.1'
+
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
 
 String swtJar
 switch(System.getProperty('os.name').toLowerCase().split()[0])
