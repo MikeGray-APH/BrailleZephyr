@@ -4,14 +4,13 @@ apply plugin: 'java'
 group = 'org.aph.braillezephyr'
 version = '0.1'
 
-sourceCompatibility = '1.6'
-targetCompatibility = '1.6'
-
 String swtJar
 switch(System.getProperty('os.name').toLowerCase().split()[0])
 {
 case 'mac':
 	swtJar = 'org.eclipse.swt.cocoa.macosx.x86_64'
+	sourceCompatibility = '1.6'
+	targetCompatibility = '1.6'
 	break
 
 case 'windows':
@@ -40,7 +39,7 @@ jar {
 	baseName = 'BrailleZephyr'
 }
 
-task linux32Jar(type: Jar) {	
+task linux32Jar(type: Jar) {
 	manifest {
 		attributes("Main-Class": "org.aph.braillezephyr.Main")
 	}
@@ -54,7 +53,7 @@ task linux32Jar(type: Jar) {
 	with jar
 }
 
-task linux64Jar(type: Jar) {	
+task linux64Jar(type: Jar) {
 	manifest {
 		attributes("Main-Class": "org.aph.braillezephyr.Main")
 	}
@@ -68,7 +67,7 @@ task linux64Jar(type: Jar) {
 	with jar
 }
 
-task win32Jar(type: Jar) {	
+task win32Jar(type: Jar) {
 	manifest {
 		attributes("Main-Class": "org.aph.braillezephyr.Main")
 	}
@@ -82,7 +81,7 @@ task win32Jar(type: Jar) {
 	with jar
 }
 
-task win64Jar(type: Jar) {	
+task win64Jar(type: Jar) {
 	manifest {
 		attributes("Main-Class": "org.aph.braillezephyr.Main")
 	}
@@ -96,7 +95,7 @@ task win64Jar(type: Jar) {
 	with jar
 }
 
-task macxJar(type: Jar) {	
+task macxJar(type: Jar) {
 	manifest {
 		attributes("Main-Class": "org.aph.braillezephyr.Main")
 	}
