@@ -18,6 +18,8 @@ package org.aph.braillezephyr;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
+import org.eclipse.swt.custom.ExtendedModifyEvent;
+import org.eclipse.swt.custom.ExtendedModifyListener;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.StyledTextContent;
 import org.eclipse.swt.custom.VerifyKeyListener;
@@ -48,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
 
 public class BZStyledText
 {
@@ -70,6 +73,10 @@ public class BZStyledText
 	private int bellPageMargin = 25;
 	private Clip clipPageBell;
 
+	ArrayList<ExtendedModifyEvent> changes = new ArrayList();
+	private int changeIndex;
+	private boolean undoing, redoing;
+
 	@SuppressWarnings("CallToPrintStackTrace")
 	public BZStyledText(Shell shell)
 	{
@@ -81,12 +88,12 @@ public class BZStyledText
 		brailleText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		brailleText.setLayoutData(new GridData(GridData.FILL_BOTH));
 		brailleText.setFont(new Font(shell.getDisplay(), "SimBraille", 15, SWT.NORMAL));
-
 		brailleText.addFocusListener(new FocusHandler(brailleText));
 		brailleText.addPaintListener(new PaintHandler(brailleText));
 		BrailleKeyHandler brailleKeyHandler = new BrailleKeyHandler(true);
 		brailleText.addKeyListener(brailleKeyHandler);
 		brailleText.addVerifyKeyListener(brailleKeyHandler);
+		brailleText.addExtendedModifyListener(new ExtendedModifyHandler(brailleText));
 
 		content = brailleText.getContent();
 
@@ -94,10 +101,10 @@ public class BZStyledText
 		asciiText.setContent(content);
 		asciiText.setLayoutData(new GridData(GridData.FILL_BOTH));
 		asciiText.setFont(new Font(shell.getDisplay(), "Courier", 15, SWT.NORMAL));
-
 		asciiText.addFocusListener(new FocusHandler(asciiText));
 		asciiText.addPaintListener(new PaintHandler(asciiText));
 		asciiText.addVerifyKeyListener(new BrailleKeyHandler(false));
+		asciiText.addExtendedModifyListener(new ExtendedModifyHandler(asciiText));
 
 		brailleText.addCaretListener(new CaretHandler(brailleText, asciiText));
 		asciiText.addCaretListener(new CaretHandler(asciiText, brailleText));
@@ -249,6 +256,42 @@ public class BZStyledText
 		asciiText.redraw();
 	}
 
+	private void scrollToCaret()
+	{
+		int caretOffset = currentText.getCaretOffset();
+		int lineIndex = currentText.getLineAtOffset(caretOffset);
+		int lineHeight = currentText.getLineHeight();
+		int linesVisible = currentText.getSize().y / lineHeight;
+		int lineMiddle = linesVisible / 2;
+		int lineTop = lineIndex - lineMiddle;
+		if(lineTop < 0)
+			lineTop = 0;
+		currentText.setTopIndex(lineTop);
+	}
+
+	public void undo()
+	{
+		if(changeIndex < 1)
+			return;
+		undoing = true;
+		changeIndex--;
+		ExtendedModifyEvent change = changes.remove(changeIndex);
+		currentText.replaceTextRange(change.start, change.length, change.replacedText);
+		currentText.setCaretOffset(change.start + change.replacedText.length());
+		scrollToCaret();
+	}
+
+	public void redo()
+	{
+		if(changeIndex == changes.size())
+			return;
+		redoing = true;
+		ExtendedModifyEvent change = changes.remove(changeIndex);
+		currentText.replaceTextRange(change.start, change.length, change.replacedText);
+		currentText.setCaretOffset(change.start + change.replacedText.length());
+		scrollToCaret();
+	}
+
 	private boolean isFirstLineOnPage(int index)
 	{
 		return index % linesPerPage == 0;
@@ -306,6 +349,8 @@ public class BZStyledText
 				trim = cnt;
 
 			content.setText(new String(buffer, 0, trim));
+			changes.clear();
+			changeIndex = 0;
 		}
 	}
 
@@ -349,6 +394,9 @@ public class BZStyledText
 			else
 				content.replaceTextRange(content.getCharCount(), 0, line + eol);
 		}
+
+		changes.clear();
+		changeIndex = 0;
 	}
 
 	public void writeBZY(Writer writer) throws IOException
@@ -670,6 +718,36 @@ public class BZStyledText
 			if(brailleEntry)
 			if(event.character > ' ' && event.character < 0x7f)
 				event.doit = false;
+		}
+	}
+
+	private class ExtendedModifyHandler implements ExtendedModifyListener
+	{
+		private final StyledText source;
+
+		private ExtendedModifyHandler(StyledText source)
+		{
+			this.source = source;
+		}
+
+		@Override
+		public void modifyText(ExtendedModifyEvent event)
+		{
+			//TODO:  is this ever not true?
+			if(source != currentText)
+				return;
+
+			if(undoing)
+				changes.add(changeIndex, event);
+			else if(redoing)
+				changes.add(changeIndex++, event);
+			else
+			{
+				if(changeIndex < changes.size())
+					changes.subList(changeIndex, changes.size()).clear();
+				changes.add(changeIndex++, event);
+			}
+			undoing = redoing = false;
 		}
 	}
 }

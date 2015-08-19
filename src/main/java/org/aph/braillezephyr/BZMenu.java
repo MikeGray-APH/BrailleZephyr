@@ -72,6 +72,9 @@ public class BZMenu
 		item.setText("&Edit");
 		item.setMenu(menu);
 
+		new UndoHandler().addMenuItemTo(menu, "Undo\tCtrl+Z", SWT.MOD1 | 'z');
+		new RedoHandler().addMenuItemTo(menu, "Redo\tCtrl+Z", SWT.MOD1 | SWT.MOD2 | 'z');
+
 		//   view menu
 		menu = new Menu(menuBar);
 		item = new MenuItem(menuBar, SWT.CASCADE);
@@ -232,6 +235,24 @@ public class BZMenu
 			{
 				fileName = _fileName;
 			}
+		}
+	}
+
+	private class UndoHandler extends AbstractAction
+	{
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			Main.bzStyledText.undo();
+		}
+	}
+
+	private class RedoHandler extends AbstractAction
+	{
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			Main.bzStyledText.redo();
 		}
 	}
 
