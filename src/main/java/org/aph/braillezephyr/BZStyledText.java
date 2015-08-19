@@ -70,6 +70,7 @@ public class BZStyledText
 	private int bellPageMargin = 25;
 	private Clip clipPageBell;
 
+	@SuppressWarnings("CallToPrintStackTrace")
 	public BZStyledText(Shell shell)
 	{
 		color = shell.getDisplay().getSystemColor(SWT.COLOR_BLACK);
@@ -118,19 +119,16 @@ public class BZStyledText
 		}
 		catch(UnsupportedAudioFileException e)
 		{
-			//noinspection CallToPrintStackTrace
 			e.printStackTrace();
 			clipMarginBell = null;
 		}
 		catch(LineUnavailableException e)
 		{
-			//noinspection CallToPrintStackTrace
 			e.printStackTrace();
 			clipMarginBell = null;
 		}
 		catch(IOException e)
 		{
-			//noinspection CallToPrintStackTrace
 			e.printStackTrace();
 			clipMarginBell = null;
 		}
@@ -239,8 +237,7 @@ public class BZStyledText
 		asciiText.setFont(font);
 	}
 
-	@SuppressWarnings("SameParameterValue")
-	public void setText(String text)
+	public void setText(@SuppressWarnings("SameParameterValue") String text)
 	{
 		content.setText(text);
 	}
@@ -371,7 +368,6 @@ public class BZStyledText
 		writer.flush();
 	}
 
-	@SuppressWarnings("WeakerAccess")
 	public void rewrapFromCaret()
 	{
 		for(int i = content.getLineAtOffset(currentText.getCaretOffset()); i < content.getLineCount(); i++)
@@ -454,7 +450,7 @@ public class BZStyledText
 	{
 		private final StyledText source, other;
 
-		private int prevOffset;
+		private int prevCaretOffset, prevLineIndex;
 
 		private CaretHandler(StyledText source, StyledText other)
 		{
@@ -465,29 +461,32 @@ public class BZStyledText
 		@Override
 		public void caretMoved(CaretEvent event)
 		{
+			int caretOffset = source.getCaretOffset();
+			int lineIndex = source.getLineAtOffset(caretOffset);
+			int lineOffset = source.getOffsetAtLine(lineIndex);
+
 			if(clipMarginBell != null && bellLineMargin > 0)
+			if(bellLineMargin > 0 && caretOffset == prevCaretOffset + 1)
 			{
-				int caretOffset = currentText.getCaretOffset();
-				if(bellLineMargin > 0 && caretOffset == prevOffset + 1)
+				if(caretOffset - lineOffset == bellLineMargin)
+				if(!clipMarginBell.isActive())
 				{
-					int lineOffset = currentText.getOffsetAtLine(currentText.getLineAtOffset(caretOffset));
-					if(caretOffset - lineOffset == bellLineMargin)
-					if(!clipMarginBell.isActive())
-					{
-						clipMarginBell.setFramePosition(0);
-						clipMarginBell.start();
-					}
+					clipMarginBell.setFramePosition(0);
+					clipMarginBell.start();
 				}
-				prevOffset = caretOffset;
 			}
+			prevCaretOffset = caretOffset;
 
 			if(source != currentText)
 				return;
-			int lineOffset = source.getLineAtOffset(source.getCaretOffset());
-			int srcLinePixel = source.getLinePixel(lineOffset);
+			int srcLinePixel = source.getLinePixel(lineIndex);
 			int othLineHeight = other.getLineHeight();
-			int othLineRealPixel = lineOffset * othLineHeight;
+			int othLineRealPixel = lineIndex * othLineHeight;
 			other.setTopPixel(othLineRealPixel - srcLinePixel);
+
+			if(lineIndex != prevLineIndex)
+				redraw();
+			prevLineIndex = lineIndex;
 		}
 	}
 

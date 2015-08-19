@@ -61,7 +61,7 @@ public class BZMenu
 		item.setText("&File");
 		item.setMenu(menu);
 
-		new NewHandler().addMenuItemTo(menu, "&New", 0);
+		new NewHandler().addMenuItemTo(menu, "&New");
 		new OpenHandler().addMenuItemTo(menu, "&Open\tCtrl+O", SWT.MOD1 | 'o');
 		new SaveHandler().addMenuItemTo(menu, "&Save\tCtrl+S", SWT.MOD1 | 's');
 		new SaveAsHandler().addMenuItemTo(menu, "Save As\tCtrl+Shift+O", SWT.MOD1 | SWT.MOD2 | 's');
@@ -79,8 +79,8 @@ public class BZMenu
 		item.setMenu(menu);
 
 		new VisibleHandler(menu);
-		new BrailleFontHandler().addMenuItemTo(menu, "Braille Font", 0);
-		new AsciiFontHandler().addMenuItemTo(menu, "ASCII Font", 0);
+		new BrailleFontHandler().addMenuItemTo(menu, "Braille Font");
+		new AsciiFontHandler().addMenuItemTo(menu, "ASCII Font");
 
 		//   format menu
 		menu = new Menu(menuBar);
@@ -88,14 +88,10 @@ public class BZMenu
 		item.setText("F&ormat");
 		item.setMenu(menu);
 
-		new LinesPerPageHandler(shell).addMenuItemTo(menu, "Lines Per Page", 0);
-		new CharsPerLineHandler(shell).addMenuItemTo(menu, "Chars Per Line", 0);
-		item = new BellLineMarginHandler(shell).addMenuItemTo(menu, "Bell Margin", 0);
-		if(Main.bzStyledText.getBellLineMargin() == -1)
-			item.setEnabled(false);
-		item = new BellPageMarginHandler(shell).addMenuItemTo(menu, "Bell Page", 0);
-		if(Main.bzStyledText.getBellPageMargin() == -1)
-			item.setEnabled(false);
+		new LinesPerPageHandler(shell).addMenuItemTo(menu, "Lines Per Page");
+		new CharsPerLineHandler(shell).addMenuItemTo(menu, "Chars Per Line");
+		new BellLineMarginHandler(shell).addMenuItemTo(menu, "Bell Margin", Main.bzStyledText.getBellLineMargin() != -1);
+		new BellPageMarginHandler(shell).addMenuItemTo(menu, "Bell Page", Main.bzStyledText.getBellPageMargin() != -1);
 		new RewrapFromCursorHandler().addMenuItemTo(menu, "Rewrap From Cursor\tCtrl+F", SWT.MOD1 | 'F');
 
 		//   help menu
@@ -535,7 +531,6 @@ public class BZMenu
 		private void setBellLineMargin()
 		{
 			Main.bzStyledText.setBellLineMargin(spinner.getSelection());
-			Main.bzStyledText.redraw();
 		}
 
 		@Override
@@ -614,7 +609,6 @@ public class BZMenu
 		private void setBellPageMargin()
 		{
 			Main.bzStyledText.setBellPageMargin(spinner.getSelection());
-			Main.bzStyledText.redraw();
 		}
 
 		@Override
@@ -654,16 +648,34 @@ public class BZMenu
 
 abstract class AbstractAction implements SelectionListener
 {
+	@SuppressWarnings("WeakerAccess")
 	MenuItem addMenuItemTo(Menu menu,
 	                       String tag,
-	                       int accelerator)
+	                       int accelerator,
+	                       boolean enabled)
 	{
 		MenuItem item = new MenuItem(menu, SWT.PUSH);
 		item.setText(tag);
 		if(accelerator != 0)
 			item.setAccelerator(accelerator);
 		item.addSelectionListener(this);
+		item.setEnabled(enabled);
 		return item;
+	}
+
+	MenuItem addMenuItemTo(Menu menu, String tag, int accelerator)
+	{
+		return addMenuItemTo(menu, tag, accelerator, true);
+	}
+
+	MenuItem addMenuItemTo(Menu menu, String tag, boolean enabled)
+	{
+		return addMenuItemTo(menu, tag, 0, enabled);
+	}
+
+	MenuItem addMenuItemTo(Menu menu, String tag)
+	{
+		return addMenuItemTo(menu, tag, 0, true);
 	}
 
 	@Override
