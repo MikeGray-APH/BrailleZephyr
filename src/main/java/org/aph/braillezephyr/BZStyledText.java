@@ -70,8 +70,6 @@ public class BZStyledText
 	private int bellPageMargin = 25;
 	private Clip clipPageBell;
 
-	private boolean needsRedraw;
-
 	public BZStyledText(Shell shell)
 	{
 		color = shell.getDisplay().getSystemColor(SWT.COLOR_BLACK);
@@ -84,7 +82,7 @@ public class BZStyledText
 		brailleText.setFont(new Font(shell.getDisplay(), "SimBraille", 15, SWT.NORMAL));
 
 		brailleText.addFocusListener(new FocusHandler(brailleText));
-		brailleText.addCaretListener(new CaretHandler(brailleText));
+		brailleText.addPaintListener(new PaintHandler(brailleText));
 		BrailleKeyHandler brailleKeyHandler = new BrailleKeyHandler(true);
 		brailleText.addKeyListener(brailleKeyHandler);
 		brailleText.addVerifyKeyListener(brailleKeyHandler);
@@ -97,11 +95,11 @@ public class BZStyledText
 		asciiText.setFont(new Font(shell.getDisplay(), "Courier", 15, SWT.NORMAL));
 
 		asciiText.addFocusListener(new FocusHandler(asciiText));
-		asciiText.addCaretListener(new CaretHandler(asciiText));
+		asciiText.addPaintListener(new PaintHandler(asciiText));
 		asciiText.addVerifyKeyListener(new BrailleKeyHandler(false));
 
-		brailleText.addPaintListener(new PaintHandler(brailleText, asciiText));
-		asciiText.addPaintListener(new PaintHandler(asciiText, brailleText));
+		brailleText.addCaretListener(new CaretHandler(brailleText, asciiText));
+		asciiText.addCaretListener(new CaretHandler(asciiText, brailleText));
 
 		currentText = brailleText;
 
@@ -245,11 +243,6 @@ public class BZStyledText
 	public void setText(String text)
 	{
 		content.setText(text);
-	}
-
-	public boolean getNeedsRedraw()
-	{
-		return needsRedraw;
 	}
 
 	public void redraw()
@@ -440,17 +433,17 @@ public class BZStyledText
 
 	private class FocusHandler implements FocusListener
 	{
-		private final StyledText styledText;
+		private final StyledText source;
 
-		private FocusHandler(StyledText styledText)
+		private FocusHandler(StyledText source)
 		{
-			this.styledText = styledText;
+			this.source = source;
 		}
 
 		@Override
 		public void focusGained(FocusEvent e)
 		{
-			currentText = styledText;
+			currentText = source;
 		}
 
 		@Override
@@ -459,13 +452,14 @@ public class BZStyledText
 
 	private class CaretHandler implements CaretListener
 	{
-		private final StyledText styledText;
+		private final StyledText source, other;
 
 		private int prevOffset;
 
-		private CaretHandler(StyledText styledText)
+		private CaretHandler(StyledText source, StyledText other)
 		{
-			this.styledText = styledText;
+			this.source = source;
+			this.other = other;
 		}
 
 		@Override
@@ -487,19 +481,23 @@ public class BZStyledText
 				prevOffset = caretOffset;
 			}
 
-			if(styledText == currentText)
-				styledText.redraw();
+			if(source != currentText)
+				return;
+			int lineOffset = source.getLineAtOffset(source.getCaretOffset());
+			int srcLinePixel = source.getLinePixel(lineOffset);
+			int othLineHeight = other.getLineHeight();
+			int othLineRealPixel = lineOffset * othLineHeight;
+			other.setTopPixel(othLineRealPixel - srcLinePixel);
 		}
 	}
 
 	private class PaintHandler implements PaintListener
 	{
-		private final StyledText source, other;
+		private final StyledText source;
 
-		private PaintHandler(StyledText source, StyledText other)
+		private PaintHandler(StyledText source)
 		{
 			this.source = source;
-			this.other = other;
 		}
 
 		@Override
@@ -532,16 +530,6 @@ public class BZStyledText
 				if(at + lineHeight > drawHeight)
 					break;
 			}
-
-			if(source != currentText)
-				return;
-			int lineOffset = source.getLineAtOffset(source.getCaretOffset());
-			int srcLinePixel = source.getLinePixel(lineOffset);
-			int othLineHeight = other.getLineHeight();
-			int othLineRealPixel = lineOffset * othLineHeight;
-			other.setTopPixel(othLineRealPixel - srcLinePixel);
-
-			needsRedraw = false;
 		}
 	}
 
@@ -683,8 +671,6 @@ public class BZStyledText
 			if(brailleEntry)
 			if(event.character > ' ' && event.character < 0x7f)
 				event.doit = false;
-
-			needsRedraw = true;
 		}
 	}
 }
