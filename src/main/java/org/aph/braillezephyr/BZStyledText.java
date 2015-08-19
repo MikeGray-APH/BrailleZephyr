@@ -120,17 +120,17 @@ public class BZStyledText
 		catch(UnsupportedAudioFileException e)
 		{
 			e.printStackTrace();
-			clipMarginBell = null;
+			clipMarginBell = clipPageBell = null;
 		}
 		catch(LineUnavailableException e)
 		{
 			e.printStackTrace();
-			clipMarginBell = null;
+			clipMarginBell = clipPageBell = null;
 		}
 		catch(IOException e)
 		{
 			e.printStackTrace();
-			clipMarginBell = null;
+			clipMarginBell = clipPageBell = null;
 		}
 	}
 
