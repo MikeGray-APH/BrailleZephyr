@@ -31,32 +31,46 @@ public class BZFile
 {
 	private String fileName;
 
-	void newFile()
+	boolean newFile()
 	{
 		if(Main.bzStyledText.getModified())
 		{
 			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
 			messageBox.setMessage("Would you like to save your changes?");
 			int result = messageBox.open();
-			if(result == SWT.YES)
-				saveFile();
-			else if(result == SWT.CANCEL)
-				return;
+			if(result == SWT.CANCEL)
+				return false;
+			else if(result == SWT.YES)
+				if(!saveFile())
+					return false;
 		}
 		Main.bzStyledText.setText("");
 		fileName = null;
 		Main.shell.setText("BrailleZephyr");
+		return true;
 	}
 
-	void openFile()
+	boolean openFile()
 	{
+		if(Main.bzStyledText.getModified())
+		{
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+			messageBox.setMessage("Would you like to save your changes?");
+			int result = messageBox.open();
+			if(result == SWT.CANCEL)
+				return false;
+			else if(result == SWT.YES)
+				if(!saveFile())
+					return false;
+		}
+
 		FileDialog dialog = new FileDialog(Main.shell, SWT.OPEN);
 		dialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
 		dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
 		dialog.setFilterIndex(2);
 		String fileName = dialog.open();
 		if(fileName == null)
-			return;
+			return false;
 
 		try
 		{
@@ -68,6 +82,7 @@ public class BZFile
 			fileReader.close();
 			Main.shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			this.fileName = fileName;
+			return true;
 		}
 		catch(FileNotFoundException ignored)
 		{
@@ -81,9 +96,11 @@ public class BZFile
 			messageBox.setMessage("Error opening " + fileName);
 			messageBox.open();
 		}
+
+		return false;
 	}
 
-	void saveFile()
+	boolean saveFile()
 	{
 		String fileName;
 
@@ -96,7 +113,7 @@ public class BZFile
 			dialog.setFilterIndex(2);
 			fileName = dialog.open();
 			if(fileName == null)
-				return;
+				return false;
 		}
 		else
 			fileName = this.fileName;
@@ -122,6 +139,7 @@ public class BZFile
 			writer.close();
 			Main.shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			this.fileName = fileName;
+			return true;
 		}
 		catch(FileNotFoundException ignored)
 		{
@@ -137,15 +155,17 @@ public class BZFile
 			messageBox.open();
 			this.fileName = null;
 		}
+
+		return false;
 	}
 
-	void saveAsFile()
+	boolean saveAsFile()
 	{
 		String fileName = this.fileName;
 		this.fileName = null;
-		saveFile();
-		if(this.fileName == null)
-			this.fileName = fileName;
-
+		if(saveFile())
+			return true;
+		this.fileName = fileName;
+		return false;
 	}
 }

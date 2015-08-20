@@ -69,11 +69,11 @@ public class Main
 				MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
 				messageBox.setMessage("Would you like to save your changes?");
 				int result = messageBox.open();
-				if(result == SWT.YES)
-					bzFile.saveFile();
-				else if(result == SWT.CANCEL)
+				if(result == SWT.CANCEL)
 					event.doit = false;
-
+				else if(result == SWT.YES)
+					if(!bzFile.saveFile())
+						event.doit = false;
 			}
 		}
 	}
