@@ -247,6 +247,8 @@ public class BZStyledText
 	public void setText(@SuppressWarnings("SameParameterValue") String text)
 	{
 		content.setText(text);
+		changes.clear();
+		changeIndex = 0;
 	}
 
 	public void redraw()
