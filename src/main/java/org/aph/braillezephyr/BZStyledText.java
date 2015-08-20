@@ -47,6 +47,8 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -86,9 +88,45 @@ public class BZStyledText
 		composite = new Composite(shell, 0);
 		composite.setLayout(new GridLayout(2, true));
 
+		try
+		{
+			InputStream fontInputStream = getClass().getResourceAsStream("/fonts/LouisBraille-Regular.otf");
+			//File fontFile = File.createTempFile("BrailleZephyr-font-", ".otf");
+			File fontFile = new File(System.getProperty("java.io.tmpdir") + File.separator + "BrailleZephyr-font.otf");
+			FileOutputStream fontOutputStream = new FileOutputStream(fontFile);
+			byte buffer[] = new byte[27720];
+			int length;
+			while((length = fontInputStream.read(buffer)) > 0)
+				fontOutputStream.write(buffer, 0, length);
+			fontInputStream.close();
+			fontOutputStream.close();
+
+			Main.display.loadFont(fontFile.getPath());
+			//if(shell.getDisplay().getFontList("LouisBraille", true).length == 0)
+		}
+		catch(IOException ignored){}
+
+		try
+		{
+			InputStream fontInputStream = getClass().getResourceAsStream("/fonts/LouisBraille-Regular.ttf");
+			//File fontFile = File.createTempFile("BrailleZephyr-font-", ".ttf");
+			File fontFile = new File(System.getProperty("java.io.tmpdir") + File.separator + "BrailleZephyr-font.ttf");
+			FileOutputStream fontOutputStream = new FileOutputStream(fontFile);
+			byte buffer[] = new byte[27720];
+			int length;
+			while((length = fontInputStream.read(buffer)) > 0)
+				fontOutputStream.write(buffer, 0, length);
+			fontInputStream.close();
+			fontOutputStream.close();
+
+			Main.display.loadFont(fontFile.getPath());
+			//if(shell.getDisplay().getFontList("LouisBraille", true).length == 0)
+		}
+		catch(IOException ignored){}
+
 		brailleText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		brailleText.setLayoutData(new GridData(GridData.FILL_BOTH));
-		brailleText.setFont(new Font(shell.getDisplay(), "SimBraille", 15, SWT.NORMAL));
+		brailleText.setFont(new Font(shell.getDisplay(), "LouisBraille", 15, SWT.NORMAL));
 		brailleText.addFocusListener(new FocusHandler(brailleText));
 		brailleText.addPaintListener(new PaintHandler(brailleText));
 		BrailleKeyHandler brailleKeyHandler = new BrailleKeyHandler(true);

@@ -1,10 +1,12 @@
 BrailleZephyr
 =============
 
+
 Licence
 =======
 BrailleZephyr is licenced under the Apache 2.0 licence.  A copy of the licence
 is included with the software.  For details see the file LICENCE.
+
 
 Building
 ========
@@ -41,8 +43,12 @@ To clean the distribution:
 To obtain a complete list of tasks available:
 ./gradlew tasks --all
 
+
 Miscellaneous
 =============
+
+LouisBraille fonts:
+http://www.cbtbc.org/braille/fonts
 
 Margin bell:
 http://www.freesound.org/people/ramsamba/sounds/318687/
