@@ -126,7 +126,7 @@ public class BZStyledText
 
 		brailleText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		brailleText.setLayoutData(new GridData(GridData.FILL_BOTH));
-		brailleText.setFont(new Font(shell.getDisplay(), "LouisBraille", 15, SWT.NORMAL));
+		brailleText.setFont(new Font(shell.getDisplay(), "LouisBraille", 18, SWT.NORMAL));
 		brailleText.addFocusListener(new FocusHandler(brailleText));
 		brailleText.addPaintListener(new PaintHandler(brailleText));
 		BrailleKeyHandler brailleKeyHandler = new BrailleKeyHandler(true);
@@ -139,7 +139,7 @@ public class BZStyledText
 		asciiText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		asciiText.setContent(content);
 		asciiText.setLayoutData(new GridData(GridData.FILL_BOTH));
-		asciiText.setFont(new Font(shell.getDisplay(), "Courier", 15, SWT.NORMAL));
+		asciiText.setFont(new Font(shell.getDisplay(), "Courier", 18, SWT.NORMAL));
 		asciiText.addFocusListener(new FocusHandler(asciiText));
 		asciiText.addPaintListener(new PaintHandler(asciiText));
 		asciiText.addVerifyKeyListener(new BrailleKeyHandler(false));
