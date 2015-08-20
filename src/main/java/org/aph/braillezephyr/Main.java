@@ -80,6 +80,7 @@ class ConfirmDialog implements SelectionListener, KeyListener
 
 		Composite composite = new Composite(shell, 0);
 		composite.setLayout(new GridLayout(2, true));
+		composite.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_CENTER));
 
 		okButton = new Button(composite, SWT.PUSH);
 		okButton.setText("OK");
