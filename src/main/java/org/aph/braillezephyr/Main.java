@@ -26,7 +26,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -39,6 +41,9 @@ public class Main
 	static Display display;
 	static Shell shell;
 	static BZStyledText bzStyledText;
+	static BZFile bzFile;
+
+	//TODO:  move file stuff to own class
 
 	public static void main(String args[])
 	{
@@ -47,8 +52,10 @@ public class Main
 		shell.setLayout(new FillLayout());
 		shell.setText("BrailleZephyr");
 		shell.setSize(1000, 600);
+		shell.addListener(SWT.Close, new CloseHandler());
 
 		bzStyledText = new BZStyledText(shell);
+		bzFile = new BZFile();
 		new BZMenu(shell);
 
 		shell.open();
@@ -58,16 +65,27 @@ public class Main
 				display.sleep();
 		}
 	}
+
+	private static class CloseHandler implements Listener
+	{
+		@Override
+		public void handleEvent(Event event)
+		{
+			if(bzStyledText.getModified())
+			if(new ConfirmDialog("Save Changes", "Would you like to save your changes?").show())
+				bzFile.saveFile();
+		}
+	}
 }
 
 class ConfirmDialog implements SelectionListener, KeyListener
 {
 	private final Shell shell;
 	private final Button okButton;
-	private final Button cancelButton;
 
 	private boolean confirm;
 
+	@SuppressWarnings("SameParameterValue")
 	public ConfirmDialog(String title, String tag)
 	{
 		shell = new Shell(Main.shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET);
@@ -87,7 +105,7 @@ class ConfirmDialog implements SelectionListener, KeyListener
 		okButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 		okButton.addSelectionListener(this);
 
-		cancelButton = new Button(composite, SWT.PUSH);
+		Button cancelButton = new Button(composite, SWT.PUSH);
 		cancelButton.setText("Cancel");
 		cancelButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 		cancelButton.addSelectionListener(this);

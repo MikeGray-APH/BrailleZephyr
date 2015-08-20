@@ -51,6 +51,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.List;
 
 public class BZStyledText
 {
@@ -73,11 +74,10 @@ public class BZStyledText
 	private int bellPageMargin = 25;
 	private Clip clipPageBell;
 
-	ArrayList<ExtendedModifyEvent> changes = new ArrayList();
-	private int changeIndex;
+	private final List<ExtendedModifyEvent> changes = new ArrayList<>();
+	private int changeIndex, saveIndex;
 	private boolean undoing, redoing;
 
-	@SuppressWarnings("CallToPrintStackTrace")
 	public BZStyledText(Shell shell)
 	{
 		color = shell.getDisplay().getSystemColor(SWT.COLOR_BLACK);
@@ -244,11 +244,12 @@ public class BZStyledText
 		asciiText.setFont(font);
 	}
 
-	public void setText(@SuppressWarnings("SameParameterValue") String text)
+	@SuppressWarnings("SameParameterValue")
+	public void setText(String text)
 	{
 		content.setText(text);
 		changes.clear();
-		changeIndex = 0;
+		changeIndex = saveIndex = 0;
 	}
 
 	public void redraw()
@@ -269,6 +270,11 @@ public class BZStyledText
 		if(lineTop < 0)
 			lineTop = 0;
 		currentText.setTopIndex(lineTop);
+	}
+
+	public boolean getModified()
+	{
+		return saveIndex != changeIndex;
 	}
 
 	public void undo()
@@ -352,7 +358,7 @@ public class BZStyledText
 
 			content.setText(new String(buffer, 0, trim));
 			changes.clear();
-			changeIndex = 0;
+			changeIndex = saveIndex = 0;
 		}
 	}
 
@@ -374,7 +380,9 @@ public class BZStyledText
 			else
 				writer.write(line);
 		}
+
 		writer.flush();
+		saveIndex = changeIndex;
 	}
 
 	public void readBZY(Reader reader) throws IOException
@@ -398,7 +406,7 @@ public class BZStyledText
 		}
 
 		changes.clear();
-		changeIndex = 0;
+		changeIndex = saveIndex = 0;
 	}
 
 	public void writeBZY(Writer writer) throws IOException
@@ -416,6 +424,7 @@ public class BZStyledText
 		}
 
 		writer.flush();
+		saveIndex = changeIndex;
 	}
 
 	public void rewrapFromCaret()

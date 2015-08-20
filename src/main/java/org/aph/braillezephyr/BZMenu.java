@@ -26,24 +26,15 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-
 public class BZMenu
 {
 	private final Shell shell;
-	private String fileName;
 
 	BZMenu(Shell shell)
 	{
@@ -104,141 +95,43 @@ public class BZMenu
 		item.setMenu(menu);
 	}
 
-	private class NewHandler extends AbstractAction
+	private static class NewHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			Main.bzStyledText.setText("");
-			fileName = null;
-			shell.setText("BrailleZephyr");
+			Main.bzFile.newFile();
 		}
 	}
 
-	private class OpenHandler extends AbstractAction
+	private static class OpenHandler extends AbstractAction
 	{
-		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-			dialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
-			dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
-			dialog.setFilterIndex(2);
-			String _fileName = dialog.open();
-			if(_fileName == null)
-				return;
-
-			try
-			{
-				FileReader fileReader = new FileReader(_fileName);
-				if(_fileName.endsWith("bzy"))
-					Main.bzStyledText.readBZY(fileReader);
-				else
-					Main.bzStyledText.readBRF(fileReader);
-				fileReader.close();
-				shell.setText(new File(_fileName).getName() + " - BrailleZephyr");
-			}
-			catch(IOException e)
-			{
-				//TODO:  do something when this happens (everywhere)
-				e.printStackTrace();
-			}
-			finally
-			{
-				fileName = _fileName;
-			}
+			Main.bzFile.openFile();
 		}
 	}
 
-	private class SaveHandler extends AbstractAction
+	private static class SaveHandler extends AbstractAction
 	{
-		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			if(fileName == null)
-			{
-				//   save as handler never uses event object so just pass it this one
-				new SaveAsHandler().widgetSelected(event);
-				return;
-			}
-			try
-			{
-				OutputStreamWriter writer;
-				if(fileName.endsWith("brf"))
-				{
-					writer = new OutputStreamWriter(new FileOutputStream(fileName), Charset.forName("US-ASCII"));
-					Main.bzStyledText.writeBRF(writer);
-				}
-				else if(fileName.endsWith("bzy"))
-				{
-					writer = new OutputStreamWriter(new FileOutputStream(fileName));
-					Main.bzStyledText.writeBZY(writer);
-				}
-				else
-				{
-					writer = new OutputStreamWriter(new FileOutputStream(fileName));
-					Main.bzStyledText.writeBRF(writer);
-				}
-				writer.close();
-				shell.setText(new File(fileName).getName() + " - BrailleZephyr");
-			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
+			Main.bzFile.saveFile();
 		}
 	}
 
-	private class SaveAsHandler extends AbstractAction
+	private static class SaveAsHandler extends AbstractAction
 	{
-		@SuppressWarnings("CallToPrintStackTrace")
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-			dialog.setFileName(fileName);
-			dialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
-			dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
-			dialog.setFilterIndex(2);
-			String _fileName = dialog.open();
-			if(_fileName == null)
-				return;
-
-			try
-			{
-				OutputStreamWriter writer;
-				if(_fileName.endsWith("brf"))
-				{
-					writer = new OutputStreamWriter(new FileOutputStream(_fileName), Charset.forName("US-ASCII"));
-					Main.bzStyledText.writeBRF(writer);
-				}
-				else if(_fileName.endsWith("bzy"))
-				{
-					writer = new OutputStreamWriter(new FileOutputStream(_fileName));
-					Main.bzStyledText.writeBZY(writer);
-				}
-				else
-				{
-					writer = new OutputStreamWriter(new FileOutputStream(_fileName));
-					Main.bzStyledText.writeBRF(writer);
-				}
-				writer.close();
-				shell.setText(new File(_fileName).getName() + " - BrailleZephyr");
-			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
-			finally
-			{
-				fileName = _fileName;
-			}
+			Main.bzFile.saveAsFile();
 		}
 	}
 
-	private class UndoHandler extends AbstractAction
+	private static class UndoHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
@@ -247,7 +140,7 @@ public class BZMenu
 		}
 	}
 
-	private class RedoHandler extends AbstractAction
+	private static class RedoHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
