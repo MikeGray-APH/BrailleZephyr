@@ -17,6 +17,7 @@ package org.aph.braillezephyr;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.MessageBox;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,8 +34,15 @@ public class BZFile
 	void newFile()
 	{
 		if(Main.bzStyledText.getModified())
-			if(new ConfirmDialog("Save Changes", "Would you like to save your changes?").show())
+		{
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+			messageBox.setMessage("Would you like to save your changes?");
+			int result = messageBox.open();
+			if(result == SWT.YES)
 				saveFile();
+			else if(result == SWT.CANCEL)
+				return;
+		}
 		Main.bzStyledText.setText("");
 		fileName = null;
 		Main.shell.setText("BrailleZephyr");
@@ -61,13 +69,17 @@ public class BZFile
 			Main.shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			this.fileName = fileName;
 		}
-		catch(FileNotFoundException e)
+		catch(FileNotFoundException ignored)
 		{
-			e.printStackTrace();
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			messageBox.setMessage(fileName + " not found");
+			messageBox.open();
 		}
-		catch(IOException e)
+		catch(IOException ignored)
 		{
-			e.printStackTrace();
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			messageBox.setMessage("Error opening " + fileName);
+			messageBox.open();
 		}
 	}
 
@@ -111,14 +123,18 @@ public class BZFile
 			Main.shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			this.fileName = fileName;
 		}
-		catch(FileNotFoundException e)
+		catch(FileNotFoundException ignored)
 		{
-			e.printStackTrace();
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			messageBox.setMessage(fileName + " not found");
+			messageBox.open();
 			this.fileName = null;
 		}
-		catch(IOException e)
+		catch(IOException ignored)
 		{
-			e.printStackTrace();
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			messageBox.setMessage("Error opening " + fileName);
+			messageBox.open();
 			this.fileName = null;
 		}
 	}

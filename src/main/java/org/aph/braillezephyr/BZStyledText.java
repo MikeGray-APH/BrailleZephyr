@@ -36,6 +36,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import javax.sound.sampled.AudioInputStream;
@@ -114,30 +115,61 @@ public class BZStyledText
 		try
 		{
 			InputStream inputStreamBellMargin = new BufferedInputStream(getClass().getResourceAsStream("/sounds/margin_bell.wav"));
-			InputStream inputStreamBellPage = new BufferedInputStream(getClass().getResourceAsStream("/sounds/page_bell.wav"));
 			AudioInputStream audioInputStreamMargin = AudioSystem.getAudioInputStream(inputStreamBellMargin);
-			AudioInputStream audioInputStreamPage = AudioSystem.getAudioInputStream(inputStreamBellPage);
 			DataLine.Info dataLineInfoMargin = new DataLine.Info(Clip.class, audioInputStreamMargin.getFormat());
-			DataLine.Info dataLineInfoPage = new DataLine.Info(Clip.class, audioInputStreamPage.getFormat());
 			clipMarginBell = (Clip)AudioSystem.getLine(dataLineInfoMargin);
-			clipPageBell = (Clip)AudioSystem.getLine(dataLineInfoPage);
 			clipMarginBell.open(audioInputStreamMargin);
+		}
+		catch(UnsupportedAudioFileException ignored)
+		{
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			messageBox.setMessage("Sound file unsupported for margin bell");
+			messageBox.open();
+			clipMarginBell = null;
+		}
+		catch(LineUnavailableException ignored)
+		{
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			messageBox.setMessage("Line unavailable for margin bell");
+			messageBox.open();
+			clipMarginBell = null;
+		}
+		catch(IOException ignored)
+		{
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			messageBox.setMessage("Error creating margin bell");
+			messageBox.open();
+			clipMarginBell = null;
+		}
+
+		try
+		{
+			InputStream inputStreamBellPage = new BufferedInputStream(getClass().getResourceAsStream("/sounds/page_bell.wav"));
+			AudioInputStream audioInputStreamPage = AudioSystem.getAudioInputStream(inputStreamBellPage);
+			DataLine.Info dataLineInfoPage = new DataLine.Info(Clip.class, audioInputStreamPage.getFormat());
+			clipPageBell = (Clip)AudioSystem.getLine(dataLineInfoPage);
 			clipPageBell.open(audioInputStreamPage);
 		}
-		catch(UnsupportedAudioFileException e)
+		catch(UnsupportedAudioFileException ignored)
 		{
-			e.printStackTrace();
-			clipMarginBell = clipPageBell = null;
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			messageBox.setMessage("Sound file unsupported for page bell");
+			messageBox.open();
+			clipPageBell = null;
 		}
-		catch(LineUnavailableException e)
+		catch(LineUnavailableException ignored)
 		{
-			e.printStackTrace();
-			clipMarginBell = clipPageBell = null;
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			messageBox.setMessage("Line unavailable for page bell");
+			messageBox.open();
+			clipPageBell = null;
 		}
-		catch(IOException e)
+		catch(IOException ignored)
 		{
-			e.printStackTrace();
-			clipMarginBell = clipPageBell = null;
+			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			messageBox.setMessage("Error creating page bell");
+			messageBox.open();
+			clipPageBell = null;
 		}
 	}
 
