@@ -16,10 +16,10 @@
 package org.aph.braillezephyr;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
@@ -42,7 +42,7 @@ public class Main
 		shell.setLayout(new FillLayout());
 		shell.setText("BrailleZephyr");
 		shell.setSize(1000, 600);
-		shell.addListener(SWT.Close, new CloseHandler());
+		shell.addShellListener(new ShellHandler());
 
 		bzStyledText = new BZStyledText(shell);
 		bzFile = new BZFile(shell, bzStyledText);
@@ -57,10 +57,10 @@ public class Main
 		}
 	}
 
-	private static class CloseHandler implements Listener
+	private static class ShellHandler implements ShellListener
 	{
 		@Override
-		public void handleEvent(Event event)
+		public void shellClosed(ShellEvent event)
 		{
 			if(bzStyledText.getModified())
 			{
@@ -74,7 +74,17 @@ public class Main
 						event.doit = false;
 			}
 
-			bzSettings.writeSettings();
+			if(event.doit)
+				bzSettings.writeSettings();
 		}
+
+		@Override
+		public void shellActivated(ShellEvent ignored){}
+		@Override
+		public void shellDeactivated(ShellEvent ignored){}
+		@Override
+		public void shellDeiconified(ShellEvent ignored){}
+		@Override
+		public void shellIconified(ShellEvent ignored){	}
 	}
 }
