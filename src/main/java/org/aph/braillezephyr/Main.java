@@ -30,17 +30,13 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class Main
 {
-	@SuppressWarnings("WeakerAccess")
-	static Display display;
-	static Shell shell;
-	static BZStyledText bzStyledText;
-	static BZFile bzFile;
-
-	//TODO:  move file stuff to own class
+	private static Shell shell;
+	private static BZStyledText bzStyledText;
+	private static BZFile bzFile;
 
 	public static void main(String args[])
 	{
-		display = new Display();
+		Display display = new Display();
 		shell = new Shell(display);
 		shell.setLayout(new FillLayout());
 		shell.setText("BrailleZephyr");
@@ -48,8 +44,8 @@ public class Main
 		shell.addListener(SWT.Close, new CloseHandler());
 
 		bzStyledText = new BZStyledText(shell);
-		bzFile = new BZFile();
-		new BZMenu(shell);
+		bzFile = new BZFile(shell, bzStyledText);
+		new BZMenu(shell, bzFile, bzStyledText);
 
 		shell.open();
 		while(!shell.isDisposed())

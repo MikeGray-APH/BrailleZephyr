@@ -101,7 +101,7 @@ public class BZStyledText
 			fontInputStream.close();
 			fontOutputStream.close();
 
-			Main.display.loadFont(fontFile.getPath());
+			shell.getDisplay().loadFont(fontFile.getPath());
 			//if(shell.getDisplay().getFontList("LouisBraille", true).length == 0)
 		}
 		catch(IOException ignored){}
@@ -119,7 +119,7 @@ public class BZStyledText
 			fontInputStream.close();
 			fontOutputStream.close();
 
-			Main.display.loadFont(fontFile.getPath());
+			shell.getDisplay().loadFont(fontFile.getPath());
 			//if(shell.getDisplay().getFontList("LouisBraille", true).length == 0)
 		}
 		catch(IOException ignored){}
@@ -160,21 +160,21 @@ public class BZStyledText
 		}
 		catch(UnsupportedAudioFileException ignored)
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Sound file unsupported for margin bell");
 			messageBox.open();
 			clipMarginBell = null;
 		}
 		catch(LineUnavailableException ignored)
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Line unavailable for margin bell");
 			messageBox.open();
 			clipMarginBell = null;
 		}
 		catch(IOException ignored)
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Error creating margin bell");
 			messageBox.open();
 			clipMarginBell = null;
@@ -190,21 +190,21 @@ public class BZStyledText
 		}
 		catch(UnsupportedAudioFileException ignored)
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Sound file unsupported for page bell");
 			messageBox.open();
 			clipPageBell = null;
 		}
 		catch(LineUnavailableException ignored)
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Line unavailable for page bell");
 			messageBox.open();
 			clipPageBell = null;
 		}
 		catch(IOException ignored)
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Error creating page bell");
 			messageBox.open();
 			clipPageBell = null;

@@ -35,10 +35,14 @@ import org.eclipse.swt.widgets.Spinner;
 public class BZMenu
 {
 	private final Shell shell;
+	private final BZFile bzFile;
+	private final BZStyledText bzStyledText;
 
-	BZMenu(Shell shell)
+	BZMenu(Shell shell, BZFile bzFile, BZStyledText bzStyledText)
 	{
 		this.shell = shell;
+		this.bzFile = bzFile;
+		this.bzStyledText = bzStyledText;
 
 		Menu menuBar = new Menu(shell, SWT.BAR);
 		shell.setMenuBar(menuBar);
@@ -84,8 +88,8 @@ public class BZMenu
 
 		new LinesPerPageHandler(shell).addMenuItemTo(menu, "Lines Per Page");
 		new CharsPerLineHandler(shell).addMenuItemTo(menu, "Chars Per Line");
-		new BellLineMarginHandler(shell).addMenuItemTo(menu, "Bell Margin", Main.bzStyledText.getBellLineMargin() != -1);
-		new BellPageMarginHandler(shell).addMenuItemTo(menu, "Bell Page", Main.bzStyledText.getBellPageMargin() != -1);
+		new BellLineMarginHandler(shell).addMenuItemTo(menu, "Bell Margin", bzStyledText.getBellLineMargin() != -1);
+		new BellPageMarginHandler(shell).addMenuItemTo(menu, "Bell Page", bzStyledText.getBellPageMargin() != -1);
 		new RewrapFromCursorHandler().addMenuItemTo(menu, "Rewrap From Cursor\tCtrl+F", SWT.MOD1 | 'F');
 
 		//   help menu
@@ -95,61 +99,61 @@ public class BZMenu
 		item.setMenu(menu);
 	}
 
-	private static class NewHandler extends AbstractAction
+	private class NewHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			Main.bzFile.newFile();
+			bzFile.newFile();
 		}
 	}
 
-	private static class OpenHandler extends AbstractAction
+	private class OpenHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			Main.bzFile.openFile();
+			bzFile.openFile();
 		}
 	}
 
-	private static class SaveHandler extends AbstractAction
+	private class SaveHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			Main.bzFile.saveFile();
+			bzFile.saveFile();
 		}
 	}
 
-	private static class SaveAsHandler extends AbstractAction
+	private class SaveAsHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			Main.bzFile.saveAsFile();
+			bzFile.saveAsFile();
 		}
 	}
 
-	private static class UndoHandler extends AbstractAction
+	private class UndoHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			Main.bzStyledText.undo();
+			bzStyledText.undo();
 		}
 	}
 
-	private static class RedoHandler extends AbstractAction
+	private class RedoHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			Main.bzStyledText.redo();
+			bzStyledText.redo();
 		}
 	}
 
-	private static class VisibleHandler extends SelectionAdapter
+	private class VisibleHandler extends SelectionAdapter
 	{
 		private final MenuItem braille;
 		private final MenuItem ascii;
@@ -170,37 +174,37 @@ public class BZMenu
 		{
 			if(event.widget == braille)
 			{
-				if(Main.bzStyledText.getBrailleVisible())
+				if(bzStyledText.getBrailleVisible())
 				{
-					Main.bzStyledText.setBrailleVisible(false);
+					bzStyledText.setBrailleVisible(false);
 					braille.setText("Show Braille");
-//					if(!Main.bzStyledText.getAsciiVisible())
+//					if(!bzStyledText.getAsciiVisible())
 //					{
-//						Main.bzStyledText.setAsciiVisible(true);
+//						bzStyledText.setAsciiVisible(true);
 //						ascii.setText("Hide ASCII");
 //					}
 				}
 				else
 				{
-					Main.bzStyledText.setBrailleVisible(true);
+					bzStyledText.setBrailleVisible(true);
 					braille.setText("Hide Braille");
 				}
 			}
 			else
 			{
-				if(Main.bzStyledText.getAsciiVisible())
+				if(bzStyledText.getAsciiVisible())
 				{
-					Main.bzStyledText.setAsciiVisible(false);
+					bzStyledText.setAsciiVisible(false);
 					ascii.setText("Show ASCII");
-//					if(!Main.bzStyledText.getBrailleVisible())
+//					if(!bzStyledText.getBrailleVisible())
 //					{
-//						Main.bzStyledText.setBrailleVisible(true);
+//						bzStyledText.setBrailleVisible(true);
 //						braille.setText("Hide Braille");
 //					}
 				}
 				else
 				{
-					Main.bzStyledText.setAsciiVisible(true);
+					bzStyledText.setAsciiVisible(true);
 					ascii.setText("Hide ASCII");
 				}
 			}
@@ -213,11 +217,11 @@ public class BZMenu
 		public void widgetSelected(SelectionEvent e)
 		{
 			FontDialog dialog = new FontDialog(shell, SWT.OPEN);
-			dialog.setFontList(Main.bzStyledText.getBrailleFont().getFontData());
+			dialog.setFontList(bzStyledText.getBrailleFont().getFontData());
 			FontData fontData = dialog.open();
 			if(fontData == null)
 				return;
-			Main.bzStyledText.setBrailleFont(new Font(shell.getDisplay(), fontData));
+			bzStyledText.setBrailleFont(new Font(shell.getDisplay(), fontData));
 		}
 	}
 
@@ -227,15 +231,15 @@ public class BZMenu
 		public void widgetSelected(SelectionEvent e)
 		{
 			FontDialog dialog = new FontDialog(shell, SWT.OPEN);
-			dialog.setFontList(Main.bzStyledText.getAsciiFont().getFontData());
+			dialog.setFontList(bzStyledText.getAsciiFont().getFontData());
 			FontData fontData = dialog.open();
 			if(fontData == null)
 				return;
-			Main.bzStyledText.setAsciiFont(new Font(shell.getDisplay(), fontData));
+			bzStyledText.setAsciiFont(new Font(shell.getDisplay(), fontData));
 		}
 	}
 
-	private static class LinesPerPageHandler extends AbstractAction
+	private class LinesPerPageHandler extends AbstractAction
 	{
 		private final Shell parent;
 
@@ -251,7 +255,7 @@ public class BZMenu
 		}
 	}
 
-	private static class LinesPerPageDialog implements SelectionListener, KeyListener
+	private class LinesPerPageDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
@@ -266,7 +270,7 @@ public class BZMenu
 
 			spinner = new Spinner(shell, 0);
 			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-			spinner.setValues(Main.bzStyledText.getLinesPerPage(), 0, 225, 0, 1, 10);
+			spinner.setValues(bzStyledText.getLinesPerPage(), 0, 225, 0, 1, 10);
 			spinner.addKeyListener(this);
 
 			okButton = new Button(shell, SWT.PUSH);
@@ -285,8 +289,8 @@ public class BZMenu
 
 		private void setLinesPerPage()
 		{
-			Main.bzStyledText.setLinesPerPage(spinner.getSelection());
-			Main.bzStyledText.redraw();
+			bzStyledText.setLinesPerPage(spinner.getSelection());
+			bzStyledText.redraw();
 		}
 
 		@Override
@@ -314,7 +318,7 @@ public class BZMenu
 		public void keyReleased(KeyEvent event){}
 	}
 
-	private static class CharsPerLineHandler extends AbstractAction
+	private class CharsPerLineHandler extends AbstractAction
 	{
 		private final Shell parent;
 
@@ -330,7 +334,7 @@ public class BZMenu
 		}
 	}
 
-	private static class CharsPerLineDialog implements SelectionListener, KeyListener
+	private class CharsPerLineDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
@@ -345,7 +349,7 @@ public class BZMenu
 
 			spinner = new Spinner(shell, 0);
 			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-			spinner.setValues(Main.bzStyledText.getCharsPerLine(), 0, 27720, 0, 1, 10);
+			spinner.setValues(bzStyledText.getCharsPerLine(), 0, 27720, 0, 1, 10);
 			spinner.addKeyListener(this);
 
 			okButton = new Button(shell, SWT.PUSH);
@@ -364,8 +368,8 @@ public class BZMenu
 
 		private void setCharsPerLine()
 		{
-			Main.bzStyledText.setCharsPerLine(spinner.getSelection());
-			Main.bzStyledText.redraw();
+			bzStyledText.setCharsPerLine(spinner.getSelection());
+			bzStyledText.redraw();
 		}
 
 		@Override
@@ -394,7 +398,7 @@ public class BZMenu
 		public void keyReleased(KeyEvent event){}
 	}
 
-	private static class BellLineMarginHandler extends AbstractAction
+	private class BellLineMarginHandler extends AbstractAction
 	{
 		private final Shell parent;
 
@@ -410,7 +414,7 @@ public class BZMenu
 		}
 	}
 
-	private static class BellLineMarginDialog implements SelectionListener, KeyListener
+	private class BellLineMarginDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
@@ -425,7 +429,7 @@ public class BZMenu
 
 			spinner = new Spinner(shell, 0);
 			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-			spinner.setValues(Main.bzStyledText.getBellLineMargin(), 0, 27720, 0, 1, 10);
+			spinner.setValues(bzStyledText.getBellLineMargin(), 0, 27720, 0, 1, 10);
 			spinner.addKeyListener(this);
 
 			okButton = new Button(shell, SWT.PUSH);
@@ -444,7 +448,7 @@ public class BZMenu
 
 		private void setBellLineMargin()
 		{
-			Main.bzStyledText.setBellLineMargin(spinner.getSelection());
+			bzStyledText.setBellLineMargin(spinner.getSelection());
 		}
 
 		@Override
@@ -472,7 +476,7 @@ public class BZMenu
 		public void keyReleased(KeyEvent event){}
 	}
 
-	private static class BellPageMarginHandler extends AbstractAction
+	private class BellPageMarginHandler extends AbstractAction
 	{
 		private final Shell parent;
 
@@ -488,7 +492,7 @@ public class BZMenu
 		}
 	}
 
-	private static class BellPageMarginDialog implements SelectionListener, KeyListener
+	private class BellPageMarginDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
@@ -503,7 +507,7 @@ public class BZMenu
 
 			spinner = new Spinner(shell, 0);
 			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-			spinner.setValues(Main.bzStyledText.getBellPageMargin(), 0, 27720, 0, 1, 10);
+			spinner.setValues(bzStyledText.getBellPageMargin(), 0, 27720, 0, 1, 10);
 			spinner.addKeyListener(this);
 
 			okButton = new Button(shell, SWT.PUSH);
@@ -522,7 +526,7 @@ public class BZMenu
 
 		private void setBellPageMargin()
 		{
-			Main.bzStyledText.setBellPageMargin(spinner.getSelection());
+			bzStyledText.setBellPageMargin(spinner.getSelection());
 		}
 
 		@Override
@@ -550,12 +554,12 @@ public class BZMenu
 		public void keyReleased(KeyEvent event){}
 	}
 
-	private static class RewrapFromCursorHandler extends AbstractAction
+	private class RewrapFromCursorHandler extends AbstractAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
-			Main.bzStyledText.rewrapFromCaret();
+			bzStyledText.rewrapFromCaret();
 		}
 	}
 }

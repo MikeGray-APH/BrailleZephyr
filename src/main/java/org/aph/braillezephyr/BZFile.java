@@ -18,6 +18,7 @@ package org.aph.braillezephyr;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,13 +30,22 @@ import java.nio.charset.Charset;
 
 public class BZFile
 {
+	private final Shell shell;
+	private final BZStyledText bzStyledText;
+
 	private String fileName;
+
+	public BZFile(Shell shell, BZStyledText bzStyledText)
+	{
+		this.shell = shell;
+		this.bzStyledText = bzStyledText;
+	}
 
 	boolean newFile()
 	{
-		if(Main.bzStyledText.getModified())
+		if(bzStyledText.getModified())
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
 			messageBox.setMessage("Would you like to save your changes?");
 			int result = messageBox.open();
 			if(result == SWT.CANCEL)
@@ -44,17 +54,17 @@ public class BZFile
 				if(!saveFile())
 					return false;
 		}
-		Main.bzStyledText.setText("");
+		bzStyledText.setText("");
 		fileName = null;
-		Main.shell.setText("BrailleZephyr");
+		shell.setText("BrailleZephyr");
 		return true;
 	}
 
 	boolean openFile()
 	{
-		if(Main.bzStyledText.getModified())
+		if(bzStyledText.getModified())
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
 			messageBox.setMessage("Would you like to save your changes?");
 			int result = messageBox.open();
 			if(result == SWT.CANCEL)
@@ -64,7 +74,7 @@ public class BZFile
 					return false;
 		}
 
-		FileDialog dialog = new FileDialog(Main.shell, SWT.OPEN);
+		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		dialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
 		dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
 		dialog.setFilterIndex(2);
@@ -76,23 +86,23 @@ public class BZFile
 		{
 			FileReader fileReader = new FileReader(fileName);
 			if(fileName.endsWith("bzy"))
-				Main.bzStyledText.readBZY(fileReader);
+				bzStyledText.readBZY(fileReader);
 			else
-				Main.bzStyledText.readBRF(fileReader);
+				bzStyledText.readBRF(fileReader);
 			fileReader.close();
-			Main.shell.setText(new File(fileName).getName() + " - BrailleZephyr");
+			shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			this.fileName = fileName;
 			return true;
 		}
 		catch(FileNotFoundException ignored)
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage(fileName + " not found");
 			messageBox.open();
 		}
 		catch(IOException ignored)
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Error opening " + fileName);
 			messageBox.open();
 		}
@@ -106,7 +116,7 @@ public class BZFile
 
 		if(this.fileName == null)
 		{
-			FileDialog dialog = new FileDialog(Main.shell, SWT.SAVE);
+			FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 			dialog.setFileName(this.fileName);
 			dialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
 			dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
@@ -124,33 +134,33 @@ public class BZFile
 			if(fileName.endsWith("brf"))
 			{
 				writer = new OutputStreamWriter(new FileOutputStream(fileName), Charset.forName("US-ASCII"));
-				Main.bzStyledText.writeBRF(writer);
+				bzStyledText.writeBRF(writer);
 			}
 			else if(fileName.endsWith("bzy"))
 			{
 				writer = new OutputStreamWriter(new FileOutputStream(fileName));
-				Main.bzStyledText.writeBZY(writer);
+				bzStyledText.writeBZY(writer);
 			}
 			else
 			{
 				writer = new OutputStreamWriter(new FileOutputStream(fileName));
-				Main.bzStyledText.writeBRF(writer);
+				bzStyledText.writeBRF(writer);
 			}
 			writer.close();
-			Main.shell.setText(new File(fileName).getName() + " - BrailleZephyr");
+			shell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			this.fileName = fileName;
 			return true;
 		}
 		catch(FileNotFoundException ignored)
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage(fileName + " not found");
 			messageBox.open();
 			this.fileName = null;
 		}
 		catch(IOException ignored)
 		{
-			MessageBox messageBox = new MessageBox(Main.shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Error opening " + fileName);
 			messageBox.open();
 			this.fileName = null;
