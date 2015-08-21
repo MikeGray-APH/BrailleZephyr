@@ -155,29 +155,35 @@ public class BZMenu
 
 	private class VisibleHandler extends SelectionAdapter
 	{
-		private final MenuItem braille;
-		private final MenuItem ascii;
+		private final MenuItem brailleItem;
+		private final MenuItem asciiItem;
 
 		private VisibleHandler(Menu menu)
 		{
-			braille = new MenuItem(menu, SWT.PUSH);
-			braille.setText("Hide Braille");
-			braille.addSelectionListener(this);
+			brailleItem = new MenuItem(menu, SWT.PUSH);
+			if(bzStyledText.getBrailleVisible())
+				brailleItem.setText("Hide Braille");
+			else
+				brailleItem.setText("Show Braille");
+			brailleItem.addSelectionListener(this);
 
-			ascii = new MenuItem(menu, SWT.PUSH);
-			ascii.setText("Hide ASCII");
-			ascii.addSelectionListener(this);
+			asciiItem = new MenuItem(menu, SWT.PUSH);
+			if(bzStyledText.getAsciiVisible())
+				asciiItem.setText("Hide ASCII");
+			else
+				asciiItem.setText("Show ASCII");
+			asciiItem.addSelectionListener(this);
 		}
 
 		@Override
 		public void widgetSelected(SelectionEvent event)
 		{
-			if(event.widget == braille)
+			if(event.widget == brailleItem)
 			{
 				if(bzStyledText.getBrailleVisible())
 				{
 					bzStyledText.setBrailleVisible(false);
-					braille.setText("Show Braille");
+					brailleItem.setText("Show Braille");
 //					if(!bzStyledText.getAsciiVisible())
 //					{
 //						bzStyledText.setAsciiVisible(true);
@@ -187,7 +193,7 @@ public class BZMenu
 				else
 				{
 					bzStyledText.setBrailleVisible(true);
-					braille.setText("Hide Braille");
+					brailleItem.setText("Hide Braille");
 				}
 			}
 			else
@@ -195,7 +201,7 @@ public class BZMenu
 				if(bzStyledText.getAsciiVisible())
 				{
 					bzStyledText.setAsciiVisible(false);
-					ascii.setText("Show ASCII");
+					asciiItem.setText("Show ASCII");
 //					if(!bzStyledText.getBrailleVisible())
 //					{
 //						bzStyledText.setBrailleVisible(true);
@@ -205,7 +211,7 @@ public class BZMenu
 				else
 				{
 					bzStyledText.setAsciiVisible(true);
-					ascii.setText("Hide ASCII");
+					asciiItem.setText("Hide ASCII");
 				}
 			}
 		}

@@ -33,6 +33,7 @@ public class Main
 	private static Shell shell;
 	private static BZStyledText bzStyledText;
 	private static BZFile bzFile;
+	private static BZSettings bzSettings;
 
 	public static void main(String args[])
 	{
@@ -45,6 +46,7 @@ public class Main
 
 		bzStyledText = new BZStyledText(shell);
 		bzFile = new BZFile(shell, bzStyledText);
+		bzSettings = new BZSettings(shell, bzStyledText);
 		new BZMenu(shell, bzFile, bzStyledText);
 
 		shell.open();
@@ -71,6 +73,8 @@ public class Main
 					if(!bzFile.saveFile())
 						event.doit = false;
 			}
+
+			bzSettings.writeSettings();
 		}
 	}
 }
