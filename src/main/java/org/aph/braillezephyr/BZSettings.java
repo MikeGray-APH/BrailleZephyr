@@ -18,6 +18,7 @@ package org.aph.braillezephyr;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
@@ -34,6 +35,9 @@ public class BZSettings
 	private final BZStyledText bzStyledText;
 	private final File file;
 
+	private Point shellSize;
+
+	@SuppressWarnings("SameParameterValue")
 	public BZSettings(Shell shell, BZStyledText bzStyledText, String fileName)
 	{
 		this.shell = shell;
@@ -48,6 +52,14 @@ public class BZSettings
 	public BZSettings(Shell shell, BZStyledText bzStyledText)
 	{
 		this(shell, bzStyledText, null);
+	}
+
+	public Point getShellSize()
+	{
+		if(shellSize == null)
+			return new Point(640, 480);
+
+		return shellSize;
 	}
 
 	private boolean readLine(String line)
@@ -68,6 +80,16 @@ public class BZSettings
 
 			case "brailleText.visible":  bzStyledText.setBrailleVisible(Boolean.valueOf(tokens[1]));  break;
 			case "asciiText.visible":  bzStyledText.setAsciiVisible(Boolean.valueOf(tokens[1]));  break;
+
+			default:  return false;
+			}
+			break;
+
+		case 3:
+
+			switch(tokens[0])
+			{
+			case "size":  shellSize = new Point(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));  break;
 
 			default:  return false;
 			}
@@ -124,14 +146,12 @@ public class BZSettings
 			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Unable to open settings file " + file.getPath());
 			messageBox.open();
-			return;
 		}
 		catch(IOException ignored)
 		{
 			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Unable to read settings file " + file.getPath());
 			messageBox.open();
-			return;
 		}
 		finally
 		{
@@ -145,13 +165,14 @@ public class BZSettings
 				MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 				messageBox.setMessage("Unable to close settings file " + file.getPath());
 				messageBox.open();
-				return;
 			}
 		}
 	}
 
 	private void writeLines(PrintWriter writer)
 	{
+		shellSize = bzStyledText.getShellSize();
+		writer.println("size " + shellSize.x + " " + shellSize.y);
 		writer.println("linesPerPage " + bzStyledText.getLinesPerPage());
 		writer.println("charsPerLine " + bzStyledText.getCharsPerLine());
 		writer.println();
@@ -202,7 +223,6 @@ public class BZSettings
 			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Unable to open settings file " + file.getPath());
 			messageBox.open();
-			return;
 		}
 		finally
 		{

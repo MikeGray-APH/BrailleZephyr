@@ -23,6 +23,8 @@ import org.eclipse.swt.custom.ExtendedModifyListener;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.StyledTextContent;
 import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
@@ -60,6 +62,7 @@ public class BZStyledText
 {
 	private final static char PARAGRAPH_END = 0xfeff;
 
+	private final Shell shell;
 	private final StyledTextContent content;
 	private final StyledText brailleText, asciiText;
 	private final Composite composite;
@@ -68,6 +71,8 @@ public class BZStyledText
 	private final boolean windowBug = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
 	private StyledText currentText;
+
+	private Point shellSize;
 
 	private String eol = System.getProperty("line.separator");
 	private int linesPerPage = 25;
@@ -83,6 +88,10 @@ public class BZStyledText
 
 	public BZStyledText(Shell shell)
 	{
+		this.shell = shell;
+		shell.addControlListener(new ControlHandler());
+		shellSize = shell.getSize();
+
 		color = shell.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 
 		composite = new Composite(shell, 0);
@@ -209,6 +218,11 @@ public class BZStyledText
 			messageBox.open();
 			clipPageBell = null;
 		}
+	}
+
+	public Point getShellSize()
+	{
+		return shellSize;
 	}
 
 	public int getLinesPerPage()
@@ -554,6 +568,20 @@ public class BZStyledText
 			else if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
 				break;
 		}
+	}
+
+	private class ControlHandler implements ControlListener
+	{
+		@Override
+		public void controlResized(ControlEvent event)
+		{
+			if(shell.getMaximized())
+				return;
+			shellSize = shell.getSize();
+		}
+
+		@Override
+		public void controlMoved(ControlEvent ignored){}
 	}
 
 	private class FocusHandler implements FocusListener
