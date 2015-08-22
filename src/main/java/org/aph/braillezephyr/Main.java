@@ -18,7 +18,6 @@ package org.aph.braillezephyr;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -47,8 +46,6 @@ public class Main
 		bzStyledText = new BZStyledText(shell);
 		bzFile = new BZFile(bzStyledText);
 		bzSettings = new BZSettings(bzStyledText);
-		Point point = bzSettings.getShellSize();
-		shell.setSize(point.x, point.y);
 		new BZMenu(bzFile, bzStyledText);
 
 		shell.open();

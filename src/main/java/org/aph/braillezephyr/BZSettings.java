@@ -16,6 +16,8 @@
 package org.aph.braillezephyr;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
@@ -36,30 +38,41 @@ public class BZSettings
 	private final File file;
 
 	private Point shellSize;
+	private boolean shellMaximized;
 
-	@SuppressWarnings("SameParameterValue")
-	public BZSettings(BZStyledText bzStyledText, String fileName)
+	public BZSettings(BZStyledText bzStyledText, String fileName, boolean useSize)
 	{
 		this.bzStyledText = bzStyledText;
 		shell = bzStyledText.getShell();
 
 		if(fileName == null)
-			fileName = System.getProperty("user.home") + File.separator + ".braillezephyr";
+			fileName = System.getProperty("user.home") + File.separator + ".braillezephyr.conf";
 		file = new File(fileName);
 		readSettings();
+
+		if(useSize)
+		{
+			shell.addControlListener(new ControlHandler());
+			if(shellSize == null)
+				shellSize = new Point(640, 480);
+			shell.setSize(shellSize);
+			shell.setMaximized(shellMaximized);
+		}
+	}
+
+	public BZSettings(BZStyledText bzStyledText, boolean useSize)
+	{
+		this(bzStyledText, null, useSize);
+	}
+
+	public BZSettings(BZStyledText bzStyledText, String fileName)
+	{
+		this(bzStyledText, fileName, true);
 	}
 
 	public BZSettings(BZStyledText bzStyledText)
 	{
 		this(bzStyledText, null);
-	}
-
-	public Point getShellSize()
-	{
-		if(shellSize == null)
-			return new Point(640, 480);
-
-		return shellSize;
 	}
 
 	private boolean readLine(String line)
@@ -85,20 +98,16 @@ public class BZSettings
 			}
 			break;
 
-		case 3:
-
-			switch(tokens[0])
-			{
-			case "size":  shellSize = new Point(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));  break;
-
-			default:  return false;
-			}
-			break;
-
 		case 4:
 
 			switch(tokens[0])
 			{
+			case "size":
+
+				shellSize = new Point(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
+				shellMaximized = Boolean.valueOf(tokens[3]);
+				break;
+
 			case "brailleText.font":
 
 				bzStyledText.setBrailleFont(new Font(shell.getDisplay(),
@@ -171,8 +180,9 @@ public class BZSettings
 
 	private void writeLines(PrintWriter writer)
 	{
-		shellSize = bzStyledText.getShellSize();
-		writer.println("size " + shellSize.x + " " + shellSize.y);
+		if(shellSize != null)
+			writer.println("size " + shellSize.x + " " + shellSize.y + " " + shellMaximized);
+
 		writer.println("linesPerPage " + bzStyledText.getLinesPerPage());
 		writer.println("charsPerLine " + bzStyledText.getCharsPerLine());
 		writer.println();
@@ -202,7 +212,7 @@ public class BZSettings
 		}
 		catch(IOException ignored)
 		{
-			//TODO:  if necessary?
+			//TODO:  is this if necessary?
 			if(!file.exists())
 			{
 				MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
@@ -228,6 +238,41 @@ public class BZSettings
 		{
 			if(writer != null)
 				writer.close();
+		}
+	}
+
+	private class ControlHandler implements ControlListener
+	{
+		@Override
+		public void controlResized(ControlEvent event)
+		{
+			prevShellSize = shellSize;
+			shellSize = shell.getSize();
+
+			if(!checkingMaximize)
+			{
+				checkingMaximize = true;
+				shell.getDisplay().timerExec(100, new CheckMaximizeThread());
+			}
+
+		}
+
+		@Override
+		public void controlMoved(ControlEvent ignored){}
+	}
+
+	private volatile boolean checkingMaximize;
+	private Point prevShellSize;
+
+	private class CheckMaximizeThread implements Runnable
+	{
+		@Override
+		public void run()
+		{
+			shellMaximized = shell.getMaximized();
+			if(shellMaximized)
+				shellSize = prevShellSize;
+			checkingMaximize = false;
 		}
 	}
 }
