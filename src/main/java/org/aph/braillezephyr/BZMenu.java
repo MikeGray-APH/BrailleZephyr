@@ -38,11 +38,11 @@ public class BZMenu
 	private final BZFile bzFile;
 	private final BZStyledText bzStyledText;
 
-	BZMenu(Shell shell, BZFile bzFile, BZStyledText bzStyledText)
+	BZMenu(BZFile bzFile, BZStyledText bzStyledText)
 	{
-		this.shell = shell;
-		this.bzFile = bzFile;
 		this.bzStyledText = bzStyledText;
+		this.bzFile = bzFile;
+		shell = bzStyledText.getShell();
 
 		Menu menuBar = new Menu(shell, SWT.BAR);
 		shell.setMenuBar(menuBar);

@@ -38,10 +38,10 @@ public class BZSettings
 	private Point shellSize;
 
 	@SuppressWarnings("SameParameterValue")
-	public BZSettings(Shell shell, BZStyledText bzStyledText, String fileName)
+	public BZSettings(BZStyledText bzStyledText, String fileName)
 	{
-		this.shell = shell;
 		this.bzStyledText = bzStyledText;
+		shell = bzStyledText.getShell();
 
 		if(fileName == null)
 			fileName = System.getProperty("user.home") + File.separator + ".braillezephyr";
@@ -49,9 +49,9 @@ public class BZSettings
 		readSettings();
 	}
 
-	public BZSettings(Shell shell, BZStyledText bzStyledText)
+	public BZSettings(BZStyledText bzStyledText)
 	{
-		this(shell, bzStyledText, null);
+		this(bzStyledText, null);
 	}
 
 	public Point getShellSize()

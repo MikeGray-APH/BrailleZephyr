@@ -220,6 +220,11 @@ public class BZStyledText
 		}
 	}
 
+	Shell getShell()
+	{
+		return shell;
+	}
+
 	public Point getShellSize()
 	{
 		return shellSize;
@@ -860,4 +865,3 @@ public class BZStyledText
 		}
 	}
 }
-

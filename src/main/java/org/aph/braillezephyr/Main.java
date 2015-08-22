@@ -45,11 +45,11 @@ public class Main
 		shell.addShellListener(new ShellHandler());
 
 		bzStyledText = new BZStyledText(shell);
-		bzFile = new BZFile(shell, bzStyledText);
-		bzSettings = new BZSettings(shell, bzStyledText);
+		bzFile = new BZFile(bzStyledText);
+		bzSettings = new BZSettings(bzStyledText);
 		Point point = bzSettings.getShellSize();
 		shell.setSize(point.x, point.y);
-		new BZMenu(shell, bzFile, bzStyledText);
+		new BZMenu(bzFile, bzStyledText);
 
 		shell.open();
 		while(!shell.isDisposed())

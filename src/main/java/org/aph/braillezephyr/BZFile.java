@@ -35,10 +35,10 @@ public class BZFile
 
 	private String fileName;
 
-	public BZFile(Shell shell, BZStyledText bzStyledText)
+	public BZFile(BZStyledText bzStyledText)
 	{
-		this.shell = shell;
 		this.bzStyledText = bzStyledText;
+		shell = bzStyledText.getShell();
 	}
 
 	boolean newFile()
