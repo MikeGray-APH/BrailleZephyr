@@ -322,7 +322,6 @@ public class BZStyledText
 		asciiText.setFont(font);
 	}
 
-	@SuppressWarnings("SameParameterValue")
 	public void setText(String text)
 	{
 		content.setText(text);

@@ -572,7 +572,6 @@ public class BZMenu
 
 abstract class AbstractAction implements SelectionListener
 {
-	@SuppressWarnings("WeakerAccess")
 	MenuItem addMenuItemTo(Menu menu,
 	                       String tag,
 	                       int accelerator,
