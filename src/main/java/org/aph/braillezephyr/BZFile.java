@@ -28,24 +28,39 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
+/**
+ * <p>
+ * This class handles the file operations for BZStyledText.
+ * </p>
+ *
+ * @author Mike Gray mgray@aph.org
+ */
 public class BZFile
 {
-	private final Shell shell;
 	private final BZStyledText bzStyledText;
+	private final Shell parentShell;
 
 	private String fileName;
 
+	/**
+	 * <p>
+	 * Creates a new <code>BZFile</code> object.
+	 * </p>
+	 *
+	 * @param bzStyledText the bzStyledText object to operate on (cannot be null)
+	 */
 	public BZFile(BZStyledText bzStyledText)
 	{
 		this.bzStyledText = bzStyledText;
-		shell = bzStyledText.getShell();
+		parentShell = bzStyledText.getParentShell();
 	}
 
 	boolean newFile()
 	{
+		//   check if text has been modified
 		if(bzStyledText.getModified())
 		{
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
 			messageBox.setMessage("Would you like to save your changes?");
 			int result = messageBox.open();
 			if(result == SWT.CANCEL)
@@ -54,17 +69,19 @@ public class BZFile
 				if(!saveFile())
 					return false;
 		}
+
 		bzStyledText.setText("");
 		fileName = null;
-		shell.setText("BrailleZephyr");
+		parentShell.setText("BrailleZephyr");
 		return true;
 	}
 
 	boolean openFile()
 	{
+		//   check if text has been modified
 		if(bzStyledText.getModified())
 		{
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
 			messageBox.setMessage("Would you like to save your changes?");
 			int result = messageBox.open();
 			if(result == SWT.CANCEL)
@@ -74,7 +91,7 @@ public class BZFile
 					return false;
 		}
 
-		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+		FileDialog dialog = new FileDialog(parentShell, SWT.OPEN);
 		dialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
 		dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
 		dialog.setFilterIndex(2);
@@ -90,19 +107,19 @@ public class BZFile
 			else
 				bzStyledText.readBRF(fileReader);
 			fileReader.close();
-			shell.setText(new File(fileName).getName() + " - BrailleZephyr");
+			parentShell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			this.fileName = fileName;
 			return true;
 		}
 		catch(FileNotFoundException ignored)
 		{
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage(fileName + " not found");
 			messageBox.open();
 		}
 		catch(IOException ignored)
 		{
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Error opening " + fileName);
 			messageBox.open();
 		}
@@ -114,9 +131,10 @@ public class BZFile
 	{
 		String fileName;
 
+		//   check if file name is set
 		if(this.fileName == null)
 		{
-			FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+			FileDialog dialog = new FileDialog(parentShell, SWT.SAVE);
 			dialog.setFileName(this.fileName);
 			dialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
 			dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
@@ -147,20 +165,20 @@ public class BZFile
 				bzStyledText.writeBRF(writer);
 			}
 			writer.close();
-			shell.setText(new File(fileName).getName() + " - BrailleZephyr");
+			parentShell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			this.fileName = fileName;
 			return true;
 		}
 		catch(FileNotFoundException ignored)
 		{
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage(fileName + " not found");
 			messageBox.open();
 			this.fileName = null;
 		}
 		catch(IOException ignored)
 		{
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Error opening " + fileName);
 			messageBox.open();
 			this.fileName = null;
@@ -171,10 +189,13 @@ public class BZFile
 
 	boolean saveAsFile()
 	{
+		//   set fileName to null so saveFile will ask for a new file name
 		String fileName = this.fileName;
 		this.fileName = null;
 		if(saveFile())
 			return true;
+
+		//   saveFile didn't save, reset fileName
 		this.fileName = fileName;
 		return false;
 	}

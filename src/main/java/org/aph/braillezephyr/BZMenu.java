@@ -32,20 +32,35 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
+/**
+ * <p>
+ * This class creates and handles the menu for BZStyledText.
+ * </p>
+ *
+ * @author Mike Gray mgray@aph.org
+ */
 public class BZMenu
 {
-	private final Shell shell;
-	private final BZFile bzFile;
 	private final BZStyledText bzStyledText;
+	private final BZFile bzFile;
+	private final Shell parentShell;
 
-	BZMenu(BZFile bzFile, BZStyledText bzStyledText)
+	/**
+	 * <p>
+	 * Creates a new <code>BZMenu</code> object.
+	 * </p>
+	 *
+	 * @param bzStyledText the bzStyledText object to operate on (cannot be null)
+	 * @param bzFile the bzFile object for file operations (cannot be null)
+	 */
+	public BZMenu(BZStyledText bzStyledText, BZFile bzFile)
 	{
 		this.bzStyledText = bzStyledText;
 		this.bzFile = bzFile;
-		shell = bzStyledText.getShell();
+		parentShell = bzStyledText.getParentShell();
 
-		Menu menuBar = new Menu(shell, SWT.BAR);
-		shell.setMenuBar(menuBar);
+		Menu menuBar = new Menu(parentShell, SWT.BAR);
+		parentShell.setMenuBar(menuBar);
 
 		Menu menu;
 		MenuItem item;
@@ -86,10 +101,10 @@ public class BZMenu
 		item.setText("F&ormat");
 		item.setMenu(menu);
 
-		new LinesPerPageHandler(shell).addMenuItemTo(menu, "Lines Per Page");
-		new CharsPerLineHandler(shell).addMenuItemTo(menu, "Chars Per Line");
-		new BellLineMarginHandler(shell).addMenuItemTo(menu, "Bell Margin", bzStyledText.getBellLineMargin() != -1);
-		new BellPageMarginHandler(shell).addMenuItemTo(menu, "Bell Page", bzStyledText.getBellPageMargin() != -1);
+		new LinesPerPageHandler(parentShell).addMenuItemTo(menu, "Lines Per Page");
+		new CharsPerLineHandler(parentShell).addMenuItemTo(menu, "Chars Per Line");
+		new BellLineMarginHandler(parentShell).addMenuItemTo(menu, "Bell Margin", bzStyledText.getBellLineMargin() != -1);
+		new BellPageMarginHandler(parentShell).addMenuItemTo(menu, "Bell Page", bzStyledText.getBellPageMargin() != -1);
 		new RewrapFromCursorHandler().addMenuItemTo(menu, "Rewrap From Cursor\tCtrl+F", SWT.MOD1 | 'F');
 
 		//   help menu
@@ -222,12 +237,12 @@ public class BZMenu
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
-			FontDialog dialog = new FontDialog(shell, SWT.OPEN);
+			FontDialog dialog = new FontDialog(parentShell, SWT.OPEN);
 			dialog.setFontList(bzStyledText.getBrailleFont().getFontData());
 			FontData fontData = dialog.open();
 			if(fontData == null)
 				return;
-			bzStyledText.setBrailleFont(new Font(shell.getDisplay(), fontData));
+			bzStyledText.setBrailleFont(new Font(parentShell.getDisplay(), fontData));
 		}
 	}
 
@@ -236,12 +251,12 @@ public class BZMenu
 		@Override
 		public void widgetSelected(SelectionEvent e)
 		{
-			FontDialog dialog = new FontDialog(shell, SWT.OPEN);
+			FontDialog dialog = new FontDialog(parentShell, SWT.OPEN);
 			dialog.setFontList(bzStyledText.getAsciiFont().getFontData());
 			FontData fontData = dialog.open();
 			if(fontData == null)
 				return;
-			bzStyledText.setAsciiFont(new Font(shell.getDisplay(), fontData));
+			bzStyledText.setAsciiFont(new Font(parentShell.getDisplay(), fontData));
 		}
 	}
 

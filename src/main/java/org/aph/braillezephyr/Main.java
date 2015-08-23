@@ -24,9 +24,11 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 /**
+ * <p>
+ * Contains the main method.
+ * </p>
  *
  * @author Mike Gray mgray@aph.org
- *
  */
 public class Main
 {
@@ -46,14 +48,12 @@ public class Main
 		bzStyledText = new BZStyledText(shell);
 		bzFile = new BZFile(bzStyledText);
 		bzSettings = new BZSettings(bzStyledText);
-		new BZMenu(bzFile, bzStyledText);
+		new BZMenu(bzStyledText, bzFile);
 
 		shell.open();
 		while(!shell.isDisposed())
-		{
-			if(!display.readAndDispatch())
-				display.sleep();
-		}
+		if(!display.readAndDispatch())
+			display.sleep();
 	}
 
 	private static class ShellHandler implements ShellListener
@@ -61,6 +61,7 @@ public class Main
 		@Override
 		public void shellClosed(ShellEvent event)
 		{
+			//   check if text has been modified
 			if(bzStyledText.getModified())
 			{
 				MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
@@ -73,6 +74,7 @@ public class Main
 						event.doit = false;
 			}
 
+			//   write settings file
 			if(event.doit)
 				bzSettings.writeSettings();
 		}
@@ -84,6 +86,6 @@ public class Main
 		@Override
 		public void shellDeiconified(ShellEvent ignored){}
 		@Override
-		public void shellIconified(ShellEvent ignored){	}
+		public void shellIconified(ShellEvent ignored){}
 	}
 }

@@ -31,19 +31,45 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * <p>
+ * This class handles access to the settings file on the system.  This
+ * allows the settings to be restored between executions.
+ * </p>
+ *
+ * @author Mike Gray mgray@aph.org
+ */
 public class BZSettings
 {
-	private final Shell shell;
 	private final BZStyledText bzStyledText;
+	private final Shell parentShell;
 	private final File file;
 
 	private Point shellSize;
 	private boolean shellMaximized;
 
+	/**
+	 * <p>
+	 * Creates a new <code>BZSettings</code> object for BZStyledText.
+	 * </p><p>
+	 * If <code>fileName</code> is null, then the default file
+	 * &quot;.braillezephyr.conf&quot; in the user's home directory is
+	 * tried.
+	 * </p><p>
+	 * When <code>useSize</code> is true, then the parent shell of the
+	 * <code>bzStyledText</code> object's size will be stored and restored.
+	 * This is used for when the <code>bzStyledText</code> object is or isn't
+	 * a top level window.
+	 * </p>
+	 *
+	 * @param bzStyledText the bzStyledText object to operate on (cannot be null)
+	 * @param fileName the filename of the settings file
+	 * @param useSize whether or not to resize the parent of bzStyledText
+	 */
 	public BZSettings(BZStyledText bzStyledText, String fileName, boolean useSize)
 	{
 		this.bzStyledText = bzStyledText;
-		shell = bzStyledText.getShell();
+		parentShell = bzStyledText.getParentShell();
 
 		if(fileName == null)
 			fileName = System.getProperty("user.home") + File.separator + ".braillezephyr.conf";
@@ -52,24 +78,55 @@ public class BZSettings
 
 		if(useSize)
 		{
-			shell.addControlListener(new ControlHandler());
+			parentShell.addControlListener(new ControlHandler());
 			if(shellSize == null)
 				shellSize = new Point(640, 480);
-			shell.setSize(shellSize);
-			shell.setMaximized(shellMaximized);
+			parentShell.setSize(shellSize);
+			parentShell.setMaximized(shellMaximized);
 		}
 	}
 
+	/**
+	 * <p>
+	 * Creates a new <code>BZSettings</code> object with the default
+	 * <code>fileName</code>.
+	 * </p>
+	 *
+	 * @param bzStyledText the bzStyledText to operate on (cannot be null)
+	 * @param useSize whether or not to resize the parent of bzStyledText
+	 *
+	 * @see #BZSettings(BZStyledText, String, boolean)
+	 */
 	public BZSettings(BZStyledText bzStyledText, boolean useSize)
 	{
 		this(bzStyledText, null, useSize);
 	}
 
+	/**
+	 * <p>
+	 * Creates a new <code>BZSettings</code> object with resizing.
+	 * </p>
+	 *
+	 * @param bzStyledText the bzStyledText to operate on (cannot be null)
+	 * @param fileName the filename of the settings file
+	 *
+	 * @see #BZSettings(BZStyledText, String, boolean)
+	 */
 	public BZSettings(BZStyledText bzStyledText, String fileName)
 	{
 		this(bzStyledText, fileName, true);
 	}
 
+	/**
+	 * <p>
+	 * Creates a new <code>BZSettings</code> object with the default
+	 * <code>fileName</code> and resizing.
+	 * </p>
+	 *
+	 * @param bzStyledText the bzStyledText to operate on (cannot be null)
+	 *
+	 * @see #BZSettings(BZStyledText, String, boolean)
+	 */
 	public BZSettings(BZStyledText bzStyledText)
 	{
 		this(bzStyledText, null);
@@ -110,7 +167,7 @@ public class BZSettings
 
 			case "brailleText.font":
 
-				bzStyledText.setBrailleFont(new Font(shell.getDisplay(),
+				bzStyledText.setBrailleFont(new Font(parentShell.getDisplay(),
 				                                     tokens[1].replace('_', ' '),
 				                                     Integer.parseInt(tokens[2]),
 				                                     Integer.parseInt(tokens[3])));
@@ -118,7 +175,7 @@ public class BZSettings
 
 			case "asciiText.font":
 
-				bzStyledText.setAsciiFont(new Font(shell.getDisplay(),
+				bzStyledText.setAsciiFont(new Font(parentShell.getDisplay(),
 				                                   tokens[1].replace('_', ' '),
 				                                   Integer.parseInt(tokens[2]),
 				                                   Integer.parseInt(tokens[3])));
@@ -145,20 +202,18 @@ public class BZSettings
 			reader = new BufferedReader(new FileReader(file));
 			String line;
 			while((line = reader.readLine()) != null)
-			{
-				if(!readLine(line))
-					System.err.println("Unknown setting:  " + line);
-			}
+			if(!readLine(line))
+				System.err.println("Unknown setting:  " + line);
 		}
 		catch(FileNotFoundException ignored)
 		{
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Unable to open settings file " + file.getPath());
 			messageBox.open();
 		}
 		catch(IOException ignored)
 		{
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Unable to read settings file " + file.getPath());
 			messageBox.open();
 		}
@@ -171,7 +226,7 @@ public class BZSettings
 			}
 			catch(IOException ignored)
 			{
-				MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 				messageBox.setMessage("Unable to close settings file " + file.getPath());
 				messageBox.open();
 			}
@@ -215,7 +270,7 @@ public class BZSettings
 			//TODO:  is this if necessary?
 			if(!file.exists())
 			{
-				MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 				messageBox.setMessage("Unable to create settings file");
 				messageBox.open();
 				return;
@@ -230,7 +285,7 @@ public class BZSettings
 		}
 		catch(FileNotFoundException ignored)
 		{
-			MessageBox messageBox = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 			messageBox.setMessage("Unable to open settings file " + file.getPath());
 			messageBox.open();
 		}
@@ -243,36 +298,49 @@ public class BZSettings
 
 	private class ControlHandler implements ControlListener
 	{
+		/**
+		 * @see org.aph.braillezephyr.BZSettings.ControlHandler.CheckMaximizeThread
+		 */
+		private volatile boolean checkingMaximize;
+
+		private Point prevShellSize;
+
 		@Override
 		public void controlResized(ControlEvent event)
 		{
 			prevShellSize = shellSize;
-			shellSize = shell.getSize();
+			shellSize = parentShell.getSize();
 
 			if(!checkingMaximize)
 			{
 				checkingMaximize = true;
-				shell.getDisplay().timerExec(100, new CheckMaximizeThread());
+				parentShell.getDisplay().timerExec(100, new CheckMaximizeThread());
 			}
 
 		}
 
 		@Override
 		public void controlMoved(ControlEvent ignored){}
-	}
 
-	private volatile boolean checkingMaximize;
-	private Point prevShellSize;
-
-	private class CheckMaximizeThread implements Runnable
-	{
-		@Override
-		public void run()
+		/**
+		 * <p>
+		 * The getMaximized method does not work with some window managers
+		 * inside the controlResized method.  It needs to be called after
+		 * the controlResized method returns.  So the thread for this
+		 * class so run inside controlResized with a delay and it checks
+		 * getMaximized.
+		 * </p>
+		 */
+		private class CheckMaximizeThread implements Runnable
 		{
-			shellMaximized = shell.getMaximized();
-			if(shellMaximized)
-				shellSize = prevShellSize;
-			checkingMaximize = false;
+			@Override
+			public void run()
+			{
+				shellMaximized = parentShell.getMaximized();
+				if(shellMaximized)
+					shellSize = prevShellSize;
+				checkingMaximize = false;
+			}
 		}
 	}
 }
