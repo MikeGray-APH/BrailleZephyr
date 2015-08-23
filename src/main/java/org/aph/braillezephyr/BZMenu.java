@@ -568,42 +568,42 @@ public class BZMenu
 			bzStyledText.rewrapFromCaret();
 		}
 	}
-}
 
-abstract class AbstractAction implements SelectionListener
-{
-	MenuItem addMenuItemTo(Menu menu,
-	                       String tag,
-	                       int accelerator,
-	                       boolean enabled)
+	private abstract class AbstractAction implements SelectionListener
 	{
-		MenuItem item = new MenuItem(menu, SWT.PUSH);
-		item.setText(tag);
-		if(accelerator != 0)
-			item.setAccelerator(accelerator);
-		item.addSelectionListener(this);
-		item.setEnabled(enabled);
-		return item;
+		MenuItem addMenuItemTo(Menu menu,
+		                       String tag,
+		                       int accelerator,
+		                       boolean enabled)
+		{
+			MenuItem item = new MenuItem(menu, SWT.PUSH);
+			item.setText(tag);
+			if(accelerator != 0)
+				item.setAccelerator(accelerator);
+			item.addSelectionListener(this);
+			item.setEnabled(enabled);
+			return item;
+		}
+
+		MenuItem addMenuItemTo(Menu menu, String tag, int accelerator)
+		{
+			return addMenuItemTo(menu, tag, accelerator, true);
+		}
+
+		MenuItem addMenuItemTo(Menu menu, String tag, boolean enabled)
+		{
+			return addMenuItemTo(menu, tag, 0, enabled);
+		}
+
+		MenuItem addMenuItemTo(Menu menu, String tag)
+		{
+			return addMenuItemTo(menu, tag, 0, true);
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent event){}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent event){}
 	}
-
-	MenuItem addMenuItemTo(Menu menu, String tag, int accelerator)
-	{
-		return addMenuItemTo(menu, tag, accelerator, true);
-	}
-
-	MenuItem addMenuItemTo(Menu menu, String tag, boolean enabled)
-	{
-		return addMenuItemTo(menu, tag, 0, enabled);
-	}
-
-	MenuItem addMenuItemTo(Menu menu, String tag)
-	{
-		return addMenuItemTo(menu, tag, 0, true);
-	}
-
-	@Override
-	public void widgetSelected(SelectionEvent event){}
-
-	@Override
-	public void widgetDefaultSelected(SelectionEvent event){}
 }
