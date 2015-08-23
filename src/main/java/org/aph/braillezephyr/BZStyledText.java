@@ -561,6 +561,9 @@ public class BZStyledText
 			else if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
 				break;
 		}
+
+		changes.clear();
+		changeIndex = saveIndex = 0;
 	}
 
 	private class FocusHandler implements FocusListener
