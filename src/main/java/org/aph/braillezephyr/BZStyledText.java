@@ -625,6 +625,7 @@ public class BZStyledText
 	 */
 	public void readBRF(Reader reader) throws IOException
 	{
+		StringBuilder stringBuilder = new StringBuilder();
 		boolean checkLinesPerPage = true;
 		boolean removeFormFeed = true;
 		char buffer[] = new char[65536];
@@ -675,9 +676,11 @@ public class BZStyledText
 			else
 				trim = cnt;
 
-			content.setText(new String(buffer, 0, trim));
-			clearChanges();
+			stringBuilder.append(new String(buffer, 0, trim));
 		}
+
+		content.setText(stringBuilder.toString());
+		clearChanges();
 	}
 
 	/**
