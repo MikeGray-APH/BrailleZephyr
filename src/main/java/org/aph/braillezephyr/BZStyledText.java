@@ -871,7 +871,7 @@ public class BZStyledText
 		}
 
 		@Override
-		public void focusGained(FocusEvent e)
+		public void focusGained(FocusEvent ignored)
 		{
 			currentText = source;
 		}
@@ -915,23 +915,18 @@ public class BZStyledText
 			prevCaretOffset = caretOffset;
 
 			//   scroll other text to match current
-			if(source != currentText)
-				return;
 			if(lineIndex == prevLineIndex)
 				return;
 			prevLineIndex = lineIndex;
+			if(source != currentText)
+				return;
 			int sourceLinePixel = source.getLinePixel(lineIndex);
 
 			//   check if have to wait until after paint event
 			if(sourceLinePixel < 0 || (sourceLinePixel + sourceLineHeight) > sourceHeight)
 				adjustOtherThread.waitPainted(source, other);
 			else
-			{
-				int otherLineHeight = other.getLineHeight();
-				int otherLineRealPixel = lineIndex * otherLineHeight;
-				other.setTopPixel(otherLineRealPixel - sourceLinePixel);
-				other.redraw();
-			}
+				adjustOtherThread.adjustOther(source, other);
 		}
 	}
 
@@ -939,6 +934,51 @@ public class BZStyledText
 	{
 		private volatile boolean paintEvent;
 		private StyledText source, other;
+
+		private synchronized void adjustOther(StyledText source, StyledText other)
+		{
+			int caretOffset = source.getCaretOffset();
+			int lineIndex = source.getLineAtOffset(caretOffset);
+			int otherLineHeight = other.getLineHeight();
+			int otherLineRealPixel = lineIndex * otherLineHeight;
+			int sourceLinePixel = source.getLinePixel(lineIndex);
+			int otherTopPixel = otherLineRealPixel - sourceLinePixel;
+
+			int otherHeight = other.getClientArea().height;
+			int otherLineBelow = otherHeight - (sourceLinePixel + otherLineHeight);
+
+			int otherLineCount = other.getLineCount();
+			int otherLinesBelow = otherLineCount - lineIndex;
+			int otherLinesBelowHeight = otherLinesBelow * otherLineHeight;
+			int otherBottomGap = otherHeight - (sourceLinePixel + otherLinesBelowHeight);
+
+			//   other would have to scroll before first line
+			if(otherTopPixel < 0)
+			{
+				int sourceTopPixel = source.getTopPixel() - otherTopPixel;
+				otherTopPixel = 0;
+				source.setTopPixel(sourceTopPixel);
+			}
+
+			//   other line would be partially past the bottom of view
+			else if(otherLineBelow < 0)
+			{
+				int sourceTopPixel = source.getTopPixel() - otherLineBelow;
+				otherTopPixel -= otherLineBelow;
+				source.setTopPixel(sourceTopPixel);
+			}
+
+			//   other would have to scroll past last line
+			else if(otherBottomGap > 0)
+			{
+				int sourceTopPixel = source.getTopPixel() - otherBottomGap;
+				otherTopPixel -= otherBottomGap;
+				source.setTopPixel(sourceTopPixel);
+			}
+
+			other.setCaretOffset(caretOffset);
+			other.setTopPixel(otherTopPixel);
+		}
 
 		private synchronized void waitPainted(StyledText source, StyledText other)
 		{
@@ -963,20 +1003,9 @@ public class BZStyledText
 				{
 					if(!paintEvent)
 						wait();
-
-					int caretOffset = source.getCaretOffset();
-					int lineIndex = source.getLineAtOffset(caretOffset);
-					int sourceLinePixel = source.getLinePixel(lineIndex);
-					int otherLineHeight = other.getLineHeight();
-					int otherLineRealPixel = lineIndex * otherLineHeight;
-					other.setTopPixel(otherLineRealPixel - sourceLinePixel);
-					other.redraw();
+					adjustOther(source, other);
 				}
-				catch(InterruptedException ignored)
-				{
-					System.err.println("failed wait");
-					return;
-				}
+				catch(InterruptedException ignored){}
 			}
 		}
 	}
