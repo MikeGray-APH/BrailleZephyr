@@ -47,9 +47,6 @@ To obtain a complete list of tasks available:
 Miscellaneous
 =============
 
-LouisBraille fonts:
-http://www.cbtbc.org/braille/fonts
-
 Margin bell:
 http://www.freesound.org/people/ramsamba/sounds/318687/
 

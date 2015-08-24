@@ -107,43 +107,39 @@ public class BZStyledText
 		composite = new Composite(parent, 0);
 		composite.setLayout(new GridLayout(2, true));
 
-		//   load LouisBraille-Regular.otf font
-		try
-		{
-			InputStream fontInputStream = getClass().getResourceAsStream("/fonts/LouisBraille-Regular.otf");
-			//File fontFile = File.createTempFile("BrailleZephyr-font-", ".otf");
-			File fontFile = new File(System.getProperty("java.io.tmpdir") + File.separator + "BrailleZephyr-font.otf");
-			FileOutputStream fontOutputStream = new FileOutputStream(fontFile);
-			byte buffer[] = new byte[27720];
-			int length;
-			while((length = fontInputStream.read(buffer)) > 0)
-				fontOutputStream.write(buffer, 0, length);
-			fontInputStream.close();
-			fontOutputStream.close();
-
-			parent.getDisplay().loadFont(fontFile.getPath());
-			//if(parentShell.getDisplay().getFontList("LouisBraille", true).length == 0)
-		}
-		catch(IOException ignored){}
-
-		//   load LouisBraille-Regular.ttf font
-		try
-		{
-			InputStream fontInputStream = getClass().getResourceAsStream("/fonts/LouisBraille-Regular.ttf");
-			//File fontFile = File.createTempFile("BrailleZephyr-font-", ".ttf");
-			File fontFile = new File(System.getProperty("java.io.tmpdir") + File.separator + "BrailleZephyr-font.ttf");
-			FileOutputStream fontOutputStream = new FileOutputStream(fontFile);
-			byte buffer[] = new byte[27720];
-			int length;
-			while((length = fontInputStream.read(buffer)) > 0)
-				fontOutputStream.write(buffer, 0, length);
-			fontInputStream.close();
-			fontOutputStream.close();
-
-			parent.getDisplay().loadFont(fontFile.getPath());
-			//if(parentShell.getDisplay().getFontList("LouisBraille", true).length == 0)
-		}
-		catch(IOException ignored){}
+//		//   load LouisBraille-Regular.otf font
+//		try
+//		{
+//			InputStream fontInputStream = getClass().getResourceAsStream("/fonts/LouisBraille-Regular.otf");
+//			File fontFile = new File(System.getProperty("java.io.tmpdir") + File.separator + "BrailleZephyr-font.otf");
+//			FileOutputStream fontOutputStream = new FileOutputStream(fontFile);
+//			byte buffer[] = new byte[27720];
+//			int length;
+//			while((length = fontInputStream.read(buffer)) > 0)
+//				fontOutputStream.write(buffer, 0, length);
+//			fontInputStream.close();
+//			fontOutputStream.close();
+//
+//			parent.getDisplay().loadFont(fontFile.getPath());
+//		}
+//		catch(IOException ignored){}
+//
+//		//   load LouisBraille-Regular.ttf font
+//		try
+//		{
+//			InputStream fontInputStream = getClass().getResourceAsStream("/fonts/LouisBraille-Regular.ttf");
+//			File fontFile = new File(System.getProperty("java.io.tmpdir") + File.separator + "BrailleZephyr-font.ttf");
+//			FileOutputStream fontOutputStream = new FileOutputStream(fontFile);
+//			byte buffer[] = new byte[27720];
+//			int length;
+//			while((length = fontInputStream.read(buffer)) > 0)
+//				fontOutputStream.write(buffer, 0, length);
+//			fontInputStream.close();
+//			fontOutputStream.close();
+//
+//			parent.getDisplay().loadFont(fontFile.getPath());
+//		}
+//		catch(IOException ignored){}
 
 		//   load margin bell
 		try
@@ -209,7 +205,7 @@ public class BZStyledText
 
 		brailleText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		brailleText.setLayoutData(new GridData(GridData.FILL_BOTH));
-		brailleText.setFont(new Font(parent.getDisplay(), "LouisBraille", 18, SWT.NORMAL));
+		brailleText.setFont(new Font(parent.getDisplay(), "SimBraille", 18, SWT.NORMAL));
 		brailleText.addFocusListener(new FocusHandler(brailleText));
 		brailleText.addPaintListener(new PaintHandler(brailleText));
 		BrailleKeyHandler brailleKeyHandler = new BrailleKeyHandler(true);
@@ -222,7 +218,7 @@ public class BZStyledText
 		asciiText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		asciiText.setContent(content);
 		asciiText.setLayoutData(new GridData(GridData.FILL_BOTH));
-		asciiText.setFont(new Font(parent.getDisplay(), "Courier", 18, SWT.NORMAL));
+		asciiText.setFont(new Font(parent.getDisplay(), "sans", 18, SWT.NORMAL));
 		asciiText.addFocusListener(new FocusHandler(asciiText));
 		asciiText.addPaintListener(new PaintHandler(asciiText));
 		asciiText.addVerifyKeyListener(new BrailleKeyHandler(false));
