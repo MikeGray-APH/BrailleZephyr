@@ -73,8 +73,9 @@ public class BZStyledText
 	private final StyledText brailleText, asciiText;
 	private final StyledTextContent content;
 
-	private final Color color;
 	private final boolean windowBug = System.getProperty("os.name").toLowerCase().startsWith("windows");
+	private final AdjustOtherThread adjustOtherThread = new AdjustOtherThread();
+	private final Color color;
 
 	private StyledText currentText;
 
@@ -897,6 +898,8 @@ public class BZStyledText
 			int caretOffset = source.getCaretOffset();
 			int lineIndex = source.getLineAtOffset(caretOffset);
 			int lineOffset = source.getOffsetAtLine(lineIndex);
+			int sourceHeight = source.getClientArea().height;
+			int sourceLineHeight = source.getLineHeight();
 
 			//   play margin bell
 			if(clipMarginBell != null && bellLineMargin > 0)
@@ -914,15 +917,67 @@ public class BZStyledText
 			//   scroll other text to match current
 			if(source != currentText)
 				return;
-			int sourceLinePixel = source.getLinePixel(lineIndex);
-			int otherhLineHeight = other.getLineHeight();
-			int otherLineRealPixel = lineIndex * otherhLineHeight;
-			other.setTopPixel(otherLineRealPixel - sourceLinePixel);
-
-			//   redraw page lines
-			if(lineIndex != prevLineIndex)
-				redraw();
+			if(lineIndex == prevLineIndex)
+				return;
 			prevLineIndex = lineIndex;
+			int sourceLinePixel = source.getLinePixel(lineIndex);
+
+			//   check if have to wait until after paint event
+			if(sourceLinePixel < 0 || (sourceLinePixel + sourceLineHeight) > sourceHeight)
+				adjustOtherThread.waitPainted(source, other);
+			else
+			{
+				int otherLineHeight = other.getLineHeight();
+				int otherLineRealPixel = lineIndex * otherLineHeight;
+				other.setTopPixel(otherLineRealPixel - sourceLinePixel);
+				other.redraw();
+			}
+		}
+	}
+
+	private class AdjustOtherThread implements Runnable
+	{
+		private volatile boolean paintEvent;
+		private StyledText source, other;
+
+		private synchronized void waitPainted(StyledText source, StyledText other)
+		{
+			this.source = source;
+			this.other = other;
+			paintEvent = false;
+			parentShell.getDisplay().asyncExec(this);
+		}
+
+		private synchronized void notifyPainted()
+		{
+			paintEvent = true;
+			notifyAll();
+		}
+
+		@Override
+		public void run()
+		{
+			synchronized(this)
+			{
+				try
+				{
+					if(!paintEvent)
+						wait();
+
+					int caretOffset = source.getCaretOffset();
+					int lineIndex = source.getLineAtOffset(caretOffset);
+					int sourceLinePixel = source.getLinePixel(lineIndex);
+					int otherLineHeight = other.getLineHeight();
+					int otherLineRealPixel = lineIndex * otherLineHeight;
+					other.setTopPixel(otherLineRealPixel - sourceLinePixel);
+					other.redraw();
+				}
+				catch(InterruptedException ignored)
+				{
+					System.err.println("failed wait");
+					return;
+				}
+			}
 		}
 	}
 
@@ -970,6 +1025,8 @@ public class BZStyledText
 				if(at + lineHeight > drawHeight)
 					break;
 			}
+
+			adjustOtherThread.notifyPainted();
 		}
 	}
 
