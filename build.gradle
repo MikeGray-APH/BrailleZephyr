@@ -9,8 +9,6 @@ switch(System.getProperty('os.name').toLowerCase().split()[0])
 {
 case 'mac':
 	swtJar = 'org.eclipse.swt.cocoa.macosx.x86_64'
-	sourceCompatibility = '1.6'
-	targetCompatibility = '1.6'
 	break
 
 case 'windows':
