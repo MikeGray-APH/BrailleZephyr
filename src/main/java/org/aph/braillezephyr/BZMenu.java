@@ -117,7 +117,7 @@ public class BZMenu
 	private class NewHandler extends AbstractAction
 	{
 		@Override
-		public void widgetSelected(SelectionEvent event)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			bzFile.newFile();
 		}
@@ -126,7 +126,7 @@ public class BZMenu
 	private class OpenHandler extends AbstractAction
 	{
 		@Override
-		public void widgetSelected(SelectionEvent event)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			bzFile.openFile();
 		}
@@ -135,7 +135,7 @@ public class BZMenu
 	private class SaveHandler extends AbstractAction
 	{
 		@Override
-		public void widgetSelected(SelectionEvent event)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			bzFile.saveFile();
 		}
@@ -144,7 +144,7 @@ public class BZMenu
 	private class SaveAsHandler extends AbstractAction
 	{
 		@Override
-		public void widgetSelected(SelectionEvent event)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			bzFile.saveAsFile();
 		}
@@ -153,7 +153,7 @@ public class BZMenu
 	private class UndoHandler extends AbstractAction
 	{
 		@Override
-		public void widgetSelected(SelectionEvent event)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			bzStyledText.undo();
 		}
@@ -162,7 +162,7 @@ public class BZMenu
 	private class RedoHandler extends AbstractAction
 	{
 		@Override
-		public void widgetSelected(SelectionEvent event)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			bzStyledText.redo();
 		}
@@ -235,7 +235,7 @@ public class BZMenu
 	private class BrailleFontHandler extends AbstractAction
 	{
 		@Override
-		public void widgetSelected(SelectionEvent e)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			FontDialog dialog = new FontDialog(parentShell, SWT.OPEN);
 			dialog.setFontList(bzStyledText.getBrailleFont().getFontData());
@@ -249,7 +249,7 @@ public class BZMenu
 	private class AsciiFontHandler extends AbstractAction
 	{
 		@Override
-		public void widgetSelected(SelectionEvent e)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			FontDialog dialog = new FontDialog(parentShell, SWT.OPEN);
 			dialog.setFontList(bzStyledText.getAsciiFont().getFontData());
@@ -270,7 +270,7 @@ public class BZMenu
 		}
 
 		@Override
-		public void widgetSelected(SelectionEvent e)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			new LinesPerPageDialog(parent);
 		}
@@ -323,7 +323,7 @@ public class BZMenu
 		}
 
 		@Override
-		public void widgetDefaultSelected(SelectionEvent event){}
+		public void widgetDefaultSelected(SelectionEvent ignored){}
 
 		@Override
 		public void keyPressed(KeyEvent event)
@@ -336,7 +336,7 @@ public class BZMenu
 		}
 
 		@Override
-		public void keyReleased(KeyEvent event){}
+		public void keyReleased(KeyEvent ignored){}
 	}
 
 	private class CharsPerLineHandler extends AbstractAction
@@ -349,7 +349,7 @@ public class BZMenu
 		}
 
 		@Override
-		public void widgetSelected(SelectionEvent e)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			new CharsPerLineDialog(parent);
 		}
@@ -402,7 +402,7 @@ public class BZMenu
 		}
 
 		@Override
-		public void widgetDefaultSelected(SelectionEvent event){}
+		public void widgetDefaultSelected(SelectionEvent ignored){}
 
 		@Override
 		public void keyPressed(KeyEvent event)
@@ -416,7 +416,7 @@ public class BZMenu
 		}
 
 		@Override
-		public void keyReleased(KeyEvent event){}
+		public void keyReleased(KeyEvent ignored){}
 	}
 
 	private class BellLineMarginHandler extends AbstractAction
@@ -429,7 +429,7 @@ public class BZMenu
 		}
 
 		@Override
-		public void widgetSelected(SelectionEvent e)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			new BellLineMarginDialog(parent);
 		}
@@ -481,7 +481,7 @@ public class BZMenu
 		}
 
 		@Override
-		public void widgetDefaultSelected(SelectionEvent event){}
+		public void widgetDefaultSelected(SelectionEvent ignored){}
 
 		@Override
 		public void keyPressed(KeyEvent event)
@@ -494,7 +494,7 @@ public class BZMenu
 		}
 
 		@Override
-		public void keyReleased(KeyEvent event){}
+		public void keyReleased(KeyEvent ignored){}
 	}
 
 	private class BellPageMarginHandler extends AbstractAction
@@ -507,7 +507,7 @@ public class BZMenu
 		}
 
 		@Override
-		public void widgetSelected(SelectionEvent e)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			new BellPageMarginDialog(parent);
 		}
@@ -559,7 +559,7 @@ public class BZMenu
 		}
 
 		@Override
-		public void widgetDefaultSelected(SelectionEvent event){}
+		public void widgetDefaultSelected(SelectionEvent ignored){}
 
 		@Override
 		public void keyPressed(KeyEvent event)
@@ -572,19 +572,19 @@ public class BZMenu
 		}
 
 		@Override
-		public void keyReleased(KeyEvent event){}
+		public void keyReleased(KeyEvent ignored){}
 	}
 
 	private class RewrapFromCursorHandler extends AbstractAction
 	{
 		@Override
-		public void widgetSelected(SelectionEvent e)
+		public void widgetSelected(SelectionEvent ignored)
 		{
 			bzStyledText.rewrapFromCaret();
 		}
 	}
 
-	private abstract class AbstractAction implements SelectionListener
+	private static abstract class AbstractAction implements SelectionListener
 	{
 		MenuItem addMenuItemTo(Menu menu,
 		                       String tag,
@@ -616,9 +616,9 @@ public class BZMenu
 		}
 
 		@Override
-		public void widgetSelected(SelectionEvent event){}
+		public void widgetSelected(SelectionEvent ignored){}
 
 		@Override
-		public void widgetDefaultSelected(SelectionEvent event){}
+		public void widgetDefaultSelected(SelectionEvent ignored){}
 	}
 }

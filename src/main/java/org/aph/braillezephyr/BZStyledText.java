@@ -58,7 +58,7 @@ import java.util.List;
 
 /**
  * <p>
- * This class is the container for both the styleviews that display braille
+ * This class is the container for both the style views that display braille
  * and ascii.
  * </p>
  *
@@ -791,7 +791,7 @@ public class BZStyledText
 
 	/**
 	 * <p>
-	 * Wraps lines at and below the caret that exceede the number of
+	 * Wraps lines at and below the caret that exceed the number of
 	 * characters per line.
 	 * </p><p>
 	 * Lines are wrapped at spaces between words when possible.  Lines that
@@ -877,7 +877,7 @@ public class BZStyledText
 		}
 
 		@Override
-		public void focusLost(FocusEvent event){}
+		public void focusLost(FocusEvent ignored){}
 	}
 
 	private class CaretHandler implements CaretListener
@@ -893,13 +893,11 @@ public class BZStyledText
 		}
 
 		@Override
-		public void caretMoved(CaretEvent event)
+		public void caretMoved(CaretEvent ignored)
 		{
 			int caretOffset = source.getCaretOffset();
 			int lineIndex = source.getLineAtOffset(caretOffset);
 			int lineOffset = source.getOffsetAtLine(lineIndex);
-			int sourceHeight = source.getClientArea().height;
-			int sourceLineHeight = source.getLineHeight();
 
 			//   play margin bell
 			if(clipMarginBell != null && bellLineMargin > 0)
@@ -920,7 +918,10 @@ public class BZStyledText
 			prevLineIndex = lineIndex;
 			if(source != currentText)
 				return;
+
 			int sourceLinePixel = source.getLinePixel(lineIndex);
+			int sourceHeight = source.getClientArea().height;
+			int sourceLineHeight = source.getLineHeight();
 
 			//   check if have to wait until after paint event
 			if(sourceLinePixel < 0 || (sourceLinePixel + sourceLineHeight) > sourceHeight)
@@ -930,6 +931,17 @@ public class BZStyledText
 		}
 	}
 
+	/**
+	 * <p>
+	 * The caretMoved event may trigger a paint event.  The getLinePixel
+	 * method inside the caretMoved will return the pixel before the object
+	 * has been painted, and the value after it has been painted is needed to
+	 * adjust the other view.  So the object of this class will be notified
+	 * after a paint event has occurred and it will adjust the other view
+	 * then.  Care must be taken as some caretMoved events do not result in
+	 * the object being redrawn.
+	 * </p>
+	 */
 	private class AdjustOtherThread implements Runnable
 	{
 		private volatile boolean paintEvent;

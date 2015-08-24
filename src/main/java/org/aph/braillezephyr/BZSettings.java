@@ -33,8 +33,8 @@ import java.io.PrintWriter;
 
 /**
  * <p>
- * This class handles access to the settings file on the system.  This
- * allows the settings to be restored between executions.
+ * This class handles access to the settings file on the system.  This allows
+ * the settings to be restored between executions.
  * </p>
  *
  * @author Mike Gray mgray@aph.org
@@ -53,8 +53,7 @@ public class BZSettings
 	 * Creates a new <code>BZSettings</code> object for BZStyledText.
 	 * </p><p>
 	 * If <code>fileName</code> is null, then the default file
-	 * &quot;.braillezephyr.conf&quot; in the user's home directory is
-	 * tried.
+	 * &quot;.braillezephyr.conf&quot; in the user's home directory is tried.
 	 * </p><p>
 	 * When <code>useSize</code> is true, then the parent shell of the
 	 * <code>bzStyledText</code> object's size will be stored and restored.
@@ -306,7 +305,7 @@ public class BZSettings
 		private Point prevShellSize;
 
 		@Override
-		public void controlResized(ControlEvent event)
+		public void controlResized(ControlEvent ignored)
 		{
 			prevShellSize = shellSize;
 			shellSize = parentShell.getSize();
@@ -325,10 +324,11 @@ public class BZSettings
 		/**
 		 * <p>
 		 * The getMaximized method does not work with some window managers
-		 * inside the controlResized method.  It needs to be called after
-		 * the controlResized method returns.  So the thread for this
-		 * class so run inside controlResized with a delay and it checks
-		 * getMaximized.
+		 * inside the controlResized method.  It needs to be called after the
+		 * controlResized method returns.  Unlike the AdjustOtherThread object
+		 * there is no corresponding event for which to wait.  So the thread
+		 * for this class is run inside controlResized with a delay and it
+		 * checks getMaximized.
 		 * </p>
 		 */
 		private class CheckMaximizeThread implements Runnable
