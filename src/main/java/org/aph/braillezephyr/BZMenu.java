@@ -76,6 +76,7 @@ public class BZMenu
 		new OpenHandler().addMenuItemTo(menu, "&Open\tCtrl+O", SWT.MOD1 | 'o');
 		new SaveHandler().addMenuItemTo(menu, "&Save\tCtrl+S", SWT.MOD1 | 's');
 		new SaveAsHandler().addMenuItemTo(menu, "Save As\tCtrl+Shift+O", SWT.MOD1 | SWT.MOD2 | 's');
+		new QuitHandler().addMenuItemTo(menu, "Quit\tCtrl+Q", SWT.MOD1 | 'q');
 
 		//   edit menu
 		menu = new Menu(menuBar);
@@ -150,6 +151,15 @@ public class BZMenu
 		public void widgetSelected(SelectionEvent ignored)
 		{
 			bzFile.saveAsFile();
+		}
+	}
+
+	private class QuitHandler extends AbstractAction
+	{
+		@Override
+		public void widgetSelected(SelectionEvent ignored)
+		{
+			parentShell.close();
 		}
 	}
 
