@@ -1,14 +1,17 @@
 
 apply plugin: 'java'
+apply plugin: 'application'
 
 group = 'org.aph.braillezephyr'
 version = '0.1'
+mainClassName = 'org.aph.braillezephyr.Main'
 
 String swtJar
 switch(System.getProperty('os.name').toLowerCase().split()[0])
 {
 case 'mac':
 	swtJar = 'org.eclipse.swt.cocoa.macosx.x86_64'
+	applicationDefaultJvmArgs.add('-XstartOnFirstThread')
 	break
 
 case 'windows':
@@ -29,20 +32,25 @@ dependencies {
 	archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.cocoa.macosx.x86_64', version: '4.+'
 }
 
+ext.defaultManifest = manifest {
+	attributes('Main-Class': mainClassName,
+	           'Implementation-Version': version)
+}
+
 jar {
-	manifest {
-		attributes("Main-Class": "org.aph.braillezephyr.Main")
+	manifest = project.manifest {
+		from defaultManifest
 	}
 
 	baseName = 'BrailleZephyr'
 }
 
 task linux32Jar(type: Jar) {
-	manifest {
-		attributes("Main-Class": "org.aph.braillezephyr.Main")
-	}
-
 	appendix = 'linux-x86'
+
+	manifest = project.manifest {
+		from defaultManifest
+	}
 
 	from {
 		zipTree configurations.archives.find { it.getName().contains('linux.x86-') }
@@ -52,11 +60,11 @@ task linux32Jar(type: Jar) {
 }
 
 task linux64Jar(type: Jar) {
-	manifest {
-		attributes("Main-Class": "org.aph.braillezephyr.Main")
-	}
-
 	appendix = 'linux-x86_64'
+
+	manifest = project.manifest {
+		from defaultManifest
+	}
 
 	from {
 		zipTree configurations.archives.find { it.getName().contains('linux.x86_64') }
@@ -66,11 +74,11 @@ task linux64Jar(type: Jar) {
 }
 
 task win32Jar(type: Jar) {
-	manifest {
-		attributes("Main-Class": "org.aph.braillezephyr.Main")
-	}
-
 	appendix = 'win32-x86'
+
+	manifest = project.manifest {
+		from defaultManifest
+	}
 
 	from {
 		zipTree configurations.archives.find { it.getName().contains('win32.x86-') }
@@ -80,11 +88,11 @@ task win32Jar(type: Jar) {
 }
 
 task win64Jar(type: Jar) {
-	manifest {
-		attributes("Main-Class": "org.aph.braillezephyr.Main")
-	}
-
 	appendix = 'win32-x86_64'
+
+	manifest = project.manifest {
+		from defaultManifest
+	}
 
 	from {
 		zipTree configurations.archives.find { it.getName().contains('win32.x86_64') }
@@ -94,11 +102,11 @@ task win64Jar(type: Jar) {
 }
 
 task macxJar(type: Jar) {
-	manifest {
-		attributes("Main-Class": "org.aph.braillezephyr.Main")
-	}
-
 	appendix = 'macosx-x86_64'
+
+	manifest = project.manifest {
+		from defaultManifest
+	}
 
 	from {
 		zipTree configurations.archives.find { it.getName().contains('macosx.x86_64') }
@@ -114,11 +122,6 @@ task allJars {
 	dependsOn win64Jar
 	dependsOn macxJar
 }
-
-apply plugin: 'application'
-mainClassName = "org.aph.braillezephyr.Main"
-if(System.getProperty('os.name').toLowerCase().split()[0] == 'mac')
-	applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
 
 apply plugin: 'eclipse'
 

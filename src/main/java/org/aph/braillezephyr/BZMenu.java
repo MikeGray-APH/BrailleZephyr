@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
@@ -112,6 +113,8 @@ public class BZMenu
 		item = new MenuItem(menuBar, SWT.CASCADE);
 		item.setText("&Help");
 		item.setMenu(menu);
+
+		new AboutHandler(parentShell).addMenuItemTo(menu, "About");
 	}
 
 	private class NewHandler extends AbstractAction
@@ -581,6 +584,27 @@ public class BZMenu
 		public void widgetSelected(SelectionEvent ignored)
 		{
 			bzStyledText.rewrapFromCaret();
+		}
+	}
+
+	private class AboutHandler extends AbstractAction
+	{
+		private final Shell parent;
+
+		private AboutHandler(Shell parent)
+		{
+			this.parent = parent;
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent ignored)
+		{
+			MessageBox messageBox = new MessageBox(parent, SWT.ICON_INFORMATION | SWT.OK);
+			String version = getClass().getPackage().getImplementationVersion();
+			if(version == null)
+				version = "development";
+			messageBox.setMessage("BrailleZephyr\nVersion " + version);
+			messageBox.open();
 		}
 	}
 
