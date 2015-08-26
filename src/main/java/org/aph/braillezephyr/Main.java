@@ -20,6 +20,8 @@ import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
@@ -40,6 +42,10 @@ public class Main
 	public static void main(String args[])
 	{
 		Display display = new Display();
+
+		//   needed to catch Quit (Command-Q) on Macs
+		display.addListener(SWT.Close, new CloseHandler());
+
 		shell = new Shell(display);
 		shell.setLayout(new FillLayout());
 		shell.setText("BrailleZephyr");
@@ -54,6 +60,35 @@ public class Main
 		while(!shell.isDisposed())
 		if(!display.readAndDispatch())
 			display.sleep();
+	}
+
+	/**
+	 * <p>
+	 * Needed to catch Quit (Command-Q) on Macs
+	 * </p>
+	 */
+	private static class CloseHandler implements Listener
+	{
+		@Override
+		public void handleEvent(Event event)
+		{
+			//   check if text has been modified
+			if(bzStyledText.getModified())
+			{
+				MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+				messageBox.setMessage("Would you like to save your changes?");
+				int result = messageBox.open();
+				if(result == SWT.CANCEL)
+					event.doit = false;
+				else if(result == SWT.YES)
+					if(!bzFile.saveFile())
+						event.doit = false;
+			}
+
+			//   write settings file
+			if(event.doit)
+				bzSettings.writeSettings();
+		}
 	}
 
 	private static class ShellHandler implements ShellListener
