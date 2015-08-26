@@ -41,7 +41,10 @@ public class Main
 
 	public static void main(String args[])
 	{
-		Display display = new Display();
+		//   must be before display is created (on Macs at least)
+		Display.setAppName("BrailleZephyr");
+
+		Display display = Display.getDefault();
 
 		//   needed to catch Quit (Command-Q) on Macs
 		display.addListener(SWT.Close, new CloseHandler());
