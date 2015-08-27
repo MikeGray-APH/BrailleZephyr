@@ -26,12 +26,18 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
+
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * <p>
@@ -77,6 +83,9 @@ public class BZMenu
 		new SaveHandler().addMenuItemTo(menu, "&Save\tCtrl+S", SWT.MOD1 | 's');
 		new SaveAsHandler().addMenuItemTo(menu, "Save As\tCtrl+Shift+O", SWT.MOD1 | SWT.MOD2 | 's');
 		new QuitHandler().addMenuItemTo(menu, "Quit\tCtrl+Q", SWT.MOD1 | 'q');
+		new MenuItem(menu, SWT.SEPARATOR);
+		new LoadLineMarginBellHandler().addMenuItemTo(menu, "Load Line Bell");
+		new LoadPageMarginBellHandler().addMenuItemTo(menu, "Load Page Bell");
 
 		//   edit menu
 		menu = new Menu(menuBar);
@@ -105,8 +114,8 @@ public class BZMenu
 
 		new LinesPerPageHandler(parentShell).addMenuItemTo(menu, "Lines Per Page");
 		new CharsPerLineHandler(parentShell).addMenuItemTo(menu, "Chars Per Line");
-		new BellLineMarginHandler(parentShell).addMenuItemTo(menu, "Bell Margin", bzStyledText.getBellLineMargin() != -1);
-		new BellPageMarginHandler(parentShell).addMenuItemTo(menu, "Bell Page", bzStyledText.getBellPageMargin() != -1);
+		new LineMarginBellHandler(parentShell).addMenuItemTo(menu, "Line Margin Bell", bzStyledText.getLineMarginBell() != -1);
+		new PageMarginBellHandler(parentShell).addMenuItemTo(menu, "Page Margin Bell", bzStyledText.getPageMarginBell() != -1);
 		new RewrapFromCursorHandler().addMenuItemTo(menu, "Rewrap From Cursor\tCtrl+F", SWT.MOD1 | 'F');
 
 		//   help menu
@@ -160,6 +169,88 @@ public class BZMenu
 		public void widgetSelected(SelectionEvent ignored)
 		{
 			parentShell.close();
+		}
+	}
+
+	private class LoadLineMarginBellHandler extends AbstractAction
+	{
+		@Override
+		public void widgetSelected(SelectionEvent ignored)
+		{
+			FileDialog fileDialog = new FileDialog(parentShell, SWT.OPEN);
+			fileDialog.setFileName(bzStyledText.getLineMarginFileName());
+			String fileName = fileDialog.open();
+			if(fileName == null)
+				return;
+			try
+			{
+				bzStyledText.loadLineMarginFileName(fileName);
+			}
+			catch(FileNotFoundException ignore)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Unable to open " + fileName);
+				messageBox.open();
+			}
+			catch(IOException ignore)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Error reading file " + fileName);
+				messageBox.open();
+			}
+			catch(UnsupportedAudioFileException ignore)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Sound file unsupported for line bell");
+				messageBox.open();
+			}
+			catch(LineUnavailableException ignore)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Line unavailable for line bell");
+				messageBox.open();
+			}
+		}
+	}
+
+	private class LoadPageMarginBellHandler extends AbstractAction
+	{
+		@Override
+		public void widgetSelected(SelectionEvent ignored)
+		{
+			FileDialog fileDialog = new FileDialog(parentShell, SWT.OPEN);
+			fileDialog.setFileName(bzStyledText.getPageMarginFileName());
+			String fileName = fileDialog.open();
+			if(fileName == null)
+				return;
+			try
+			{
+				bzStyledText.loadPageMarginFileName(fileName);
+			}
+			catch(FileNotFoundException ignore)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Unable to open " + fileName);
+				messageBox.open();
+			}
+			catch(IOException ignore)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Error reading file " + fileName);
+				messageBox.open();
+			}
+			catch(UnsupportedAudioFileException ignore)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Sound file unsupported for page bell");
+				messageBox.open();
+			}
+			catch(LineUnavailableException ignore)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Line unavailable for page bell");
+				messageBox.open();
+			}
 		}
 	}
 
@@ -432,11 +523,11 @@ public class BZMenu
 		public void keyReleased(KeyEvent ignored){}
 	}
 
-	private class BellLineMarginHandler extends AbstractAction
+	private class LineMarginBellHandler extends AbstractAction
 	{
 		private final Shell parent;
 
-		private BellLineMarginHandler(Shell parent)
+		private LineMarginBellHandler(Shell parent)
 		{
 			this.parent = parent;
 		}
@@ -444,18 +535,18 @@ public class BZMenu
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			new BellLineMarginDialog(parent);
+			new LineMarginBellDialog(parent);
 		}
 	}
 
-	private class BellLineMarginDialog implements SelectionListener, KeyListener
+	private class LineMarginBellDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public BellLineMarginDialog(Shell parent)
+		public LineMarginBellDialog(Shell parent)
 		{
 			shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Bell Margin");
@@ -463,7 +554,7 @@ public class BZMenu
 
 			spinner = new Spinner(shell, 0);
 			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-			spinner.setValues(bzStyledText.getBellLineMargin(), 0, 27720, 0, 1, 10);
+			spinner.setValues(bzStyledText.getLineMarginBell(), 0, 27720, 0, 1, 10);
 			spinner.addKeyListener(this);
 
 			okButton = new Button(shell, SWT.PUSH);
@@ -482,7 +573,7 @@ public class BZMenu
 
 		private void setBellLineMargin()
 		{
-			bzStyledText.setBellLineMargin(spinner.getSelection());
+			bzStyledText.setLineMarginBell(spinner.getSelection());
 		}
 
 		@Override
@@ -510,11 +601,11 @@ public class BZMenu
 		public void keyReleased(KeyEvent ignored){}
 	}
 
-	private class BellPageMarginHandler extends AbstractAction
+	private class PageMarginBellHandler extends AbstractAction
 	{
 		private final Shell parent;
 
-		private BellPageMarginHandler(Shell parent)
+		private PageMarginBellHandler(Shell parent)
 		{
 			this.parent = parent;
 		}
@@ -522,18 +613,18 @@ public class BZMenu
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			new BellPageMarginDialog(parent);
+			new PageMarginBellDialog(parent);
 		}
 	}
 
-	private class BellPageMarginDialog implements SelectionListener, KeyListener
+	private class PageMarginBellDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public BellPageMarginDialog(Shell parent)
+		public PageMarginBellDialog(Shell parent)
 		{
 			shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Bell Page");
@@ -541,7 +632,7 @@ public class BZMenu
 
 			spinner = new Spinner(shell, 0);
 			spinner.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-			spinner.setValues(bzStyledText.getBellPageMargin(), 0, 27720, 0, 1, 10);
+			spinner.setValues(bzStyledText.getPageMarginBell(), 0, 27720, 0, 1, 10);
 			spinner.addKeyListener(this);
 
 			okButton = new Button(shell, SWT.PUSH);
@@ -560,7 +651,7 @@ public class BZMenu
 
 		private void setBellPageMargin()
 		{
-			bzStyledText.setBellPageMargin(spinner.getSelection());
+			bzStyledText.setPageMarginBell(spinner.getSelection());
 		}
 
 		@Override

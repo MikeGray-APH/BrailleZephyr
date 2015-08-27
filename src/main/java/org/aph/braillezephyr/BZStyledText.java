@@ -36,7 +36,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import javax.sound.sampled.AudioInputStream;
@@ -47,8 +46,8 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -82,10 +81,13 @@ public class BZStyledText
 	private String eol = System.getProperty("line.separator");
 	private int linesPerPage = 25;
 	private int charsPerLine = 40;
-	private int bellLineMargin = 33;
-	private Clip clipMarginBell;
-	private int bellPageMargin = 25;
-	private Clip clipPageBell;
+
+	private int lineMarginBell = 33;
+	private Clip lineMarginClip;
+	private String lineMarginFileName;
+	private int pageMarginBell = 25;
+	private Clip pageMarginClip;
+	private String pageMarginFileName;
 
 	private final List<ExtendedModifyEvent> changes = new ArrayList<>();
 	private int changeIndex, saveIndex;
@@ -147,29 +149,29 @@ public class BZStyledText
 			InputStream inputStreamBellMargin = new BufferedInputStream(getClass().getResourceAsStream("/sounds/margin_bell.wav"));
 			AudioInputStream audioInputStreamMargin = AudioSystem.getAudioInputStream(inputStreamBellMargin);
 			DataLine.Info dataLineInfoMargin = new DataLine.Info(Clip.class, audioInputStreamMargin.getFormat());
-			clipMarginBell = (Clip)AudioSystem.getLine(dataLineInfoMargin);
-			clipMarginBell.open(audioInputStreamMargin);
+			lineMarginClip = (Clip)AudioSystem.getLine(dataLineInfoMargin);
+			lineMarginClip.open(audioInputStreamMargin);
 		}
 		catch(UnsupportedAudioFileException ignored)
 		{
-			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Sound file unsupported for margin bell");
-			messageBox.open();
-			clipMarginBell = null;
+//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			messageBox.setMessage("Sound file unsupported for margin bell");
+//			messageBox.open();
+			lineMarginClip = null;
 		}
 		catch(LineUnavailableException ignored)
 		{
-			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Line unavailable for margin bell");
-			messageBox.open();
-			clipMarginBell = null;
+//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			messageBox.setMessage("Line unavailable for margin bell");
+//			messageBox.open();
+			lineMarginClip = null;
 		}
 		catch(IOException ignored)
 		{
-			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Error creating margin bell");
-			messageBox.open();
-			clipMarginBell = null;
+//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			messageBox.setMessage("Error creating margin bell");
+//			messageBox.open();
+			lineMarginClip = null;
 		}
 
 		//   load page bell
@@ -178,29 +180,29 @@ public class BZStyledText
 			InputStream inputStreamBellPage = new BufferedInputStream(getClass().getResourceAsStream("/sounds/page_bell.wav"));
 			AudioInputStream audioInputStreamPage = AudioSystem.getAudioInputStream(inputStreamBellPage);
 			DataLine.Info dataLineInfoPage = new DataLine.Info(Clip.class, audioInputStreamPage.getFormat());
-			clipPageBell = (Clip)AudioSystem.getLine(dataLineInfoPage);
-			clipPageBell.open(audioInputStreamPage);
+			pageMarginClip = (Clip)AudioSystem.getLine(dataLineInfoPage);
+			pageMarginClip.open(audioInputStreamPage);
 		}
 		catch(UnsupportedAudioFileException ignored)
 		{
-			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Sound file unsupported for page bell");
-			messageBox.open();
-			clipPageBell = null;
+//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			messageBox.setMessage("Sound file unsupported for page bell");
+//			messageBox.open();
+			pageMarginClip = null;
 		}
 		catch(LineUnavailableException ignored)
 		{
-			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Line unavailable for page bell");
-			messageBox.open();
-			clipPageBell = null;
+//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			messageBox.setMessage("Line unavailable for page bell");
+//			messageBox.open();
+			pageMarginClip = null;
 		}
 		catch(IOException ignored)
 		{
-			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Error creating page bell");
-			messageBox.open();
-			clipPageBell = null;
+//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			messageBox.setMessage("Error creating page bell");
+//			messageBox.open();
+			pageMarginClip = null;
 		}
 
 		brailleText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -262,11 +264,11 @@ public class BZStyledText
 	 */
 	public void setLinesPerPage(int linesPerPage)
 	{
-		int bellDiff = this.linesPerPage - bellPageMargin;
+		int bellDiff = this.linesPerPage - pageMarginBell;
 		this.linesPerPage = linesPerPage;
-		bellPageMargin = linesPerPage - bellDiff;
-		if(bellPageMargin < 0)
-			bellPageMargin = 0;
+		pageMarginBell = linesPerPage - bellDiff;
+		if(pageMarginBell < 0)
+			pageMarginBell = 0;
 	}
 
 	/**
@@ -298,11 +300,11 @@ public class BZStyledText
 	 */
 	public void setCharsPerLine(int charsPerLine)
 	{
-		int bellDiff = this.charsPerLine - bellLineMargin;
+		int bellDiff = this.charsPerLine - lineMarginBell;
 		this.charsPerLine = charsPerLine;
-		bellLineMargin = charsPerLine - bellDiff;
-		if(bellLineMargin < 0)
-			bellLineMargin = 0;
+		lineMarginBell = charsPerLine - bellDiff;
+		if(lineMarginBell < 0)
+			lineMarginBell = 0;
 	}
 
 	/**
@@ -312,13 +314,13 @@ public class BZStyledText
 	 *
 	 * @return the current value, -1 if no margin bell
 	 *
-	 * @see #setBellLineMargin(int)
+	 * @see #setLineMarginBell(int)
 	 */
-	public int getBellLineMargin()
+	public int getLineMarginBell()
 	{
-		if(clipMarginBell == null)
+		if(lineMarginClip == null)
 			return -1;
-		return bellLineMargin;
+		return lineMarginBell;
 	}
 
 	/**
@@ -329,15 +331,73 @@ public class BZStyledText
 	 * the margin to the margin.
 	 * </p>
 	 *
-	 * @param bellLineMargin the new value
+	 * @param lineMarginBell the new value
 	 *
-	 * @see #getBellLineMargin()
+	 * @see #getLineMarginBell()
 	 */
-	public void setBellLineMargin(int bellLineMargin)
+	public void setLineMarginBell(int lineMarginBell)
 	{
-		if(clipMarginBell == null)
+		if(lineMarginClip == null)
 			return;
-		this.bellLineMargin = bellLineMargin;
+		this.lineMarginBell = lineMarginBell;
+	}
+
+	/**
+	 * <p>
+	 * Returns the file name of the sound file used for the line margin bell.
+	 *
+	 * @return the current file name or <code>null</code> if none
+	 *
+	 * @see #loadLineMarginFileName(String)
+	 * </p>
+	 */
+	public String getLineMarginFileName()
+	{
+		return lineMarginFileName;
+	}
+
+	/**
+	 * <p>
+	 * Loads the sound file specified by fileName and uses it for the line
+	 * margin bell.
+	 *
+	 * @param fileName the name of the file to load
+	 *
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 * @throws UnsupportedAudioFileException
+	 * @throws LineUnavailableException
+	 *
+	 * @see #getLineMarginFileName()
+	 * </p>
+	 */
+	public void loadLineMarginFileName(String fileName) throws FileNotFoundException,
+	                                                           IOException,
+	                                                           UnsupportedAudioFileException,
+	                                                           LineUnavailableException
+	{
+		InputStream inputStream = new BufferedInputStream(new FileInputStream(fileName));
+		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(inputStream);
+		DataLine.Info dataLineInfo = new DataLine.Info(Clip.class, audioInputStream.getFormat());
+		Clip clip = lineMarginClip;
+		try
+		{
+			lineMarginClip = (Clip)AudioSystem.getLine(dataLineInfo);
+			lineMarginClip.open(audioInputStream);
+		}
+		catch(LineUnavailableException exception)
+		{
+			lineMarginClip = clip;
+			throw exception;
+		}
+		catch(IOException exception)
+		{
+			lineMarginClip = clip;
+			throw exception;
+		}
+		lineMarginFileName = fileName;
+		if(clip != null)
+			clip.close();
 	}
 
 	/**
@@ -347,13 +407,13 @@ public class BZStyledText
 	 *
 	 * @return the current value, -1 if no page bell
 	 *
-	 * @see #setBellPageMargin(int)
+	 * @see #setPageMarginBell(int)
 	 */
-	public int getBellPageMargin()
+	public int getPageMarginBell()
 	{
-		if(clipPageBell == null)
+		if(pageMarginClip == null)
 			return -1;
-		return bellPageMargin;
+		return pageMarginBell;
 	}
 
 	/**
@@ -364,15 +424,73 @@ public class BZStyledText
 	 * the margin to the margin when the enter key is pressed.
 	 * </p>
 	 *
-	 * @param bellPageMargin the new value
+	 * @param pageMarginBell the new value
 	 *
-	 * @see #getBellPageMargin()
+	 * @see #getPageMarginBell()
 	 */
-	public void setBellPageMargin(int bellPageMargin)
+	public void setPageMarginBell(int pageMarginBell)
 	{
-		if(clipPageBell == null)
+		if(pageMarginClip == null)
 			return;
-		this.bellPageMargin = bellPageMargin;
+		this.pageMarginBell = pageMarginBell;
+	}
+
+	/**
+	 * <p>
+	 * Returns the file name of the sound file used for the page margin bell.
+	 *
+	 * @return the current file name or <code>null</code> if none
+	 *
+	 * @see #loadPageMarginFileName(String)
+	 * </p>
+	 */
+	public String getPageMarginFileName()
+	{
+		return pageMarginFileName;
+	}
+
+	/**
+	 * <p>
+	 * Loads the sound file specified by fileName and uses it for the page
+	 * margin bell.
+	 *
+	 * @param fileName the name of the file to load
+	 *
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 * @throws UnsupportedAudioFileException
+	 * @throws LineUnavailableException
+	 *
+	 * @see #getPageMarginFileName()
+	 * </p>
+	 */
+	public void loadPageMarginFileName(String fileName) throws FileNotFoundException,
+	                                                           IOException,
+	                                                           UnsupportedAudioFileException,
+	                                                           LineUnavailableException
+	{
+		InputStream inputStream = new BufferedInputStream(new FileInputStream(fileName));
+		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(inputStream);
+		DataLine.Info dataLineInfo = new DataLine.Info(Clip.class, audioInputStream.getFormat());
+		Clip clip = pageMarginClip;
+		try
+		{
+			pageMarginClip = (Clip)AudioSystem.getLine(dataLineInfo);
+			pageMarginClip.open(audioInputStream);
+		}
+		catch(LineUnavailableException exception)
+		{
+			pageMarginClip = clip;
+			throw exception;
+		}
+		catch(IOException exception)
+		{
+			pageMarginClip = clip;
+			throw exception;
+		}
+		pageMarginFileName = fileName;
+		if(clip != null)
+			clip.close();
 	}
 
 	/**
@@ -896,14 +1014,14 @@ public class BZStyledText
 			int lineOffset = source.getOffsetAtLine(lineIndex);
 
 			//   play margin bell
-			if(clipMarginBell != null && bellLineMargin > 0)
-			if(bellLineMargin > 0 && caretOffset == prevCaretOffset + 1)
+			if(lineMarginClip != null && lineMarginBell > 0)
+			if(lineMarginBell > 0 && caretOffset == prevCaretOffset + 1)
 			{
-				if(caretOffset - lineOffset == bellLineMargin)
-				if(!clipMarginBell.isActive())
+				if(caretOffset - lineOffset == lineMarginBell)
+				if(!lineMarginClip.isActive())
 				{
-					clipMarginBell.setFramePosition(0);
-					clipMarginBell.start();
+					lineMarginClip.setFramePosition(0);
+					lineMarginClip.start();
 				}
 			}
 			prevCaretOffset = caretOffset;
@@ -1194,11 +1312,11 @@ public class BZStyledText
 			{
 				//   play page bell
 				int index = styledText.getLineAtOffset(styledText.getCaretOffset());
-				if(index == prevLine + 1 && index == bellPageMargin - 2)
-				if(!clipPageBell.isActive())
+				if(index == prevLine + 1 && index == pageMarginBell - 2)
+				if(!pageMarginClip.isActive())
 				{
-					clipPageBell.setFramePosition(0);
-					clipPageBell.start();
+					pageMarginClip.setFramePosition(0);
+					pageMarginClip.start();
 				}
 				prevLine = index;
 			}
