@@ -91,11 +91,11 @@ public class BZFile
 					return false;
 		}
 
-		FileDialog dialog = new FileDialog(parentShell, SWT.OPEN);
-		dialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
-		dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
-		dialog.setFilterIndex(2);
-		String fileName = dialog.open();
+		FileDialog fileDialog = new FileDialog(parentShell, SWT.OPEN);
+		fileDialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
+		fileDialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
+		fileDialog.setFilterIndex(2);
+		String fileName = fileDialog.open();
 		if(fileName == null)
 			return false;
 
@@ -134,12 +134,12 @@ public class BZFile
 		//   check if file name is set
 		if(this.fileName == null)
 		{
-			FileDialog dialog = new FileDialog(parentShell, SWT.SAVE);
-			dialog.setFileName(this.fileName);
-			dialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
-			dialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
-			dialog.setFilterIndex(2);
-			fileName = dialog.open();
+			FileDialog fileDialog = new FileDialog(parentShell, SWT.SAVE);
+			fileDialog.setFileName(this.fileName);
+			fileDialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
+			fileDialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
+			fileDialog.setFilterIndex(2);
+			fileName = fileDialog.open();
 			if(fileName == null)
 				return false;
 		}

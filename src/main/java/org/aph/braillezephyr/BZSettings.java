@@ -138,120 +138,130 @@ public class BZSettings
 		if(line.length() == 0)
 			return true;
 
-		//TODO:  deal with filenames
-		String tokens[] = line.split("[ ]");
+		int offset = line.indexOf(' ');
+		if(offset < 0)
+			return false;
 
-		switch(tokens.length)
+		String value = line.substring(offset + 1);
+		if(value.length() < 1)
+			return false;
+
+		String tokens[];
+		switch(line.substring(0, offset))
 		{
-		case 2:
+		case "size":
 
-			switch(tokens[0])
+			tokens = value.split("[ ]");
+			if(tokens.length != 3)
+				return false;
+			shellSize = new Point(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
+			shellMaximized = Boolean.valueOf(tokens[2]);
+			break;
+
+		case "charsPerLine":  bzStyledText.setCharsPerLine(Integer.parseInt(value));  break;
+		case "lineMarginBell":  bzStyledText.setLineMarginBell(Integer.parseInt(value));  break;
+		case "lineMarginFileName":
+
+			try
 			{
-			case "charsPerLine":  bzStyledText.setCharsPerLine(Integer.parseInt(tokens[1]));  break;
-			case "linesPerPage":  bzStyledText.setLinesPerPage(Integer.parseInt(tokens[1]));  break;
-
-			case "brailleText.visible":  bzStyledText.setBrailleVisible(Boolean.valueOf(tokens[1]));  break;
-			case "asciiText.visible":  bzStyledText.setAsciiVisible(Boolean.valueOf(tokens[1]));  break;
-
-			case "lineMarginBell":  bzStyledText.setLineMarginBell(Integer.parseInt(tokens[1]));  break;
-			case "pageMarginBell":  bzStyledText.setPageMarginBell(Integer.parseInt(tokens[1]));  break;
-
-			case "lineMarginFileName":
-
-				try
-				{
-					bzStyledText.loadLineMarginFileName(tokens[1]);
-				}
-				catch(FileNotFoundException ignore)
-				{
-					MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-					messageBox.setMessage("Unable to open " + tokens[1]);
-					messageBox.open();
-				}
-				catch(IOException ignore)
-				{
-					MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-					messageBox.setMessage("Error reading file " + tokens[1]);
-					messageBox.open();
-				}
-				catch(UnsupportedAudioFileException ignore)
-				{
-					MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-					messageBox.setMessage("Sound file unsupported for line bell");
-					messageBox.open();
-				}
-				catch(LineUnavailableException ignore)
-				{
-					MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-					messageBox.setMessage("Line unavailable for line bell");
-					messageBox.open();
-				}
-				break;
-
-			case "pageMarginFileName":
-
-				try
-				{
-					bzStyledText.loadPageMarginFileName(tokens[1]);
-				}
-				catch(FileNotFoundException ignore)
-				{
-					MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-					messageBox.setMessage("Unable to open " + tokens[1]);
-					messageBox.open();
-				}
-				catch(IOException ignore)
-				{
-					MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-					messageBox.setMessage("Error reading file " + tokens[1]);
-					messageBox.open();
-				}
-				catch(UnsupportedAudioFileException ignore)
-				{
-					MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-					messageBox.setMessage("Sound file unsupported for page bell");
-					messageBox.open();
-				}
-				catch(LineUnavailableException ignore)
-				{
-					MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-					messageBox.setMessage("Line unavailable for page bell");
-					messageBox.open();
-				}
-				break;
-
-			default:  return false;
+				bzStyledText.loadLineMarginFileName(value);
+			}
+			catch(FileNotFoundException ignored)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Unable to open file:  " + value);
+				messageBox.open();
+			}
+			catch(IOException ignored)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Error reading file:  " + value);
+				messageBox.open();
+			}
+			catch(UnsupportedAudioFileException ignored)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Sound file unsupported for line bell:  " + value);
+				messageBox.open();
+			}
+			catch(LineUnavailableException ignored)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Line unavailable for line bell:  " + value);
+				messageBox.open();
 			}
 			break;
 
-		case 4:
+		case "linesPerPage":  bzStyledText.setLinesPerPage(Integer.parseInt(value));  break;
+		case "pageMarginBell":  bzStyledText.setPageMarginBell(Integer.parseInt(value));  break;
+		case "pageMarginFileName":
 
-			switch(tokens[0])
+			try
 			{
-			case "size":
-
-				shellSize = new Point(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
-				shellMaximized = Boolean.valueOf(tokens[3]);
-				break;
-
-			case "brailleText.font":
-
-				bzStyledText.setBrailleFont(new Font(parentShell.getDisplay(),
-				                                     tokens[1].replace('?', ' '),
-				                                     Integer.parseInt(tokens[2]),
-				                                     Integer.parseInt(tokens[3])));
-				break;
-
-			case "asciiText.font":
-
-				bzStyledText.setAsciiFont(new Font(parentShell.getDisplay(),
-				                                   tokens[1].replace('?', ' '),
-				                                   Integer.parseInt(tokens[2]),
-				                                   Integer.parseInt(tokens[3])));
-				break;
-
-			default:  return false;
+				bzStyledText.loadPageMarginFileName(value);
 			}
+			catch(FileNotFoundException ignored)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Unable to open file:  " + value);
+				messageBox.open();
+			}
+			catch(IOException ignored)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Error writing file:  " + value);
+				messageBox.open();
+			}
+			catch(UnsupportedAudioFileException ignored)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Sound file unsupported for page bell:  " + value);
+				messageBox.open();
+			}
+			catch(LineUnavailableException ignored)
+			{
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+				messageBox.setMessage("Line unavailable for page bell:  " + value);
+				messageBox.open();
+			}
+			break;
+
+		case "brailleText.visible":  bzStyledText.setBrailleVisible(Boolean.valueOf(value));  break;
+		case "brailleText.font":
+
+			//   find offset for fileName
+			offset = value.indexOf(' ') + 1;
+			if(offset < 1 || offset == value.length())
+				return false;
+			offset = value.indexOf(' ', offset) + 1;
+			if(offset < 1 || offset == value.length())
+				return false;
+			tokens = value.split("[ ]");
+			if(tokens.length < 3)
+				return false;
+			bzStyledText.setBrailleFont(new Font(parentShell.getDisplay(),
+			                                     value.substring(offset),
+			                                     Integer.parseInt(tokens[0]),
+			                                     Integer.parseInt(tokens[1])));
+			break;
+
+		case "asciiText.visible":  bzStyledText.setAsciiVisible(Boolean.valueOf(value));  break;
+		case "asciiText.font":
+
+			//   find offset for fileName
+			offset = value.indexOf(' ') + 1;
+			if(offset < 1 || offset == value.length())
+				return false;
+			offset = value.indexOf(' ', offset) + 1;
+			if(offset < 1 || offset == value.length())
+				return false;
+			tokens = value.split("[ ]");
+			if(tokens.length < 3)
+				return false;
+			bzStyledText.setAsciiFont(new Font(parentShell.getDisplay(),
+			                                   value.substring(offset),
+			                                   Integer.parseInt(tokens[0]),
+			                                   Integer.parseInt(tokens[1])));
 			break;
 
 		default:  return false;
@@ -324,18 +334,18 @@ public class BZSettings
 		writer.println("brailleText.visible " + bzStyledText.getBrailleVisible());
 		FontData fontData = bzStyledText.getBrailleFont().getFontData()[0];
 		writer.println("brailleText.font "
-		               + fontData.getName().replace(' ', '?') + " "
 		               + fontData.getHeight() + " "
-		               + fontData.getStyle());
+		               + fontData.getStyle() + " "
+		               + fontData.getName());
 
 		writer.println();
 
 		writer.println("asciiText.visible " + bzStyledText.getAsciiVisible());
 		fontData = bzStyledText.getAsciiFont().getFontData()[0];
 		writer.println("asciiText.font "
-		               + fontData.getName().replace(' ', '?') + " "
 		               + fontData.getHeight() + " "
-		               + fontData.getStyle());
+		               + fontData.getStyle() + " "
+		               + fontData.getName());
 
 		writer.println();
 	}
@@ -407,7 +417,7 @@ public class BZSettings
 		 * <p>
 		 * The getMaximized method does not work with some window managers
 		 * inside the controlResized method.  It needs to be called after the
-		 * controlResized method returns.  Unlike the AdjustOtherThread object
+		 * controlResized method returns.  Unlike the AdjustOtherThread object,
 		 * there is no corresponding event for which to wait.  So the thread
 		 * for this class is run inside controlResized with a delay and it
 		 * checks getMaximized.
