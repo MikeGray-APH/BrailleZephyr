@@ -1102,8 +1102,8 @@ public class BZStyledText
 				source.setTopPixel(sourceTopPixel);
 			}
 
-			other.setCaretOffset(caretOffset);
 			other.setTopPixel(otherTopPixel);
+			redraw();
 		}
 
 		private synchronized void waitPainted(StyledText source, StyledText other)
@@ -1329,6 +1329,9 @@ public class BZStyledText
 	{
 		private final StyledText source;
 
+		//TODO:  should prev variables be reset on setText?
+		private int prevLineConut;
+
 		private ExtendedModifyHandler(StyledText source)
 		{
 			this.source = source;
@@ -1352,6 +1355,12 @@ public class BZStyledText
 				changes.add(changeIndex++, event);
 			}
 			undoing = redoing = false;
+
+			//   need to redraw page lines
+			int lineCount = source.getLineCount();
+			if(lineCount != prevLineConut)
+				redraw();
+			prevLineConut = lineCount;
 		}
 	}
 }
