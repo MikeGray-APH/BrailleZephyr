@@ -98,15 +98,15 @@ public class BZStyledText
 	 * Creates a new <code>BZStyledText</code> for parentShell <code>parentShell</code>.
 	 * </p>
 	 *
-	 * @param parent parentShell of the new instance (cannot be null)
+	 * @param parentShell parentShell of the new instance (cannot be null)
 	 */
-	public BZStyledText(Shell parent)
+	public BZStyledText(Shell parentShell)
 	{
-		this.parentShell = parent;
+		this.parentShell = parentShell;
 
-		color = parent.getDisplay().getSystemColor(SWT.COLOR_BLACK);
+		color = parentShell.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 
-		composite = new Composite(parent, 0);
+		composite = new Composite(parentShell, 0);
 		composite.setLayout(new GridLayout(2, true));
 
 //		//   load LouisBraille-Regular.otf font
@@ -122,7 +122,7 @@ public class BZStyledText
 //			fontInputStream.close();
 //			fontOutputStream.close();
 //
-//			parent.getDisplay().loadFont(fontFile.getPath());
+//			parentShell.getDisplay().loadFont(fontFile.getPath());
 //		}
 //		catch(IOException ignored){}
 //
@@ -139,7 +139,7 @@ public class BZStyledText
 //			fontInputStream.close();
 //			fontOutputStream.close();
 //
-//			parent.getDisplay().loadFont(fontFile.getPath());
+//			parentShell.getDisplay().loadFont(fontFile.getPath());
 //		}
 //		catch(IOException ignored){}
 
@@ -154,21 +154,21 @@ public class BZStyledText
 		}
 		catch(UnsupportedAudioFileException ignored)
 		{
-//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 //			messageBox.setMessage("Sound file unsupported for margin bell");
 //			messageBox.open();
 			lineMarginClip = null;
 		}
 		catch(LineUnavailableException ignored)
 		{
-//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 //			messageBox.setMessage("Line unavailable for margin bell");
 //			messageBox.open();
 			lineMarginClip = null;
 		}
 		catch(IOException ignored)
 		{
-//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 //			messageBox.setMessage("Error creating margin bell");
 //			messageBox.open();
 			lineMarginClip = null;
@@ -185,21 +185,21 @@ public class BZStyledText
 		}
 		catch(UnsupportedAudioFileException ignored)
 		{
-//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 //			messageBox.setMessage("Sound file unsupported for page bell");
 //			messageBox.open();
 			pageMarginClip = null;
 		}
 		catch(LineUnavailableException ignored)
 		{
-//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 //			messageBox.setMessage("Line unavailable for page bell");
 //			messageBox.open();
 			pageMarginClip = null;
 		}
 		catch(IOException ignored)
 		{
-//			MessageBox messageBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
 //			messageBox.setMessage("Error creating page bell");
 //			messageBox.open();
 			pageMarginClip = null;
@@ -207,7 +207,7 @@ public class BZStyledText
 
 		brailleText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		brailleText.setLayoutData(new GridData(GridData.FILL_BOTH));
-		brailleText.setFont(new Font(parent.getDisplay(), "SimBraille", 18, SWT.NORMAL));
+		brailleText.setFont(new Font(parentShell.getDisplay(), "SimBraille", 18, SWT.NORMAL));
 		brailleText.addFocusListener(new FocusHandler(brailleText));
 		brailleText.addPaintListener(new PaintHandler(brailleText));
 		BrailleKeyHandler brailleKeyHandler = new BrailleKeyHandler(true);
@@ -220,7 +220,7 @@ public class BZStyledText
 		asciiText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		asciiText.setContent(content);
 		asciiText.setLayoutData(new GridData(GridData.FILL_BOTH));
-		asciiText.setFont(new Font(parent.getDisplay(), "sans", 18, SWT.NORMAL));
+		asciiText.setFont(new Font(parentShell.getDisplay(), "sans", 18, SWT.NORMAL));
 		asciiText.addFocusListener(new FocusHandler(asciiText));
 		asciiText.addPaintListener(new PaintHandler(asciiText));
 		asciiText.addVerifyKeyListener(new BrailleKeyHandler(false));
@@ -1121,18 +1121,15 @@ public class BZStyledText
 		}
 
 		@Override
-		public void run()
+		public synchronized void run()
 		{
-			synchronized(this)
+			try
 			{
-				try
-				{
-					if(!paintEvent)
-						wait();
-					adjustOther(source, other);
-				}
-				catch(InterruptedException ignored){}
+				if(!paintEvent)
+					wait();
+				adjustOther(source, other);
 			}
+			catch(InterruptedException ignored){}
 		}
 	}
 

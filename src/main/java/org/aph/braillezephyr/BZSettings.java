@@ -390,7 +390,7 @@ public class BZSettings
 	private class ControlHandler implements ControlListener
 	{
 		/**
-		 * @see org.aph.braillezephyr.BZSettings.ControlHandler.CheckMaximizeThread
+		 * @see CheckMaximizeThread
 		 */
 		private volatile boolean checkingMaximize;
 

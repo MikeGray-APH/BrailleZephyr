@@ -132,4 +132,3 @@ task wrapper(type: Wrapper) {
 repositories {
 	mavenCentral()
 }
-

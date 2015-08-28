@@ -341,9 +341,9 @@ public class BZMenu
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			FontDialog dialog = new FontDialog(parentShell, SWT.OPEN);
-			dialog.setFontList(bzStyledText.getBrailleFont().getFontData());
-			FontData fontData = dialog.open();
+			FontDialog fontDialog = new FontDialog(parentShell, SWT.OPEN);
+			fontDialog.setFontList(bzStyledText.getBrailleFont().getFontData());
+			FontData fontData = fontDialog.open();
 			if(fontData == null)
 				return;
 			bzStyledText.setBrailleFont(new Font(parentShell.getDisplay(), fontData));
@@ -355,9 +355,9 @@ public class BZMenu
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			FontDialog dialog = new FontDialog(parentShell, SWT.OPEN);
-			dialog.setFontList(bzStyledText.getAsciiFont().getFontData());
-			FontData fontData = dialog.open();
+			FontDialog fontDialog = new FontDialog(parentShell, SWT.OPEN);
+			fontDialog.setFontList(bzStyledText.getAsciiFont().getFontData());
+			FontData fontData = fontDialog.open();
 			if(fontData == null)
 				return;
 			bzStyledText.setAsciiFont(new Font(parentShell.getDisplay(), fontData));
@@ -366,17 +366,17 @@ public class BZMenu
 
 	private class LinesPerPageHandler extends AbstractAction
 	{
-		private final Shell parent;
+		private final Shell parentShell;
 
-		private LinesPerPageHandler(Shell parent)
+		private LinesPerPageHandler(Shell parentShell)
 		{
-			this.parent = parent;
+			this.parentShell = parentShell;
 		}
 
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			new LinesPerPageDialog(parent);
+			new LinesPerPageDialog(parentShell);
 		}
 	}
 
@@ -387,9 +387,9 @@ public class BZMenu
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public LinesPerPageDialog(Shell parent)
+		public LinesPerPageDialog(Shell parentShell)
 		{
-			shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+			shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Lines per Page");
 			shell.setLayout(new GridLayout(3, true));
 
@@ -445,17 +445,17 @@ public class BZMenu
 
 	private class CharsPerLineHandler extends AbstractAction
 	{
-		private final Shell parent;
+		private final Shell parentShell;
 
-		private CharsPerLineHandler(Shell parent)
+		private CharsPerLineHandler(Shell parentShell)
 		{
-			this.parent = parent;
+			this.parentShell = parentShell;
 		}
 
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			new CharsPerLineDialog(parent);
+			new CharsPerLineDialog(parentShell);
 		}
 	}
 
@@ -466,9 +466,9 @@ public class BZMenu
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public CharsPerLineDialog(Shell parent)
+		public CharsPerLineDialog(Shell parentShell)
 		{
-			shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+			shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Characters Per Line");
 			shell.setLayout(new GridLayout(3, true));
 
@@ -525,17 +525,17 @@ public class BZMenu
 
 	private class LineMarginBellHandler extends AbstractAction
 	{
-		private final Shell parent;
+		private final Shell parentShell;
 
-		private LineMarginBellHandler(Shell parent)
+		private LineMarginBellHandler(Shell parentShell)
 		{
-			this.parent = parent;
+			this.parentShell = parentShell;
 		}
 
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			new LineMarginBellDialog(parent);
+			new LineMarginBellDialog(parentShell);
 		}
 	}
 
@@ -546,9 +546,9 @@ public class BZMenu
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public LineMarginBellDialog(Shell parent)
+		public LineMarginBellDialog(Shell parentShell)
 		{
-			shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+			shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Bell Margin");
 			shell.setLayout(new GridLayout(3, true));
 
@@ -603,17 +603,17 @@ public class BZMenu
 
 	private class PageMarginBellHandler extends AbstractAction
 	{
-		private final Shell parent;
+		private final Shell parentShell;
 
-		private PageMarginBellHandler(Shell parent)
+		private PageMarginBellHandler(Shell parentShell)
 		{
-			this.parent = parent;
+			this.parentShell = parentShell;
 		}
 
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			new PageMarginBellDialog(parent);
+			new PageMarginBellDialog(parentShell);
 		}
 	}
 
@@ -624,9 +624,9 @@ public class BZMenu
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public PageMarginBellDialog(Shell parent)
+		public PageMarginBellDialog(Shell parentShell)
 		{
-			shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+			shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Bell Page");
 			shell.setLayout(new GridLayout(3, true));
 
@@ -688,19 +688,19 @@ public class BZMenu
 		}
 	}
 
-	private class AboutHandler extends AbstractAction
+	private static class AboutHandler extends AbstractAction
 	{
-		private final Shell parent;
+		private final Shell parentShell;
 
-		private AboutHandler(Shell parent)
+		private AboutHandler(Shell parentShell)
 		{
-			this.parent = parent;
+			this.parentShell = parentShell;
 		}
 
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			MessageBox messageBox = new MessageBox(parent, SWT.ICON_INFORMATION | SWT.OK);
+			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_INFORMATION | SWT.OK);
 			String version = getClass().getPackage().getImplementationVersion();
 			if(version == null)
 				version = "development";
