@@ -1309,7 +1309,7 @@ public class BZStyledText
 			{
 				//   play page bell
 				int index = styledText.getLineAtOffset(styledText.getCaretOffset());
-				if(index == prevLine + 1 && index == pageMarginBell - 2)
+				if(index == prevLine + 1 && (index % linesPerPage) == pageMarginBell - 2)
 				if(!pageMarginClip.isActive())
 				{
 					pageMarginClip.setFramePosition(0);
