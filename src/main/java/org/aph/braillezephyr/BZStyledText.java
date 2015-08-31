@@ -202,7 +202,7 @@ public class BZStyledText
 		asciiText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		asciiText.setContent(content);
 		asciiText.setLayoutData(new GridData(GridData.FILL_BOTH));
-		asciiText.setFont(new Font(parentShell.getDisplay(), "sans", 18, SWT.NORMAL));
+		asciiText.setFont(new Font(parentShell.getDisplay(), "Monospace", 18, SWT.NORMAL));
 		asciiText.addFocusListener(new FocusHandler(asciiText));
 		asciiText.addPaintListener(new PaintHandler(asciiText));
 		asciiText.addVerifyKeyListener(new BrailleKeyHandler(false));

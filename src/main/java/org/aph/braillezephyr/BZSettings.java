@@ -281,8 +281,17 @@ public class BZSettings
 			reader = new BufferedReader(new FileReader(file));
 			String line;
 			while((line = reader.readLine()) != null)
-			if(!readLine(line))
-				System.err.println("Unknown setting:  " + line);
+			{
+				try
+				{
+					if(!readLine(line))
+						System.err.println("Unknown setting:  " + line);
+				}
+				catch(NumberFormatException ignored)
+				{
+					System.err.println("Bad setting value:  " + line);
+				}
+			}
 		}
 		catch(FileNotFoundException ignored)
 		{
