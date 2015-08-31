@@ -321,13 +321,13 @@ public class BZSettings
 		writer.println("lineMarginBell " + bzStyledText.getLineMarginBell());
 		String fileName = bzStyledText.getLineMarginFileName();
 		if(fileName != null)
-			writer.println("lineMarginFileName " + fileName.replace(' ', '?'));
+			writer.println("lineMarginFileName " + fileName);
 
 		writer.println("linesPerPage " + bzStyledText.getLinesPerPage());
 		writer.println("pageMarginBell " + bzStyledText.getPageMarginBell());
 		fileName = bzStyledText.getPageMarginFileName();
 		if(fileName != null)
-			writer.println("pageMarginFileName " + fileName.replace(' ', '?'));
+			writer.println("pageMarginFileName " + fileName);
 
 		writer.println();
 
