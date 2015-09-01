@@ -163,12 +163,10 @@ public final class BZFile extends BZBase
 		catch(FileNotFoundException exception)
 		{
 			logError("Unable to open file:  " + fileName + " -- " + exception.getMessage());
-			this.fileName = null;
 		}
 		catch(IOException exception)
 		{
 			logError("Unable to write file:  " + fileName + " -- " + exception.getMessage());
-			this.fileName = null;
 		}
 
 		return false;
