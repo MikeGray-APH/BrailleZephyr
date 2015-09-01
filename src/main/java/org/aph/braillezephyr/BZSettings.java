@@ -248,12 +248,12 @@ public final class BZSettings extends BZBase
 		return true;
 	}
 
-	void readSettings()
+	boolean readSettings()
 	{
 		if(!file.exists())
 		{
 			logMessage("Settings file not found:  " + file.getPath());
-			return;
+			return false;
 		}
 
 		BufferedReader reader = null;
@@ -281,7 +281,7 @@ public final class BZSettings extends BZBase
 		}
 		catch(FileNotFoundException exception)
 		{
-			logError("Unable to open settings file:  " + file.getPath() + " -- " + exception.getMessage());
+			logError("Unable to open settings file for reading:  " + file.getPath() + " -- " + exception.getMessage());
 		}
 		catch(IOException exception)
 		{
@@ -299,6 +299,8 @@ public final class BZSettings extends BZBase
 				logError("Unable to close settings file:  " + file.getPath() + " -- " + exception.getMessage());
 			}
 		}
+
+		return true;
 	}
 
 	private void writeLines(PrintWriter writer)
@@ -339,7 +341,7 @@ public final class BZSettings extends BZBase
 		writer.println();
 	}
 
-	void writeSettings()
+	boolean writeSettings()
 	{
 		try
 		{
@@ -352,7 +354,7 @@ public final class BZSettings extends BZBase
 		catch(IOException exception)
 		{
 			logError("Unable to create settings file:  " + file.getPath() + " -- " + exception.getMessage());
-			return;
+			return false;
 		}
 
 		PrintWriter writer = null;
@@ -363,13 +365,16 @@ public final class BZSettings extends BZBase
 		}
 		catch(FileNotFoundException exception)
 		{
-			logError("Unable to open settings file:  " + file.getPath() + " -- " + exception.getMessage());
+			logError("Unable to open settings file for writing:  " + file.getPath() + " -- " + exception.getMessage());
+			return false;
 		}
 		finally
 		{
 			if(writer != null)
 				writer.close();
 		}
+
+		return true;
 	}
 
 	private class ControlHandler implements ControlListener

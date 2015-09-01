@@ -65,6 +65,34 @@ public class Main
 			display.sleep();
 	}
 
+	private static boolean checkClosing()
+	{
+		boolean doit = true;
+
+		//   check if text has been modified
+		if(bzStyledText.getModified())
+		{
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+			messageBox.setMessage("Would you like to save your changes?");
+			int result = messageBox.open();
+			if(result == SWT.CANCEL)
+				doit = false;
+			else if(result == SWT.YES)
+				doit = bzFile.saveFile();
+		}
+
+		//   write settings file
+		if(doit)
+		if(!bzSettings.writeSettings())
+		{
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+			messageBox.setMessage("Would you like exit?");
+			doit = messageBox.open() == SWT.YES;
+		}
+
+		return doit;
+	}
+
 	/**
 	 * <p>
 	 * Needed to catch Quit (Command-Q) on Macs
@@ -75,22 +103,7 @@ public class Main
 		@Override
 		public void handleEvent(Event event)
 		{
-			//   check if text has been modified
-			if(bzStyledText.getModified())
-			{
-				MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-				messageBox.setMessage("Would you like to save your changes?");
-				int result = messageBox.open();
-				if(result == SWT.CANCEL)
-					event.doit = false;
-				else if(result == SWT.YES)
-					if(!bzFile.saveFile())
-						event.doit = false;
-			}
-
-			//   write settings file
-			if(event.doit)
-				bzSettings.writeSettings();
+			event.doit = checkClosing();
 		}
 	}
 
@@ -99,22 +112,7 @@ public class Main
 		@Override
 		public void shellClosed(ShellEvent event)
 		{
-			//   check if text has been modified
-			if(bzStyledText.getModified())
-			{
-				MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-				messageBox.setMessage("Would you like to save your changes?");
-				int result = messageBox.open();
-				if(result == SWT.CANCEL)
-					event.doit = false;
-				else if(result == SWT.YES)
-					if(!bzFile.saveFile())
-						event.doit = false;
-			}
-
-			//   write settings file
-			if(event.doit)
-				bzSettings.writeSettings();
+			event.doit = checkClosing();
 		}
 
 		@Override
