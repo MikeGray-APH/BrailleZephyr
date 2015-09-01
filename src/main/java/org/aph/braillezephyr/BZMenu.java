@@ -258,7 +258,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class VisibleHandler extends SelectionAdapter
+	private final class VisibleHandler extends SelectionAdapter
 	{
 		private final MenuItem brailleItem;
 		private final MenuItem asciiItem;
@@ -350,7 +350,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class LinesPerPageHandler extends AbstractAction
+	private final class LinesPerPageHandler extends AbstractAction
 	{
 		private final Shell parentShell;
 
@@ -366,14 +366,14 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class LinesPerPageDialog implements SelectionListener, KeyListener
+	private final class LinesPerPageDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public LinesPerPageDialog(Shell parentShell)
+		private LinesPerPageDialog(Shell parentShell)
 		{
 			shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Lines per Page");
@@ -429,7 +429,7 @@ public final class BZMenu extends BZBase
 		public void keyReleased(KeyEvent ignored){}
 	}
 
-	private class CharsPerLineHandler extends AbstractAction
+	private final class CharsPerLineHandler extends AbstractAction
 	{
 		private final Shell parentShell;
 
@@ -445,14 +445,14 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class CharsPerLineDialog implements SelectionListener, KeyListener
+	private final class CharsPerLineDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public CharsPerLineDialog(Shell parentShell)
+		private CharsPerLineDialog(Shell parentShell)
 		{
 			shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Characters Per Line");
@@ -509,7 +509,7 @@ public final class BZMenu extends BZBase
 		public void keyReleased(KeyEvent ignored){}
 	}
 
-	private class LineMarginBellHandler extends AbstractAction
+	private final class LineMarginBellHandler extends AbstractAction
 	{
 		private final Shell parentShell;
 
@@ -525,14 +525,14 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class LineMarginBellDialog implements SelectionListener, KeyListener
+	private final class LineMarginBellDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public LineMarginBellDialog(Shell parentShell)
+		private LineMarginBellDialog(Shell parentShell)
 		{
 			shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Bell Margin");
@@ -587,7 +587,7 @@ public final class BZMenu extends BZBase
 		public void keyReleased(KeyEvent ignored){}
 	}
 
-	private class PageMarginBellHandler extends AbstractAction
+	private final class PageMarginBellHandler extends AbstractAction
 	{
 		private final Shell parentShell;
 
@@ -603,14 +603,14 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class PageMarginBellDialog implements SelectionListener, KeyListener
+	private final class PageMarginBellDialog implements SelectionListener, KeyListener
 	{
 		private final Shell shell;
 		private final Button okButton;
 		private final Button cancelButton;
 		private final Spinner spinner;
 
-		public PageMarginBellDialog(Shell parentShell)
+		private PageMarginBellDialog(Shell parentShell)
 		{
 			shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			shell.setText("Bell Page");
@@ -674,7 +674,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private static class AboutHandler extends AbstractAction
+	private static final class AboutHandler extends AbstractAction
 	{
 		private final Shell parentShell;
 
@@ -695,7 +695,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class LogViewerHandler extends AbstractAction
+	private final class LogViewerHandler extends AbstractAction
 	{
 		private final Shell parentShell;
 
@@ -711,7 +711,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class LogViewerDialog implements SelectionListener
+	private final class LogViewerDialog implements SelectionListener
 	{
 		private final Shell parentShell;
 
@@ -742,7 +742,7 @@ public final class BZMenu extends BZBase
 		public void widgetDefaultSelected(SelectionEvent ignored){}
 	}
 
-	private static abstract class AbstractAction implements SelectionListener
+	private abstract static class AbstractAction implements SelectionListener
 	{
 		MenuItem addMenuItemTo(Menu menu,
 		                       String tag,

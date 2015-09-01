@@ -69,7 +69,7 @@ import java.util.List;
  */
 public class BZStyledText
 {
-	private final static char PARAGRAPH_END = 0xfeff;
+	private static final char PARAGRAPH_END = 0xfeff;
 
 	private final Shell parentShell;
 	private final Composite composite;
@@ -93,7 +93,7 @@ public class BZStyledText
 	private Clip pageMarginClip;
 	private String pageMarginFileName;
 
-	private final List<ExtendedModifyEvent> changes = new ArrayList<>();
+	private final List<ExtendedModifyEvent> changes = new ArrayList<>(1000);
 	private int changeIndex, saveIndex;
 	private boolean undoing, redoing;
 
@@ -225,9 +225,13 @@ public class BZStyledText
 
 			parentShell.getDisplay().loadFont(fontFile.getPath());
 		}
+		catch(FileNotFoundException exception)
+		{
+			logWriter.println("ERROR:  Unable to open font file:  " + fontFileName + " -- " + exception.getMessage());
+		}
 		catch(IOException exception)
 		{
-			logWriter.println("ERROR:  Unable to load font file:  " + fontFileName + " -- " + exception.getMessage());
+			logWriter.println("ERROR:  Unable to read font file:  " + fontFileName + " -- " + exception.getMessage());
 		}
 	}
 
@@ -401,12 +405,7 @@ public class BZStyledText
 			lineMarginClip = (Clip)AudioSystem.getLine(dataLineInfo);
 			lineMarginClip.open(audioInputStream);
 		}
-		catch(IOException exception)
-		{
-			lineMarginClip = clip;
-			throw exception;
-		}
-		catch(LineUnavailableException exception)
+		catch(IOException | LineUnavailableException exception)
 		{
 			lineMarginClip = clip;
 			throw exception;
@@ -494,12 +493,7 @@ public class BZStyledText
 			pageMarginClip = (Clip)AudioSystem.getLine(dataLineInfo);
 			pageMarginClip.open(audioInputStream);
 		}
-		catch(IOException exception)
-		{
-			pageMarginClip = clip;
-			throw exception;
-		}
-		catch(LineUnavailableException exception)
+		catch(IOException | LineUnavailableException exception)
 		{
 			pageMarginClip = clip;
 			throw exception;
@@ -978,7 +972,7 @@ public class BZStyledText
 				if(i < content.getLineCount() - 1)
 				{
 					String next = content.getLine(i + 1);
-					builder.append(" ").append(next);
+					builder.append(' ').append(next);
 					length += eol.length() + next.length();
 				}
 
@@ -991,7 +985,7 @@ public class BZStyledText
 		clearChanges();
 	}
 
-	private class FocusHandler implements FocusListener
+	private final class FocusHandler implements FocusListener
 	{
 		private final StyledText source;
 
@@ -1010,7 +1004,7 @@ public class BZStyledText
 		public void focusLost(FocusEvent ignored){}
 	}
 
-	private class CaretHandler implements CaretListener
+	private final class CaretHandler implements CaretListener
 	{
 		private final StyledText source, other;
 
@@ -1152,7 +1146,7 @@ public class BZStyledText
 		}
 	}
 
-	private class PaintHandler implements PaintListener
+	private final class PaintHandler implements PaintListener
 	{
 		private final StyledText source;
 
@@ -1175,11 +1169,10 @@ public class BZStyledText
 			//   draw right margin
 			event.gc.drawLine(rightMargin, 0, rightMargin, drawHeight);
 
-			int at;
 			for(int i = source.getTopIndex(); i < source.getLineCount(); i++)
 			{
 				//   draw page lines
-				at = source.getLinePixel(i);
+				int at = source.getLinePixel(i);
 				if(isFirstLineOnPage(i))
 					event.gc.drawLine(0, at, drawWidth, at);
 
@@ -1201,9 +1194,9 @@ public class BZStyledText
 		}
 	}
 
-	private class BrailleKeyHandler implements KeyListener, VerifyKeyListener
+	private final class BrailleKeyHandler implements KeyListener, VerifyKeyListener
 	{
-		private static final String asciiBraille = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
+		private static final String ASCII_BRAILLE = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
 		private final boolean brailleEntry;
 
 		private char dotState, dotChar = 0x2800;
@@ -1298,7 +1291,7 @@ public class BZStyledText
 			//   insert resulting braille character
 			if(dotState == 0 && (dotChar & 0xff) != 0)
 			{
-				dotChar = asciiBraille.charAt((dotChar & 0xff));
+				dotChar = ASCII_BRAILLE.charAt((dotChar & 0xff));
 				brailleText.insert(Character.toString(dotChar));
 				brailleText.setCaretOffset(brailleText.getCaretOffset() + 1);
 				dotChar = 0x2800;
@@ -1344,7 +1337,7 @@ public class BZStyledText
 		}
 	}
 
-	private class ExtendedModifyHandler implements ExtendedModifyListener
+	private final class ExtendedModifyHandler implements ExtendedModifyListener
 	{
 		private final StyledText source;
 

@@ -32,14 +32,19 @@ import org.eclipse.swt.widgets.Shell;
  *
  * @author Mike Gray mgray@aph.org
  */
-public class Main
+public final class Main
 {
-	private static Shell shell;
-	private static BZStyledText bzStyledText;
-	private static BZFile bzFile;
-	private static BZSettings bzSettings;
+	private final Shell shell;
+	private final BZStyledText bzStyledText;
+	private final BZFile bzFile;
+	private final BZSettings bzSettings;
 
 	public static void main(String args[])
+	{
+		new Main();
+	}
+
+	public Main()
 	{
 		//   must be before display is created (on Macs at least)
 		Display.setAppName("BrailleZephyr");
@@ -63,9 +68,11 @@ public class Main
 		while(!shell.isDisposed())
 		if(!display.readAndDispatch())
 			display.sleep();
+
+		display.dispose();
 	}
 
-	private static boolean checkClosing()
+	private boolean checkClosing()
 	{
 		boolean doit = true;
 
@@ -98,7 +105,7 @@ public class Main
 	 * Needed to catch Quit (Command-Q) on Macs
 	 * </p>
 	 */
-	private static class CloseHandler implements Listener
+	private class CloseHandler implements Listener
 	{
 		@Override
 		public void handleEvent(Event event)
@@ -107,7 +114,7 @@ public class Main
 		}
 	}
 
-	private static class ShellHandler implements ShellListener
+	private class ShellHandler implements ShellListener
 	{
 		@Override
 		public void shellClosed(ShellEvent event)

@@ -137,9 +137,10 @@ public final class BZFile extends BZBase
 		else
 			fileName = this.fileName;
 
-		OutputStreamWriter writer;
 		try
 		{
+			OutputStreamWriter writer;
+
 			if(fileName.endsWith("brf"))
 			{
 				writer = new OutputStreamWriter(new FileOutputStream(fileName), Charset.forName("US-ASCII"));
@@ -155,6 +156,7 @@ public final class BZFile extends BZBase
 				writer = new OutputStreamWriter(new FileOutputStream(fileName));
 				bzStyledText.writeBRF(writer);
 			}
+
 			writer.close();
 			parentShell.setText(new File(fileName).getName() + " - BrailleZephyr");
 			this.fileName = fileName;

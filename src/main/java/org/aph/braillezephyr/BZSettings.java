@@ -170,7 +170,7 @@ public final class BZSettings extends BZBase
 			}
 			catch(UnsupportedAudioFileException ignore)
 			{
-				logError("Sound file unsupported for line margin bell:  " + value + " -- " + ignore.getMessage());
+				logError("Sound file unsupported for line margin bell:  " + value);
 			}
 			catch(LineUnavailableException ignore)
 			{
@@ -306,7 +306,7 @@ public final class BZSettings extends BZBase
 	private void writeLines(PrintWriter writer)
 	{
 		if(shellSize != null)
-			writer.println("size " + shellSize.x + " " + shellSize.y + " " + shellMaximized);
+			writer.println("size " + shellSize.x + ' ' + shellSize.y + ' ' + shellMaximized);
 
 		writer.println("charsPerLine " + bzStyledText.getCharsPerLine());
 		writer.println("lineMarginBell " + bzStyledText.getLineMarginBell());
@@ -325,8 +325,8 @@ public final class BZSettings extends BZBase
 		writer.println("brailleText.visible " + bzStyledText.getBrailleVisible());
 		FontData fontData = bzStyledText.getBrailleFont().getFontData()[0];
 		writer.println("brailleText.font "
-		               + fontData.getHeight() + " "
-		               + fontData.getStyle() + " "
+		               + fontData.getHeight() + ' '
+		               + fontData.getStyle() + ' '
 		               + fontData.getName());
 
 		writer.println();
@@ -334,8 +334,8 @@ public final class BZSettings extends BZBase
 		writer.println("asciiText.visible " + bzStyledText.getAsciiVisible());
 		fontData = bzStyledText.getAsciiFont().getFontData()[0];
 		writer.println("asciiText.font "
-		               + fontData.getHeight() + " "
-		               + fontData.getStyle() + " "
+		               + fontData.getHeight() + ' '
+		               + fontData.getStyle() + ' '
 		               + fontData.getName());
 
 		writer.println();
