@@ -15,14 +15,11 @@
 
 package org.aph.braillezephyr;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -41,10 +38,8 @@ import java.io.PrintWriter;
  *
  * @author Mike Gray mgray@aph.org
  */
-public class BZSettings
+public final class BZSettings extends BZBase
 {
-	private final BZStyledText bzStyledText;
-	private final Shell parentShell;
 	private final File file;
 
 	private Point shellSize;
@@ -69,8 +64,7 @@ public class BZSettings
 	 */
 	public BZSettings(BZStyledText bzStyledText, String fileName, boolean useSize)
 	{
-		this.bzStyledText = bzStyledText;
-		parentShell = bzStyledText.getParentShell();
+		super(bzStyledText);
 
 		if(fileName == null)
 			fileName = System.getProperty("user.home") + File.separator + ".braillezephyr.conf";
@@ -166,29 +160,21 @@ public class BZSettings
 			{
 				bzStyledText.loadLineMarginFileName(value);
 			}
-			catch(FileNotFoundException ignored)
+			catch(FileNotFoundException exception)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Unable to open file:  " + value);
-				messageBox.open();
+				logError("Unable to open line bell sound file:  " + value + " -- " + exception.getMessage());
 			}
-			catch(IOException ignored)
+			catch(IOException exception)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Error reading file:  " + value);
-				messageBox.open();
+				logError("Unable to read line bell sound file:  " + value + " -- " + exception.getMessage());
 			}
-			catch(UnsupportedAudioFileException ignored)
+			catch(UnsupportedAudioFileException ignore)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Sound file unsupported for line bell:  " + value);
-				messageBox.open();
+				logError("Sound file unsupported for line margin bell:  " + value + " -- " + ignore.getMessage());
 			}
-			catch(LineUnavailableException ignored)
+			catch(LineUnavailableException ignore)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Line unavailable for line bell:  " + value);
-				messageBox.open();
+				logError("Line unavailable for line margin bell:  " + value);
 			}
 			break;
 
@@ -200,29 +186,21 @@ public class BZSettings
 			{
 				bzStyledText.loadPageMarginFileName(value);
 			}
-			catch(FileNotFoundException ignored)
+			catch(FileNotFoundException exception)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Unable to open file:  " + value);
-				messageBox.open();
+				logError("Unable to open page bell sound file:  " + value + " -- " + exception.getMessage());
 			}
-			catch(IOException ignored)
+			catch(IOException exception)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Error writing file:  " + value);
-				messageBox.open();
+				logError("Unable to read page bell sound file:  " + value + " -- " + exception.getMessage());
 			}
-			catch(UnsupportedAudioFileException ignored)
+			catch(UnsupportedAudioFileException ignore)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Sound file unsupported for page bell:  " + value);
-				messageBox.open();
+				logError("Sound file unsupported for page margin bell:  " + value);
 			}
-			catch(LineUnavailableException ignored)
+			catch(LineUnavailableException ignore)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Line unavailable for page bell:  " + value);
-				messageBox.open();
+				logError("Line unavailable for page margin bell:  " + value);
 			}
 			break;
 
@@ -273,37 +251,41 @@ public class BZSettings
 	void readSettings()
 	{
 		if(!file.exists())
+		{
+			logMessage("Settings file not found:  " + file.getPath());
 			return;
+		}
 
 		BufferedReader reader = null;
 		try
 		{
 			reader = new BufferedReader(new FileReader(file));
 			String line;
+			int lineNumber = 1;
 			while((line = reader.readLine()) != null)
 			{
 				try
 				{
 					if(!readLine(line))
-						System.err.println("Unknown setting:  " + line);
+						logError("Unknown setting, line #" + lineNumber + ":  " + line + " -- " + file.getPath(), false);
 				}
 				catch(NumberFormatException ignored)
 				{
-					System.err.println("Bad setting value:  " + line);
+					logError("Bad setting value, line #" + lineNumber + ":  " + line + " -- " + file.getPath(), false);
+				}
+				finally
+				{
+					lineNumber++;
 				}
 			}
 		}
-		catch(FileNotFoundException ignored)
+		catch(FileNotFoundException exception)
 		{
-			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Unable to open settings file " + file.getPath());
-			messageBox.open();
+			logError("Unable to open settings file:  " + file.getPath() + " -- " + exception.getMessage());
 		}
-		catch(IOException ignored)
+		catch(IOException exception)
 		{
-			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Unable to read settings file " + file.getPath());
-			messageBox.open();
+			logError("Unable to read settings file:  " + file.getPath() + " -- " + exception.getMessage());
 		}
 		finally
 		{
@@ -312,11 +294,9 @@ public class BZSettings
 				if(reader != null)
 					reader.close();
 			}
-			catch(IOException ignored)
+			catch(IOException exception)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Unable to close settings file " + file.getPath());
-				messageBox.open();
+				logError("Unable to close settings file:  " + file.getPath() + " -- " + exception.getMessage());
 			}
 		}
 	}
@@ -363,18 +343,16 @@ public class BZSettings
 	{
 		try
 		{
-			file.createNewFile();
-		}
-		catch(IOException ignored)
-		{
-			//TODO:  is this if necessary?
 			if(!file.exists())
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Unable to create settings file");
-				messageBox.open();
-				return;
+				logMessage("Creating settings file:  " + file.getPath());
+				file.createNewFile();
 			}
+		}
+		catch(IOException exception)
+		{
+			logError("Unable to create settings file:  " + file.getPath() + " -- " + exception.getMessage());
+			return;
 		}
 
 		PrintWriter writer = null;
@@ -383,11 +361,9 @@ public class BZSettings
 			writer = new PrintWriter(file);
 			writeLines(writer);
 		}
-		catch(FileNotFoundException ignored)
+		catch(FileNotFoundException exception)
 		{
-			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Unable to open settings file " + file.getPath());
-			messageBox.open();
+			logError("Unable to open settings file:  " + file.getPath() + " -- " + exception.getMessage());
 		}
 		finally
 		{

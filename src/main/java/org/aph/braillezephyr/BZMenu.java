@@ -23,6 +23,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -33,6 +34,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -46,11 +48,9 @@ import java.io.IOException;
  *
  * @author Mike Gray mgray@aph.org
  */
-public class BZMenu
+public final class BZMenu extends BZBase
 {
-	private final BZStyledText bzStyledText;
 	private final BZFile bzFile;
-	private final Shell parentShell;
 
 	/**
 	 * <p>
@@ -62,9 +62,9 @@ public class BZMenu
 	 */
 	public BZMenu(BZStyledText bzStyledText, BZFile bzFile)
 	{
-		this.bzStyledText = bzStyledText;
+		super(bzStyledText);
+
 		this.bzFile = bzFile;
-		parentShell = bzStyledText.getParentShell();
 
 		Menu menuBar = new Menu(parentShell, SWT.BAR);
 		parentShell.setMenuBar(menuBar);
@@ -125,6 +125,8 @@ public class BZMenu
 		item.setMenu(menu);
 
 		new AboutHandler(parentShell).addMenuItemTo(menu, "About");
+		//TODO:  hide on release version
+		new LogViewerHandler(parentShell).addMenuItemTo(menu, "View Log");
 	}
 
 	private class NewHandler extends AbstractAction
@@ -186,29 +188,21 @@ public class BZMenu
 			{
 				bzStyledText.loadLineMarginFileName(fileName);
 			}
-			catch(FileNotFoundException ignore)
+			catch(FileNotFoundException exception)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Unable to open " + fileName);
-				messageBox.open();
+				logError("Unable to open file:  " + fileName + " -- " + exception.getMessage());
 			}
-			catch(IOException ignore)
+			catch(IOException exception)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Error reading file " + fileName);
-				messageBox.open();
+				logError("Unable to read file:  " + fileName + " -- " + exception.getMessage());
 			}
 			catch(UnsupportedAudioFileException ignore)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Sound file unsupported for line bell");
-				messageBox.open();
+				logError("Sound file unsupported for line margin bell:  " + fileName);
 			}
 			catch(LineUnavailableException ignore)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Line unavailable for line bell");
-				messageBox.open();
+				logError("Line unavailable for line margin bell:  " + fileName);
 			}
 		}
 	}
@@ -227,29 +221,21 @@ public class BZMenu
 			{
 				bzStyledText.loadPageMarginFileName(fileName);
 			}
-			catch(FileNotFoundException ignore)
+			catch(FileNotFoundException exception)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Unable to open " + fileName);
-				messageBox.open();
+				logError("Unable to open file:  " + fileName + " -- " + exception.getMessage());
 			}
-			catch(IOException ignore)
+			catch(IOException exception)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Error reading file " + fileName);
-				messageBox.open();
+				logError("Unable to read file:  " + fileName + " -- " + exception.getMessage());
 			}
 			catch(UnsupportedAudioFileException ignore)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Sound file unsupported for page bell");
-				messageBox.open();
+				logError("Sound file unsupported for page margin bell:  " + fileName);
 			}
 			catch(LineUnavailableException ignore)
 			{
-				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-				messageBox.setMessage("Line unavailable for page bell");
-				messageBox.open();
+				logError("Line unavailable for page margin bell:  " + fileName);
 			}
 		}
 	}
@@ -707,6 +693,53 @@ public class BZMenu
 			messageBox.setMessage("BrailleZephyr\nVersion " + version);
 			messageBox.open();
 		}
+	}
+
+	private class LogViewerHandler extends AbstractAction
+	{
+		private final Shell parentShell;
+
+		private LogViewerHandler(Shell parentShell)
+		{
+			this.parentShell = parentShell;
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent ignored)
+		{
+			new LogViewerDialog(parentShell);
+		}
+	}
+
+	private class LogViewerDialog implements SelectionListener
+	{
+		private final Shell parentShell;
+
+		private LogViewerDialog(Shell parentShell)
+		{
+			this.parentShell = parentShell;
+
+			Shell dialog = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL);
+			dialog.setLayout(new FillLayout());
+			dialog.setText("Log Messages");
+
+			Text text = new Text(dialog, SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+			text.setText(bzStyledText.getLogString());
+
+			dialog.open();
+			while(!dialog.isDisposed())
+				if(!dialog.getDisplay().readAndDispatch())
+					dialog.getDisplay().sleep();
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent ignored)
+		{
+
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent ignored){}
 	}
 
 	private static abstract class AbstractAction implements SelectionListener

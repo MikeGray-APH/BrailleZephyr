@@ -52,7 +52,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +97,9 @@ public class BZStyledText
 	private int changeIndex, saveIndex;
 	private boolean undoing, redoing;
 
+	private final StringWriter logString = new StringWriter();
+	private final PrintWriter logWriter = new PrintWriter(logString);
+
 	/**
 	 * <p>
 	 * Creates a new <code>BZStyledText</code> for parentShell <code>parentShell</code>.
@@ -134,25 +139,19 @@ public class BZStyledText
 			lineMarginClip = (Clip)AudioSystem.getLine(dataLineInfoMargin);
 			lineMarginClip.open(audioInputStreamMargin);
 		}
+		catch(IOException exception)
+		{
+			logWriter.println("ERROR:  Unable to read default line margin bell file -- " + exception.getMessage());
+			lineMarginClip = null;
+		}
 		catch(UnsupportedAudioFileException ignored)
 		{
-//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-//			messageBox.setMessage("Sound file unsupported for margin bell");
-//			messageBox.open();
+			logWriter.println("ERROR:  Sound file unsupported for default line margin bell");
 			lineMarginClip = null;
 		}
 		catch(LineUnavailableException ignored)
 		{
-//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-//			messageBox.setMessage("Line unavailable for margin bell");
-//			messageBox.open();
-			lineMarginClip = null;
-		}
-		catch(IOException ignored)
-		{
-//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-//			messageBox.setMessage("Error creating margin bell");
-//			messageBox.open();
+			logWriter.println("ERROR:  Line unavailable for default line margin bell");
 			lineMarginClip = null;
 		}
 
@@ -165,25 +164,19 @@ public class BZStyledText
 			pageMarginClip = (Clip)AudioSystem.getLine(dataLineInfoPage);
 			pageMarginClip.open(audioInputStreamPage);
 		}
+		catch(IOException exception)
+		{
+			logWriter.println("ERROR:  Unable to read default line page bell file -- " + exception.getMessage());
+			pageMarginClip = null;
+		}
 		catch(UnsupportedAudioFileException ignored)
 		{
-//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-//			messageBox.setMessage("Sound file unsupported for page bell");
-//			messageBox.open();
+			logWriter.println("ERROR:  Sound file unsupported for default page margin bell");
 			pageMarginClip = null;
 		}
 		catch(LineUnavailableException ignored)
 		{
-//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-//			messageBox.setMessage("Line unavailable for page bell");
-//			messageBox.open();
-			pageMarginClip = null;
-		}
-		catch(IOException ignored)
-		{
-//			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-//			messageBox.setMessage("Error creating page bell");
-//			messageBox.open();
+			logWriter.println("ERROR:  Line unavailable for default page margin bell");
 			pageMarginClip = null;
 		}
 
@@ -232,7 +225,10 @@ public class BZStyledText
 
 			parentShell.getDisplay().loadFont(fontFile.getPath());
 		}
-		catch(IOException ignored){}
+		catch(IOException exception)
+		{
+			logWriter.println("ERROR:  Unable to load font file:  " + fontFileName + " -- " + exception.getMessage());
+		}
 	}
 
 	Shell getParentShell()
@@ -272,6 +268,23 @@ public class BZStyledText
 		pageMarginBell = linesPerPage - bellDiff;
 		if(pageMarginBell < 0)
 			pageMarginBell = 0;
+	}
+
+	/**
+	 * <p>
+	 * Returns the current log messages.
+	 * </p>
+	 *
+	 * @return the current log messages
+	 */
+	public String getLogString()
+	{
+		return logString.toString();
+	}
+
+	PrintWriter getLogWriter()
+	{
+		return logWriter;
 	}
 
 	/**
@@ -388,12 +401,12 @@ public class BZStyledText
 			lineMarginClip = (Clip)AudioSystem.getLine(dataLineInfo);
 			lineMarginClip.open(audioInputStream);
 		}
-		catch(LineUnavailableException exception)
+		catch(IOException exception)
 		{
 			lineMarginClip = clip;
 			throw exception;
 		}
-		catch(IOException exception)
+		catch(LineUnavailableException exception)
 		{
 			lineMarginClip = clip;
 			throw exception;
@@ -481,12 +494,12 @@ public class BZStyledText
 			pageMarginClip = (Clip)AudioSystem.getLine(dataLineInfo);
 			pageMarginClip.open(audioInputStream);
 		}
-		catch(LineUnavailableException exception)
+		catch(IOException exception)
 		{
 			pageMarginClip = clip;
 			throw exception;
 		}
-		catch(IOException exception)
+		catch(LineUnavailableException exception)
 		{
 			pageMarginClip = clip;
 			throw exception;
@@ -1132,7 +1145,10 @@ public class BZStyledText
 					wait();
 				adjustOther(source, other);
 			}
-			catch(InterruptedException ignored){}
+			catch(InterruptedException exception)
+			{
+				logWriter.println("ERROR:  adjust thread wait interrupted -- " + exception.getMessage());
+			}
 		}
 	}
 

@@ -18,7 +18,6 @@ package org.aph.braillezephyr;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,11 +34,8 @@ import java.nio.charset.Charset;
  *
  * @author Mike Gray mgray@aph.org
  */
-public class BZFile
+public final class BZFile extends BZBase
 {
-	private final BZStyledText bzStyledText;
-	private final Shell parentShell;
-
 	private String fileName;
 
 	/**
@@ -51,8 +47,7 @@ public class BZFile
 	 */
 	public BZFile(BZStyledText bzStyledText)
 	{
-		this.bzStyledText = bzStyledText;
-		parentShell = bzStyledText.getParentShell();
+		super(bzStyledText);
 	}
 
 	boolean newFile()
@@ -111,17 +106,13 @@ public class BZFile
 			this.fileName = fileName;
 			return true;
 		}
-		catch(FileNotFoundException ignored)
+		catch(FileNotFoundException exception)
 		{
-			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage(fileName + " not found");
-			messageBox.open();
+			logError("Unable to open file:  " + fileName + " -- " + exception.getMessage());
 		}
-		catch(IOException ignored)
+		catch(IOException exception)
 		{
-			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Error opening " + fileName);
-			messageBox.open();
+			logError("Unable to read file:  " + fileName + " -- " + exception.getMessage());
 		}
 
 		return false;
@@ -169,18 +160,14 @@ public class BZFile
 			this.fileName = fileName;
 			return true;
 		}
-		catch(FileNotFoundException ignored)
+		catch(FileNotFoundException exception)
 		{
-			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage(fileName + " not found");
-			messageBox.open();
+			logError("Unable to open file:  " + fileName + " -- " + exception.getMessage());
 			this.fileName = null;
 		}
-		catch(IOException ignored)
+		catch(IOException exception)
 		{
-			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("Error opening " + fileName);
-			messageBox.open();
+			logError("Unable to write file:  " + fileName + " -- " + exception.getMessage());
 			this.fileName = null;
 		}
 
