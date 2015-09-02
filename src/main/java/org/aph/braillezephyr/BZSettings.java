@@ -408,8 +408,8 @@ public final class BZSettings extends BZBase
 		 * The getMaximized method does not work with some window managers
 		 * inside the controlResized method.  It needs to be called after the
 		 * controlResized method returns.  Unlike the AdjustOtherThread object,
-		 * there is no corresponding event for which to wait.  So the thread
-		 * for this class is run inside controlResized with a delay and it
+		 * there is no corresponding event for which to wait.  So the thread for
+		 * this class is run inside controlResized with a delay and it then
 		 * checks getMaximized.
 		 * </p>
 		 */
