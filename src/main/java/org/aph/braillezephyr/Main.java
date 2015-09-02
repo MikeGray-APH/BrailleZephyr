@@ -93,7 +93,7 @@ public final class Main
 		if(!bzSettings.writeSettings())
 		{
 			MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-			messageBox.setMessage("Would you like exit?");
+			messageBox.setMessage("Would you like to exit anyway?");
 			doit = messageBox.open() == SWT.YES;
 		}
 

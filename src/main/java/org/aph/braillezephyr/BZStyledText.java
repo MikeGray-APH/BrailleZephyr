@@ -141,17 +141,17 @@ public class BZStyledText
 		}
 		catch(IOException exception)
 		{
-			logWriter.println("ERROR:  Unable to read default line margin bell file -- " + exception.getMessage());
+			logWriter.println("ERROR:  Unable to read default line margin bell file:  " + exception.getMessage());
 			lineMarginClip = null;
 		}
-		catch(UnsupportedAudioFileException ignored)
+		catch(UnsupportedAudioFileException exception)
 		{
-			logWriter.println("ERROR:  Sound file unsupported for default line margin bell");
+			logWriter.println("ERROR:  Sound file unsupported for default line margin bell:  " + exception.getMessage());
 			lineMarginClip = null;
 		}
-		catch(LineUnavailableException ignored)
+		catch(LineUnavailableException exception)
 		{
-			logWriter.println("ERROR:  Line unavailable for default line margin bell");
+			logWriter.println("ERROR:  Line unavailable for default line margin bell:  " + exception.getMessage());
 			lineMarginClip = null;
 		}
 
@@ -166,17 +166,17 @@ public class BZStyledText
 		}
 		catch(IOException exception)
 		{
-			logWriter.println("ERROR:  Unable to read default line page bell file -- " + exception.getMessage());
+			logWriter.println("ERROR:  Unable to read default line page bell file:  " + exception.getMessage());
 			pageMarginClip = null;
 		}
-		catch(UnsupportedAudioFileException ignored)
+		catch(UnsupportedAudioFileException exception)
 		{
-			logWriter.println("ERROR:  Sound file unsupported for default page margin bell");
+			logWriter.println("ERROR:  Sound file unsupported for default page margin bell:  " + exception.getMessage());
 			pageMarginClip = null;
 		}
-		catch(LineUnavailableException ignored)
+		catch(LineUnavailableException exception)
 		{
-			logWriter.println("ERROR:  Line unavailable for default page margin bell");
+			logWriter.println("ERROR:  Line unavailable for default page margin bell:  " + exception.getMessage());
 			pageMarginClip = null;
 		}
 
@@ -227,11 +227,11 @@ public class BZStyledText
 		}
 		catch(FileNotFoundException exception)
 		{
-			logWriter.println("ERROR:  Unable to open font file:  " + fontFileName + " -- " + exception.getMessage());
+			logWriter.println("ERROR:  Unable to open font file:  " + exception.getMessage());
 		}
 		catch(IOException exception)
 		{
-			logWriter.println("ERROR:  Unable to read font file:  " + fontFileName + " -- " + exception.getMessage());
+			logWriter.println("ERROR:  Unable to read font file:  " + exception.getMessage());
 		}
 	}
 
@@ -1141,7 +1141,7 @@ public class BZStyledText
 			}
 			catch(InterruptedException exception)
 			{
-				logWriter.println("ERROR:  adjust thread wait interrupted -- " + exception.getMessage());
+				logWriter.println("ERROR:  adjust thread wait interrupted:  " + exception.getMessage());
 			}
 		}
 	}

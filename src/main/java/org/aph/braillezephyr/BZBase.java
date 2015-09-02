@@ -19,21 +19,52 @@ public class BZBase
 		parentShell = bzStyledText.getParentShell();
 	}
 
-	protected void logError(String string, boolean showMessage)
+	protected void logError(String message, String info, boolean showMessage)
 	{
-		System.err.println("ERROR:  " + string);
-		bzStyledText.getLogWriter().println("ERROR:  " + string);
+		String string;
+
+		if(info == null)
+			string = "ERROR:  " + message;
+		else
+			string = "ERROR:  " + message + ":  " + info;
+		System.err.println(string);
+		bzStyledText.getLogWriter().println(string);
+
 		if(showMessage)
 		{
+			if(info == null)
+				string = "ERROR:  " + message;
+			else
+				string = "ERROR:  " + message + ":\n" + info;
 			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
-			messageBox.setMessage("ERROR:  " + string);
+			messageBox.setMessage(string);
 			messageBox.open();
 		}
 	}
 
-	protected void logError(String string)
+	protected void logError(String message, Exception exception, boolean showMessage)
 	{
-		logError(string, true);
+		logError(message, exception.getMessage(), showMessage);
+	}
+
+	protected void logError(String message, Exception exception)
+	{
+		logError(message, exception, true);
+	}
+
+	protected void logError(String message, String info)
+	{
+		logError(message, info, true);
+	}
+
+	protected void logError(String message, boolean showMessage)
+	{
+		logError(message, (String)null, showMessage);
+	}
+
+	protected void logError(String message)
+	{
+		logError(message, true);
 	}
 
 	protected void logMessage(String string)

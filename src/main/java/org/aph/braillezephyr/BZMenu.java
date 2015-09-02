@@ -190,19 +190,19 @@ public final class BZMenu extends BZBase
 			}
 			catch(FileNotFoundException exception)
 			{
-				logError("Unable to open file:  " + fileName + " -- " + exception.getMessage());
+				logError("Unable to open file", exception);
 			}
 			catch(IOException exception)
 			{
-				logError("Unable to read file:  " + fileName + " -- " + exception.getMessage());
+				logError("Unable to read file", exception);
 			}
 			catch(UnsupportedAudioFileException ignore)
 			{
-				logError("Sound file unsupported for line margin bell:  " + fileName);
+				logError("Sound file unsupported for line margin bell", fileName);
 			}
 			catch(LineUnavailableException ignore)
 			{
-				logError("Line unavailable for line margin bell:  " + fileName);
+				logError("Line unavailable for line margin bell", fileName);
 			}
 		}
 	}
@@ -223,19 +223,19 @@ public final class BZMenu extends BZBase
 			}
 			catch(FileNotFoundException exception)
 			{
-				logError("Unable to open file:  " + fileName + " -- " + exception.getMessage());
+				logError("Unable to open file", exception);
 			}
 			catch(IOException exception)
 			{
-				logError("Unable to read file:  " + fileName + " -- " + exception.getMessage());
+				logError("Unable to read file", exception);
 			}
 			catch(UnsupportedAudioFileException ignore)
 			{
-				logError("Sound file unsupported for page margin bell:  " + fileName);
+				logError("Sound file unsupported for page margin bell", fileName);
 			}
 			catch(LineUnavailableException ignore)
 			{
-				logError("Line unavailable for page margin bell:  " + fileName);
+				logError("Line unavailable for page margin bell", fileName);
 			}
 		}
 	}

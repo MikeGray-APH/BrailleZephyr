@@ -108,11 +108,11 @@ public final class BZFile extends BZBase
 		}
 		catch(FileNotFoundException exception)
 		{
-			logError("Unable to open file:  " + fileName + " -- " + exception.getMessage());
+			logError("Unable to open file", exception);
 		}
 		catch(IOException exception)
 		{
-			logError("Unable to read file:  " + fileName + " -- " + exception.getMessage());
+			logError("Unable to read file", exception);
 		}
 
 		return false;
@@ -164,11 +164,11 @@ public final class BZFile extends BZBase
 		}
 		catch(FileNotFoundException exception)
 		{
-			logError("Unable to open file:  " + fileName + " -- " + exception.getMessage());
+			logError("Unable to open file", exception);
 		}
 		catch(IOException exception)
 		{
-			logError("Unable to write file:  " + fileName + " -- " + exception.getMessage());
+			logError("Unable to write file", exception);
 		}
 
 		return false;

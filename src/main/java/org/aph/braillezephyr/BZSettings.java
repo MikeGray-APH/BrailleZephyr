@@ -162,19 +162,19 @@ public final class BZSettings extends BZBase
 			}
 			catch(FileNotFoundException exception)
 			{
-				logError("Unable to open line bell sound file:  " + value + " -- " + exception.getMessage());
+				logError("Unable to open line bell sound file", exception);
 			}
 			catch(IOException exception)
 			{
-				logError("Unable to read line bell sound file:  " + value + " -- " + exception.getMessage());
+				logError("Unable to read line bell sound file", exception);
 			}
 			catch(UnsupportedAudioFileException ignore)
 			{
-				logError("Sound file unsupported for line margin bell:  " + value);
+				logError("Sound file unsupported for line margin bell", value);
 			}
 			catch(LineUnavailableException ignore)
 			{
-				logError("Line unavailable for line margin bell:  " + value);
+				logError("Line unavailable for line margin bell", value);
 			}
 			break;
 
@@ -188,19 +188,19 @@ public final class BZSettings extends BZBase
 			}
 			catch(FileNotFoundException exception)
 			{
-				logError("Unable to open page bell sound file:  " + value + " -- " + exception.getMessage());
+				logError("Unable to open page bell sound file", exception);
 			}
 			catch(IOException exception)
 			{
-				logError("Unable to read page bell sound file:  " + value + " -- " + exception.getMessage());
+				logError("Unable to read page bell sound file", exception);
 			}
 			catch(UnsupportedAudioFileException ignore)
 			{
-				logError("Sound file unsupported for page margin bell:  " + value);
+				logError("Sound file unsupported for page margin bell", value);
 			}
 			catch(LineUnavailableException ignore)
 			{
-				logError("Line unavailable for page margin bell:  " + value);
+				logError("Line unavailable for page margin bell", value);
 			}
 			break;
 
@@ -267,11 +267,11 @@ public final class BZSettings extends BZBase
 				try
 				{
 					if(!readLine(line))
-						logError("Unknown setting, line #" + lineNumber + ":  " + line + " -- " + file.getPath(), false);
+						logError("Unknown setting, line #" + lineNumber, line + " -- " + file.getPath(), false);
 				}
 				catch(NumberFormatException ignored)
 				{
-					logError("Bad setting value, line #" + lineNumber + ":  " + line + " -- " + file.getPath(), false);
+					logError("Bad setting value, line #" + lineNumber, line + " -- " + file.getPath(), false);
 				}
 				finally
 				{
@@ -281,11 +281,11 @@ public final class BZSettings extends BZBase
 		}
 		catch(FileNotFoundException exception)
 		{
-			logError("Unable to open settings file for reading:  " + file.getPath() + " -- " + exception.getMessage());
+			logError("Unable to open settings file for reading", exception);
 		}
 		catch(IOException exception)
 		{
-			logError("Unable to read settings file:  " + file.getPath() + " -- " + exception.getMessage());
+			logError("Unable to read settings file", exception);
 		}
 		finally
 		{
@@ -296,7 +296,7 @@ public final class BZSettings extends BZBase
 			}
 			catch(IOException exception)
 			{
-				logError("Unable to close settings file:  " + file.getPath() + " -- " + exception.getMessage());
+				logError("Unable to close settings file", exception);
 			}
 		}
 
@@ -353,7 +353,7 @@ public final class BZSettings extends BZBase
 		}
 		catch(IOException exception)
 		{
-			logError("Unable to create settings file:  " + file.getPath() + " -- " + exception.getMessage());
+			logError("Unable to create settings file", exception);
 			return false;
 		}
 
@@ -365,7 +365,7 @@ public final class BZSettings extends BZBase
 		}
 		catch(FileNotFoundException exception)
 		{
-			logError("Unable to open settings file for writing:  " + file.getPath() + " -- " + exception.getMessage());
+			logError("Unable to open settings file for writing", exception);
 			return false;
 		}
 		finally
