@@ -1150,6 +1150,8 @@ public class BZStyledText
 	{
 		private final StyledText source;
 
+		private int charsPerLine, rightMargin;
+
 		private PaintHandler(StyledText source)
 		{
 			this.source = source;
@@ -1158,13 +1160,26 @@ public class BZStyledText
 		@Override
 		public void paintControl(PaintEvent event)
 		{
-			event.gc.setForeground(color);
-			event.gc.setBackground(color);
+			/*   Using event.gc.getFontMetrics().getAverageCharWidth()) was not
+			     enough when running on a Mac with high resolution, as the
+			     rounding to an int seemed enough to screw up the right margin,
+			     even when using a monospaced font (this is the theory).
+			 */
+			if(charsPerLine != getCharsPerLine())
+			{
+				charsPerLine = getCharsPerLine();
+				char buffer[] = new char[charsPerLine];
+				for(int i = 0; i < charsPerLine; i++)
+					buffer[i] = 'm';
+				rightMargin = event.gc.stringExtent(new String(buffer)).x;
+			}
 
 			int lineHeight = source.getLineHeight();
 			int drawHeight = source.getClientArea().height;
 			int drawWidth = source.getClientArea().width;
-			int rightMargin = event.gc.getFontMetrics().getAverageCharWidth() * charsPerLine;
+
+			event.gc.setForeground(color);
+			event.gc.setBackground(color);
 
 			//   draw right margin
 			event.gc.drawLine(rightMargin, 0, rightMargin, drawHeight);
