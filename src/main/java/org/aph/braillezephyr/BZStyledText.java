@@ -1161,9 +1161,9 @@ public class BZStyledText
 		public void paintControl(PaintEvent event)
 		{
 			/*   Using event.gc.getFontMetrics().getAverageCharWidth()) was not
-			     enough when using low resolution was used, as the rounding
-			     to an int seemed enough to screw up the right margin, even when
-			     using a monospaced font (this is the theory).
+			     enough when low resolution was used (specifically Mac), as the
+			     rounding to an int seemed enough to screw up the right margin,
+			     even when using a monospaced font (this is the theory).
 			 */
 			if(charsPerLine != getCharsPerLine())
 			{
