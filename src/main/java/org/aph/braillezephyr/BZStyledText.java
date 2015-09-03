@@ -1137,8 +1137,17 @@ public class BZStyledText
 		{
 			try
 			{
+				int trys = 1;
 				while(!paintEvent)
-					wait(500);
+				{
+					wait(200);
+					logWriter.println("adjust thread timeout #" + trys++);
+					if(trys > 2)
+					{
+						logWriter.println("ERROR:  adjust thread failed");
+						return;
+					}
+				}
 				adjustOther(source, other);
 			}
 			catch(InterruptedException exception)
