@@ -31,7 +31,9 @@ public class BZBase
 		else
 			string = "ERROR:  " + message + ":  " + info;
 		System.err.println(string);
+		System.err.flush();
 		bzStyledText.getLogWriter().println(string);
+		bzStyledText.getLogWriter().flush();
 
 		if(showMessage)
 		{

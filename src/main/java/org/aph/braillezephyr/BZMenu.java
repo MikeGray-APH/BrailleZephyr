@@ -742,7 +742,7 @@ public final class BZMenu extends BZBase
 		public void widgetDefaultSelected(SelectionEvent ignored){}
 	}
 
-	private abstract static class AbstractAction implements SelectionListener
+	private static class AbstractAction implements SelectionListener
 	{
 		MenuItem addMenuItemTo(Menu menu,
 		                       String tag,

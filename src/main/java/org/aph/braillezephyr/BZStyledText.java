@@ -750,7 +750,7 @@ public class BZStyledText
 	 */
 	public void readBRF(Reader reader) throws IOException
 	{
-		StringBuilder stringBuilder = new StringBuilder();
+		StringBuilder stringBuilder = new StringBuilder(65536);
 		boolean checkLinesPerPage = true;
 		boolean removeFormFeed = true;
 		char buffer[] = new char[65536];
@@ -801,7 +801,7 @@ public class BZStyledText
 			else
 				trim = cnt;
 
-			stringBuilder.append(new String(buffer, 0, trim));
+			stringBuilder.append(buffer, 0, trim);
 		}
 
 		content.setText(stringBuilder.toString());
@@ -926,6 +926,8 @@ public class BZStyledText
 	 */
 	public void rewrapFromCaret()
 	{
+		StringBuilder stringBuilder = new StringBuilder(charsPerLine * 3);
+
 		for(int i = content.getLineAtOffset(currentText.getCaretOffset()); i < content.getLineCount(); i++)
 		{
 			String line = content.getLine(i);
@@ -966,17 +968,17 @@ public class BZStyledText
 
 				//   build replacement text
 				int length = line.length();
-				StringBuilder builder = new StringBuilder();
-				builder.append(line.substring(0, wordEnd)).append(eol).append(line.substring(wordWrap, length));
+				stringBuilder.setLength(0);
+				stringBuilder.append(line.substring(0, wordEnd)).append(eol).append(line.substring(wordWrap, length));
 				if(length > 0 && line.charAt(length - 1) != PARAGRAPH_END)
 				if(i < content.getLineCount() - 1)
 				{
 					String next = content.getLine(i + 1);
-					builder.append(' ').append(next);
+					stringBuilder.append(' ').append(next);
 					length += eol.length() + next.length();
 				}
 
-				content.replaceTextRange(content.getOffsetAtLine(i), length, builder.toString());
+				content.replaceTextRange(content.getOffsetAtLine(i), length, stringBuilder.toString());
 			}
 			else if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
 				break;
@@ -1048,7 +1050,7 @@ public class BZStyledText
 			int sourceLineHeight = source.getLineHeight();
 
 			//   check if have to wait until after paint event
-			if(sourceLinePixel < 0 || (sourceLinePixel + sourceLineHeight) > sourceHeight)
+			if(sourceLinePixel < 0 || sourceLinePixel + sourceLineHeight > sourceHeight)
 				adjustOtherThread.waitPainted(source, other);
 			else
 				adjustOtherThread.adjustOther(source, other);
@@ -1135,8 +1137,8 @@ public class BZStyledText
 		{
 			try
 			{
-				if(!paintEvent)
-					wait();
+				while(!paintEvent)
+					wait(500);
 				adjustOther(source, other);
 			}
 			catch(InterruptedException exception)
@@ -1306,7 +1308,7 @@ public class BZStyledText
 			//   insert resulting braille character
 			if(dotState == 0 && (dotChar & 0xff) != 0)
 			{
-				dotChar = ASCII_BRAILLE.charAt((dotChar & 0xff));
+				dotChar = ASCII_BRAILLE.charAt(dotChar & 0xff);
 				brailleText.insert(Character.toString(dotChar));
 				brailleText.setCaretOffset(brailleText.getCaretOffset() + 1);
 				dotChar = 0x2800;
@@ -1336,7 +1338,7 @@ public class BZStyledText
 			{
 				//   play page bell
 				int index = styledText.getLineAtOffset(styledText.getCaretOffset());
-				if(index == prevLine + 1 && (index % linesPerPage) == pageMarginBell - 2)
+				if(index == prevLine + 1 && index % linesPerPage == pageMarginBell - 2)
 				if(!pageMarginClip.isActive())
 				{
 					pageMarginClip.setFramePosition(0);

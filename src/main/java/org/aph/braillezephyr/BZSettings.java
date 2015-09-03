@@ -145,7 +145,7 @@ public final class BZSettings extends BZBase
 		{
 		case "size":
 
-			tokens = value.split("[ ]");
+			tokens = value.split(" ");
 			if(tokens.length != 3)
 				return false;
 			shellSize = new Point(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
@@ -214,7 +214,7 @@ public final class BZSettings extends BZBase
 			offset = value.indexOf(' ', offset) + 1;
 			if(offset < 1 || offset == value.length())
 				return false;
-			tokens = value.split("[ ]");
+			tokens = value.split(" ");
 			if(tokens.length < 3)
 				return false;
 			bzStyledText.setBrailleFont(new Font(parentShell.getDisplay(),
@@ -233,7 +233,7 @@ public final class BZSettings extends BZBase
 			offset = value.indexOf(' ', offset) + 1;
 			if(offset < 1 || offset == value.length())
 				return false;
-			tokens = value.split("[ ]");
+			tokens = value.split(" ");
 			if(tokens.length < 3)
 				return false;
 			bzStyledText.setAsciiFont(new Font(parentShell.getDisplay(),
