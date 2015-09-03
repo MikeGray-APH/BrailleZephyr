@@ -1072,7 +1072,7 @@ public class BZStyledText
 	{
 		private volatile boolean paintEvent;
 		private StyledText source, other;
-		private int trys;
+		private int tries;
 
 		private synchronized void adjustOther(StyledText source, StyledText other)
 		{
@@ -1145,7 +1145,7 @@ public class BZStyledText
 
 			this.source = source;
 			this.other = other;
-			trys = 1;
+			tries = 1;
 			paintEvent = false;
 			parentShell.getDisplay().asyncExec(this);
 		}
@@ -1161,8 +1161,8 @@ public class BZStyledText
 		{
 			if(!paintEvent)
 			{
-				logWriter.println("adjusting other try #" + ++trys);
-				if(trys > 2)
+				logWriter.println("adjusting other try #" + ++tries);
+				if(tries > 2)
 				{
 					logWriter.println("ERROR:  adjusting other failed");
 					return;
