@@ -76,5 +76,6 @@ public class BZBase
 	{
 		System.out.println(string);
 		bzStyledText.getLogWriter().println(string);
+		bzStyledText.getLogWriter().flush();
 	}
 }
