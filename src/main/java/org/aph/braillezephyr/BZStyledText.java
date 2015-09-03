@@ -1140,6 +1140,7 @@ public class BZStyledText
 			if(this.source != null)
 			{
 				logWriter.println("ERROR:  attempting to wait to adjust other but already waiting");
+				return;
 			}
 
 			this.source = source;
