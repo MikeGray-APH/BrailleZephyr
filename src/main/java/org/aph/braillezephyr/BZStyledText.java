@@ -1072,9 +1072,26 @@ public class BZStyledText
 	{
 		private volatile boolean paintEvent;
 		private StyledText source, other;
+		private int trys;
 
 		private synchronized void adjustOther(StyledText source, StyledText other)
 		{
+			if(source == null)
+				source = this.source;
+			if(other == null)
+				other = this.other;
+
+			if(source == null)
+			{
+				logWriter.println("ERROR:  attempting to adjust other but no source StyledText");
+				return;
+			}
+			if(other == null)
+			{
+				logWriter.println("ERROR:  attempting to adjust other but no other StyledText");
+				return;
+			}
+
 			int caretOffset = source.getCaretOffset();
 			int lineIndex = source.getLineAtOffset(caretOffset);
 			int otherLineHeight = other.getLineHeight();
@@ -1120,40 +1137,41 @@ public class BZStyledText
 
 		private synchronized void waitPainted(StyledText source, StyledText other)
 		{
+			if(this.source != null)
+			{
+				logWriter.println("ERROR:  attempting to wait to adjust other but already waiting");
+			}
+
 			this.source = source;
 			this.other = other;
+			trys = 1;
 			paintEvent = false;
 			parentShell.getDisplay().asyncExec(this);
 		}
 
-		private synchronized void notifyPainted()
+		private synchronized void notifyPainted(StyledText source)
 		{
-			paintEvent = true;
-			notifyAll();
+			if(this.source == source)
+				paintEvent = true;
 		}
 
 		@Override
 		public synchronized void run()
 		{
-			try
+			if(!paintEvent)
 			{
-				int trys = 1;
-				while(!paintEvent)
+				logWriter.println("adjusting other try #" + ++trys);
+				if(trys > 2)
 				{
-					wait(200);
-					logWriter.println("adjust thread timeout #" + trys++);
-					if(trys > 2)
-					{
-						logWriter.println("ERROR:  adjust thread failed");
-						return;
-					}
+					logWriter.println("ERROR:  adjusting other failed");
+					return;
 				}
-				adjustOther(source, other);
+				parentShell.getDisplay().asyncExec(this);
+				return;
 			}
-			catch(InterruptedException exception)
-			{
-				logWriter.println("ERROR:  adjust thread wait interrupted:  " + exception.getMessage());
-			}
+
+			adjustOther(null, null);
+			source = other = null;
 		}
 	}
 
@@ -1216,7 +1234,7 @@ public class BZStyledText
 					break;
 			}
 
-			adjustOtherThread.notifyPainted();
+			adjustOtherThread.notifyPainted(source);
 		}
 	}
 
