@@ -94,7 +94,7 @@ public final class BZMenu extends BZBase
 		item.setMenu(menu);
 
 		new UndoHandler().addMenuItemTo(menu, "Undo\tCtrl+Z", SWT.MOD1 | 'z');
-		new RedoHandler().addMenuItemTo(menu, "Redo\tCtrl+Z", SWT.MOD1 | SWT.MOD2 | 'z');
+		new RedoHandler().addMenuItemTo(menu, "Redo\tCtrl+Shift+Z", SWT.MOD1 | SWT.MOD2 | 'z');
 
 		//   view menu
 		menu = new Menu(menuBar);
