@@ -711,7 +711,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private final class LogViewerDialog implements SelectionListener
+	private final class LogViewerDialog
 	{
 		private final Shell parentShell;
 
@@ -728,18 +728,9 @@ public final class BZMenu extends BZBase
 
 			dialog.open();
 			while(!dialog.isDisposed())
-				if(!dialog.getDisplay().readAndDispatch())
-					dialog.getDisplay().sleep();
+			if(!dialog.getDisplay().readAndDispatch())
+				dialog.getDisplay().sleep();
 		}
-
-		@Override
-		public void widgetSelected(SelectionEvent ignored)
-		{
-
-		}
-
-		@Override
-		public void widgetDefaultSelected(SelectionEvent ignored){}
 	}
 
 	private static class AbstractAction implements SelectionListener
