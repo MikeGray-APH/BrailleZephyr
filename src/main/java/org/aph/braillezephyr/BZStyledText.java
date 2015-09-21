@@ -856,19 +856,28 @@ public class BZStyledText
 	 *
 	 * @see #writeBZY(Writer)
 	 */
-	public void readBZY(Reader reader) throws IOException
+	public void readBZY(Reader reader) throws IOException, BZException
 	{
+		String line;
+		int caretOffset = 0;
+
 		content.setText("");
 		eol = System.getProperty("line.separator");
 		BufferedReader buffer = new BufferedReader(reader);
 
-		//TODO:  verify file format
-
 		//   read configuration lines
-		String line = buffer.readLine();
-		charsPerLine = Integer.parseInt(line.substring(17));
-		line = buffer.readLine();
-		linesPerPage = Integer.parseInt(line.substring(17));
+		header:while((line = buffer.readLine()) != null)
+		{
+			String tokens[] = line.split(" ");
+			switch(tokens[0])
+			{
+			case "CharsPerLine:":  charsPerLine = Integer.parseInt(tokens[1]);  break;
+			case "LinesPerPage:":  linesPerPage = Integer.parseInt(tokens[1]);  break;
+			case "CaretOffset:":   caretOffset  = Integer.parseInt(tokens[1]);  break;
+			case "HeaderEnd:":  break header;
+			default:  throw new BZException("Invalid file format");
+			}
+		}
 
 		//   read text
 		while((line = buffer.readLine()) != null)
@@ -880,6 +889,7 @@ public class BZStyledText
 		}
 
 		clearChanges();
+		currentText.setCaretOffset(caretOffset);
 	}
 
 	/**
@@ -896,8 +906,10 @@ public class BZStyledText
 	public void writeBZY(Writer writer) throws IOException
 	{
 		//   write configuration lines
-		writer.write("Chars Per Line:  " + charsPerLine + eol);
-		writer.write("Lines Per Page:  " + linesPerPage + eol);
+		writer.write("CharsPerLine: " + charsPerLine + eol);
+		writer.write("LinesPerPage: " + linesPerPage + eol);
+		writer.write("CaretOffset: " + currentText.getCaretOffset() + eol);
+		writer.write("HeaderEnd:" + eol);
 
 		//   write text
 		for(int i = 0; i < content.getLineCount(); i++)
@@ -1419,5 +1431,13 @@ public class BZStyledText
 				redraw();
 			prevLineCount = lineCount;
 		}
+	}
+}
+
+class BZException extends Exception
+{
+	BZException(String message)
+	{
+		super(message);
 	}
 }

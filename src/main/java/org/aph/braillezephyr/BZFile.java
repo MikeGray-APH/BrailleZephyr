@@ -114,6 +114,10 @@ public final class BZFile extends BZBase
 		{
 			logError("Unable to read file", exception);
 		}
+		catch(BZException exception)
+		{
+			logError("Unable to read file", fileName + ":  " + exception.getMessage());
+		}
 
 		return false;
 	}
