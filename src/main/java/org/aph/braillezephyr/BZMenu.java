@@ -23,15 +23,16 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.FontDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
@@ -686,12 +687,55 @@ public final class BZMenu extends BZBase
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_INFORMATION | SWT.OK);
+			new AboutDialog(parentShell);
+		}
+	}
+
+	private static class AboutDialog
+	{
+		private final Shell parentShell;
+
+		private AboutDialog(Shell parentShell)
+		{
+			this.parentShell = parentShell;
+
+			Shell dialog = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL);
+			dialog.setLayout(new GridLayout(1, true));
+			dialog.setText("About BrailleZephyr");
+
 			String version = getClass().getPackage().getImplementationVersion();
 			if(version == null)
-				version = "development";
-			messageBox.setMessage("BrailleZephyr\nVersion " + version);
-			messageBox.open();
+				version = "dev";
+
+			Label label;
+
+			Image image = new Image(parentShell.getDisplay(), getClass().getResourceAsStream("/icons/BrailleZephyr-icon-128x128.png"));
+			label = new Label(dialog, SWT.CENTER);
+			label.setLayoutData(new GridData(GridData.FILL_BOTH));
+			label.setImage(image);
+
+			new Label(dialog, SWT.SEPARATOR | SWT.HORIZONTAL).setLayoutData(new GridData(GridData.FILL_BOTH));
+
+			label = new Label(dialog, SWT.CENTER);
+			label.setLayoutData(new GridData(GridData.FILL_BOTH));
+			label.setFont(new Font(parentShell.getDisplay(), "Sans", 14, SWT.BOLD));
+			label.setText("BrailleZephyr " + version);
+
+			label = new Label(dialog, SWT.CENTER);
+			label.setLayoutData(new GridData(GridData.FILL_BOTH));
+			label.setFont(new Font(parentShell.getDisplay(), "Sans", 10, SWT.NORMAL));
+			label.setText("Editor for BRF documents");
+
+			label = new Label(dialog, SWT.CENTER);
+			label.setLayoutData(new GridData(GridData.FILL_BOTH));
+			label.setFont(new Font(parentShell.getDisplay(), "Sans", 10, SWT.NORMAL));
+			label.setText("Copyright © 2015 American Printing House for the Blind Inc.");
+
+			dialog.pack();
+			dialog.open();
+			while(!dialog.isDisposed())
+			if(!dialog.getDisplay().readAndDispatch())
+				dialog.getDisplay().sleep();
 		}
 	}
 
