@@ -649,6 +649,36 @@ public class BZStyledText
 		asciiText.redraw();
 	}
 
+	/**
+	 * <p>
+	 * Cut from selected text to the clipboard.
+	 * </p>
+	 */
+	public void cut()
+	{
+		currentText.cut();
+	}
+
+	/**
+	 * <p>
+	 * Copy selected text to the clipboard.
+	 * </p>
+	 */
+	public void copy()
+	{
+		currentText.copy();
+	}
+
+	/**
+	 * <p>
+	 * Paste text from the clipboard to caret offset, or replace selected text.
+	 * </p>
+	 */
+	public void paste()
+	{
+		currentText.paste();
+	}
+
 	private void scrollToCaret()
 	{
 		int caretOffset = currentText.getCaretOffset();

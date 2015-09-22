@@ -94,6 +94,11 @@ public final class BZMenu extends BZBase
 		item.setText("&Edit");
 		item.setMenu(menu);
 
+		//   cut, copy, and paste accelerators are handled by StyledText.
+		new CutHandler().addMenuItemTo(menu, "Cut\tCtrl+X");
+		new CopyHandler().addMenuItemTo(menu, "Copy\tCtrl+C");
+		new PasteHandler().addMenuItemTo(menu, "Paste\tCtrl+V");
+		new MenuItem(menu, SWT.SEPARATOR);
 		new UndoHandler().addMenuItemTo(menu, "Undo\tCtrl+Z", SWT.MOD1 | 'z');
 		new RedoHandler().addMenuItemTo(menu, "Redo\tCtrl+Shift+Z", SWT.MOD1 | SWT.MOD2 | 'z');
 
@@ -238,6 +243,33 @@ public final class BZMenu extends BZBase
 			{
 				logError("Line unavailable for page margin bell", fileName);
 			}
+		}
+	}
+
+	private class CutHandler extends AbstractAction
+	{
+		@Override
+		public void widgetSelected(SelectionEvent ignored)
+		{
+			bzStyledText.cut();
+		}
+	}
+
+	private class CopyHandler extends AbstractAction
+	{
+		@Override
+		public void widgetSelected(SelectionEvent ignored)
+		{
+			bzStyledText.copy();
+		}
+	}
+
+	private class PasteHandler extends AbstractAction
+	{
+		@Override
+		public void widgetSelected(SelectionEvent ignored)
+		{
+			bzStyledText.paste();
 		}
 	}
 
