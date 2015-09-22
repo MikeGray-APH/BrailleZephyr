@@ -873,11 +873,34 @@ public class BZStyledText
 			{
 			case "CharsPerLine:":  charsPerLine = Integer.parseInt(tokens[1]);  break;
 			case "LinesPerPage:":  linesPerPage = Integer.parseInt(tokens[1]);  break;
-			case "CaretOffset:":   caretOffset  = Integer.parseInt(tokens[1]);  break;
+
+			case "CaretOffset:":  caretOffset  = Integer.parseInt(tokens[1]);  break;
+			case "ViewFocus:":
+
+				if(tokens[1].equals("braille"))
+				{
+					if(brailleText.isVisible())
+						brailleText.setFocus();
+				}
+				else if(tokens[1].equals("ascii"))
+				{
+					if(asciiText.isVisible())
+						asciiText.setFocus();
+				}
+				else
+					logWriter.println("ERROR:  Invalid ViewFocus value:  " + line);
+				break;
+
 			case "HeaderEnd:":  break header;
-			default:  throw new BZException("Invalid file format");
+
+			default:
+
+				logWriter.println("WARNING:  Unknown file format parameter:  " + line);
+				break;
 			}
 		}
+		if(line == null)
+			throw new BZException("Invalid file format");
 
 		//   read text
 		while((line = buffer.readLine()) != null)
@@ -889,7 +912,8 @@ public class BZStyledText
 		}
 
 		clearChanges();
-		currentText.setCaretOffset(caretOffset);
+		brailleText.setCaretOffset(caretOffset);
+		asciiText.setCaretOffset(caretOffset);
 	}
 
 	/**
@@ -908,7 +932,14 @@ public class BZStyledText
 		//   write configuration lines
 		writer.write("CharsPerLine: " + charsPerLine + eol);
 		writer.write("LinesPerPage: " + linesPerPage + eol);
+
 		writer.write("CaretOffset: " + currentText.getCaretOffset() + eol);
+		writer.write("ViewFocus: ");
+		if(currentText == brailleText)
+			writer.write("braille" + eol);
+		else
+			writer.write("ascii" + eol);
+
 		writer.write("HeaderEnd:" + eol);
 
 		//   write text
@@ -1095,12 +1126,12 @@ public class BZStyledText
 
 			if(source == null)
 			{
-				logWriter.println("ERROR:  attempting to adjust other but no source StyledText");
+				logWriter.println("WARNING:  attempting to adjust other but no source StyledText");
 				return;
 			}
 			if(other == null)
 			{
-				logWriter.println("ERROR:  attempting to adjust other but no other StyledText");
+				logWriter.println("WARNING:  attempting to adjust other but no other StyledText");
 				return;
 			}
 
@@ -1151,7 +1182,7 @@ public class BZStyledText
 		{
 			if(this.source != null)
 			{
-				logWriter.println("ERROR:  attempting to wait to adjust other but already waiting");
+				logWriter.println("WARNING:  attempting to wait to adjust other but already waiting");
 				return;
 			}
 
