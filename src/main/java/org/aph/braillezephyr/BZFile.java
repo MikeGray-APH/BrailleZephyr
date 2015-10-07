@@ -71,29 +71,8 @@ public final class BZFile extends BZBase
 		return true;
 	}
 
-	boolean openFile()
+	boolean openFile(String fileName)
 	{
-		//   check if text has been modified
-		if(bzStyledText.getModified())
-		{
-			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-			messageBox.setMessage("Would you like to save your changes?");
-			int result = messageBox.open();
-			if(result == SWT.CANCEL)
-				return false;
-			else if(result == SWT.YES)
-				if(!saveFile())
-					return false;
-		}
-
-		FileDialog fileDialog = new FileDialog(parentShell, SWT.OPEN);
-		fileDialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
-		fileDialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
-		fileDialog.setFilterIndex(2);
-		String fileName = fileDialog.open();
-		if(fileName == null)
-			return false;
-
 		try
 		{
 			FileReader fileReader = new FileReader(fileName);
@@ -120,6 +99,32 @@ public final class BZFile extends BZBase
 		}
 
 		return false;
+	}
+
+	boolean openFile()
+	{
+		//   check if text has been modified
+		if(bzStyledText.getModified())
+		{
+			MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+			messageBox.setMessage("Would you like to save your changes?");
+			int result = messageBox.open();
+			if(result == SWT.CANCEL)
+				return false;
+			else if(result == SWT.YES)
+				if(!saveFile())
+					return false;
+		}
+
+		FileDialog fileDialog = new FileDialog(parentShell, SWT.OPEN);
+		fileDialog.setFilterExtensions(new String[]{ "*.brf", "*.bzy", "*.brf;*.bzy", "*.*" });
+		fileDialog.setFilterNames(new String[]{ "Braille Ready Format File", "BrailleZephyr File", "Braille Files", "All Files" });
+		fileDialog.setFilterIndex(2);
+		String fileName = fileDialog.open();
+		if(fileName == null)
+			return false;
+
+		return openFile(fileName);
 	}
 
 	boolean saveFile()

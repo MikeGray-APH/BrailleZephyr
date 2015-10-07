@@ -41,10 +41,10 @@ public final class Main
 
 	public static void main(String args[])
 	{
-		new Main();
+		new Main(args);
 	}
 
-	public Main()
+	public Main(String args[])
 	{
 		//   must be before display is created (on Macs at least)
 		Display.setAppName("BrailleZephyr");
@@ -63,6 +63,10 @@ public final class Main
 		bzFile = new BZFile(bzStyledText);
 		bzSettings = new BZSettings(bzStyledText);
 		new BZMenu(bzStyledText, bzFile);
+
+		//   assume any argument is a file to open
+		if(args.length > 0)
+			bzFile.openFile(args[0]);
 
 		shell.open();
 		while(!shell.isDisposed())

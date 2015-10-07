@@ -2,6 +2,9 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
 group = 'org.aph.braillezephyr'
 version = '0.1'
 mainClassName = 'org.aph.braillezephyr.Main'
@@ -74,7 +77,7 @@ task linux64Jar(type: Jar) {
 }
 
 task win32Jar(type: Jar) {
-	appendix = 'win32-x86'
+	appendix = 'windows-x86'
 
 	manifest = project.manifest {
 		from defaultManifest
@@ -88,7 +91,7 @@ task win32Jar(type: Jar) {
 }
 
 task win64Jar(type: Jar) {
-	appendix = 'win32-x86_64'
+	appendix = 'windows-x86_64'
 
 	manifest = project.manifest {
 		from defaultManifest
