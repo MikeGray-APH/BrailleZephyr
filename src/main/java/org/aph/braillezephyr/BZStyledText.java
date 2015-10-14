@@ -762,6 +762,8 @@ public class BZStyledText
 
 	private boolean isFirstLineOnPage(int index)
 	{
+		if(linesPerPage == 0)
+			return false;
 		return index % linesPerPage == 0;
 	}
 
