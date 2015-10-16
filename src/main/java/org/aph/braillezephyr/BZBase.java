@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Shell;
 /**
  * <p>
  * This class is the base class for the other BZ* classes.  It contains the
- * logging methods used by the other classes.
+ * common logging methods used by the other classes.
  * </p>
  * @author Mike Gray mgray@aph.org
  */

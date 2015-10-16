@@ -61,8 +61,8 @@ public final class BZFile extends BZBase
 			if(result == SWT.CANCEL)
 				return false;
 			else if(result == SWT.YES)
-				if(!saveFile())
-					return false;
+			if(!saveFile())
+				return false;
 		}
 
 		bzStyledText.setText("");

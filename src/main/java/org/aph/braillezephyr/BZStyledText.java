@@ -1138,8 +1138,8 @@ public class BZStyledText
 	 * inside the caretMoved will return the pixel before the object has been
 	 * painted, and the value after it has been painted is needed to adjust the
 	 * other view.  So the object of this class will be notified after a paint
-	 * paint event has occurred and it will adjust the other view then.  Care
-	 * must be taken as some caretMoved events do not result in the object being
+	 * event has occurred and it will adjust the other view then.  Care must be
+	 * taken as some caretMoved events do not result in the object being
 	 * redrawn.
 	 * </p>
 	 */
@@ -1158,7 +1158,7 @@ public class BZStyledText
 
 			if(source == null)
 			{
-				logWriter.println("WARNING:  attempting to adjust other but no source StyledText");
+				logWriter.println("WARNING:  attempting to adjust source but no source StyledText");
 				return;
 			}
 			if(other == null)
@@ -1266,9 +1266,9 @@ public class BZStyledText
 		public void paintControl(PaintEvent event)
 		{
 			/*   Using event.gc.getFontMetrics().getAverageCharWidth()) was not
-			     enough when low resolution was used (specifically Mac), as the
-			     rounding to an int seemed enough to screw up the right margin,
-			     even when using a monospaced font (this is the theory).
+			     enough on low resolutions, as the rounding to an int seemed
+			     enough to screw up the right margin, even when using a
+			     monospaced font (this is the current theory).
 			 */
 			if(charsPerLine != getCharsPerLine())
 			{

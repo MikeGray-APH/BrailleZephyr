@@ -131,7 +131,7 @@ public final class BZMenu extends BZBase
 		item.setMenu(menu);
 
 		new AboutHandler(parentShell).addMenuItemTo(menu, "About");
-		//TODO:  hide on release version
+		//TODO:  hide on non-development version
 		new LogViewerHandler(parentShell).addMenuItemTo(menu, "View Log");
 	}
 
