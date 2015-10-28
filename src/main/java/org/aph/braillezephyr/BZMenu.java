@@ -811,12 +811,23 @@ public final class BZMenu extends BZBase
 
 	private static class AbstractAction implements SelectionListener
 	{
+		private static boolean isMac = System.getProperty("os.name").toLowerCase().startsWith("mac");
+
 		MenuItem addMenuItemTo(Menu menu,
 		                       String tag,
 		                       int accelerator,
 		                       boolean enabled)
 		{
 			MenuItem item = new MenuItem(menu, SWT.PUSH);
+
+			//   hide accelerators in tags  on Macs
+			if(isMac)
+			{
+				int tab = tag.indexOf('\t');
+				if(tab > 0)
+					tag = tag.substring(0, tab);
+			}
+
 			item.setText(tag);
 			if(accelerator != 0)
 				item.setAccelerator(accelerator);
