@@ -76,6 +76,9 @@ public class BZStyledText
 	private final StyledText brailleText, asciiText;
 	private final StyledTextContent content;
 
+	private final String versionString;
+	private final int versionMajor, versionMinor, versionPatch;
+
 	private final boolean windowBug = System.getProperty("os.name").toLowerCase().startsWith("windows");
 	private final AdjustOtherThread adjustOtherThread = new AdjustOtherThread();
 	private final Color color;
@@ -110,6 +113,32 @@ public class BZStyledText
 	public BZStyledText(Shell parentShell)
 	{
 		this.parentShell = parentShell;
+
+		//   version from jar manifest
+		String version = getClass().getPackage().getImplementationVersion();
+
+		//   version from build file
+		if(version == null)
+			version = System.getProperty("braillezephyr.version");
+
+		//   no version
+		if(version == null)
+		{
+			logWriter.println("WARNING:  unable to determine version, using 0.0");
+			version = "0.0";
+		}
+
+		versionString = version;
+		String[] versionStrings = versionString.split("\\.");
+		versionMajor = Integer.parseInt(versionStrings[0]);
+		if(versionStrings.length > 1)
+			versionMinor = Integer.parseInt(versionStrings[1]);
+		else
+			versionMinor = 0;
+		if(versionStrings.length > 2)
+			versionPatch = Integer.parseInt(versionStrings[2]);
+		else
+			versionPatch = 0;
 
 		color = parentShell.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 
@@ -238,6 +267,11 @@ public class BZStyledText
 	Shell getParentShell()
 	{
 		return parentShell;
+	}
+
+	String getVersionString()
+	{
+		return versionString;
 	}
 
 	/**
@@ -903,6 +937,8 @@ public class BZStyledText
 			String tokens[] = line.split(" ");
 			switch(tokens[0])
 			{
+			case "Version:":  break;//TODO:  check something here?  Note numbers need to be checked
+
 			case "CharsPerLine:":  charsPerLine = Integer.parseInt(tokens[1]);  break;
 			case "LinesPerPage:":  linesPerPage = Integer.parseInt(tokens[1]);  break;
 
@@ -962,6 +998,8 @@ public class BZStyledText
 	public void writeBZY(Writer writer) throws IOException
 	{
 		//   write configuration lines
+		writer.write("Version: " + versionMajor + ' ' + versionMinor + ' ' + versionPatch + eol);
+
 		writer.write("CharsPerLine: " + charsPerLine + eol);
 		writer.write("LinesPerPage: " + linesPerPage + eol);
 

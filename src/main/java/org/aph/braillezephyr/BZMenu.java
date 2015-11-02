@@ -707,7 +707,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private static final class AboutHandler extends AbstractAction
+	private final class AboutHandler extends AbstractAction
 	{
 		private final Shell parentShell;
 
@@ -723,21 +723,17 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private static class AboutDialog
+	private final class AboutDialog
 	{
-		private final Shell parentShell;
-
 		private AboutDialog(Shell parentShell)
 		{
-			this.parentShell = parentShell;
-
 			Shell dialog = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL);
 			dialog.setLayout(new GridLayout(1, true));
 			dialog.setText("About BrailleZephyr");
 
-			String version = getClass().getPackage().getImplementationVersion();
-			if(version == null)
-				version = "dev";
+			String versionString = bzStyledText.getVersionString();
+			if(versionString == null)
+				versionString = "dev";
 
 			Label label;
 
@@ -751,7 +747,7 @@ public final class BZMenu extends BZBase
 			label = new Label(dialog, SWT.CENTER);
 			label.setLayoutData(new GridData(GridData.FILL_BOTH));
 			label.setFont(new Font(parentShell.getDisplay(), "Sans", 14, SWT.BOLD));
-			label.setText("BrailleZephyr " + version);
+			label.setText("BrailleZephyr " + versionString);
 
 			label = new Label(dialog, SWT.CENTER);
 			label.setLayoutData(new GridData(GridData.FILL_BOTH));
