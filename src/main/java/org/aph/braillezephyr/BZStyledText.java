@@ -927,6 +927,7 @@ public class BZStyledText
 		String line;
 		boolean returnAtEnd = false;
 		int caretOffset = 0;
+		int unknown = 0;
 
 		content.setText("");
 		eol = System.getProperty("line.separator");
@@ -938,13 +939,15 @@ public class BZStyledText
 			String tokens[] = line.split(" ");
 			switch(tokens[0])
 			{
-			case "Version:":  break;//TODO:  check something here?  Note numbers need to be checked
 
-			case "CharsPerLine:":  charsPerLine = Integer.parseInt(tokens[1]);  break;
-			case "LinesPerPage:":  linesPerPage = Integer.parseInt(tokens[1]);  break;
+			//   don't do anything for now
+			case "Version":  break;
 
-			case "CaretOffset:":  caretOffset  = Integer.parseInt(tokens[1]);  break;
-			case "ViewFocus:":
+			case "CharsPerLine":  charsPerLine = Integer.parseInt(tokens[1]);  break;
+			case "LinesPerPage":  linesPerPage = Integer.parseInt(tokens[1]);  break;
+
+			case "CaretOffset":  caretOffset  = Integer.parseInt(tokens[1]);  break;
+			case "ViewFocus":
 
 				if(tokens[1].equals("braille"))
 				{
@@ -960,13 +963,16 @@ public class BZStyledText
 					logWriter.println("ERROR:  Invalid ViewFocus value:  " + line);
 				break;
 
-			case "ReturnAtEnd:":  returnAtEnd = Boolean.parseBoolean(tokens[1]); break;
+			case "ReturnAtEnd":  returnAtEnd = Boolean.parseBoolean(tokens[1]); break;
 
-			case "HeaderEnd:":  break header;
+			case "HeaderEnd":  break header;
 
 			default:
 
 				logWriter.println("WARNING:  Unknown file format parameter:  " + line);
+				unknown++;
+				if(unknown > 6)
+					throw new BZException("Invalid file format");
 				break;
 			}
 		}
@@ -1013,27 +1019,28 @@ public class BZStyledText
 	 */
 	public void writeBZY(Writer writer) throws IOException
 	{
-		String line;
-
 		//   write configuration lines
-		writer.write("Version: " + versionMajor + ' ' + versionMinor + ' ' + versionPatch + eol);
+		writer.write("Version " + versionMajor + ' ' + versionMinor + ' ' + versionPatch + eol);
 
-		writer.write("CharsPerLine: " + charsPerLine + eol);
-		writer.write("LinesPerPage: " + linesPerPage + eol);
+		writer.write("CharsPerLine " + charsPerLine + eol);
+		writer.write("LinesPerPage " + linesPerPage + eol);
 
-		writer.write("CaretOffset: " + currentText.getCaretOffset() + eol);
-		writer.write("ViewFocus: ");
+		writer.write("CaretOffset " + currentText.getCaretOffset() + eol);
+		writer.write("ViewFocus ");
 		if(currentText == brailleText)
 			writer.write("braille" + eol);
 		else
 			writer.write("ascii" + eol);
 
-		writer.write("ReturnAtEnd: " + (content.getLine(content.getLineCount() - 1).length() == 0) + eol);
+		if(content.getCharCount() > 0)
+			writer.write("ReturnAtEnd " + (content.getLine(content.getLineCount() - 1).length() == 0) + eol);
+		else
+			writer.write("ReturnAtEnd false" + eol);
 
-		writer.write("HeaderEnd:" + eol);
+		writer.write("HeaderEnd" + eol);
 
 		//   write first line
-		line = content.getLine(0);
+		String line = content.getLine(0);
 		if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
 			writer.write(line.substring(0, line.length() - 1) + (char)0xb6);
 		else
