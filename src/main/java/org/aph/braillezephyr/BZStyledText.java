@@ -925,6 +925,7 @@ public class BZStyledText
 	public void readBZY(Reader reader) throws IOException, BZException
 	{
 		String line;
+		boolean returnAtEnd = false;
 		int caretOffset = 0;
 
 		content.setText("");
@@ -959,6 +960,8 @@ public class BZStyledText
 					logWriter.println("ERROR:  Invalid ViewFocus value:  " + line);
 				break;
 
+			case "ReturnAtEnd:":  returnAtEnd = Boolean.parseBoolean(tokens[1]); break;
+
 			case "HeaderEnd:":  break header;
 
 			default:
@@ -970,14 +973,27 @@ public class BZStyledText
 		if(line == null)
 			throw new BZException("Invalid file format");
 
-		//   read text
-		while((line = buffer.readLine()) != null)
+		//   read first line, may be null for empty document
+		if((line = buffer.readLine()) != null)
 		{
 			if(line.length() > 0 && line.charAt(line.length() - 1) == 0xb6)
-				content.replaceTextRange(content.getCharCount(), 0, line.substring(0, line.length() - 1) + PARAGRAPH_END + eol);
+				content.replaceTextRange(0, 0, line.substring(0, line.length() - 1) + PARAGRAPH_END);
 			else
-				content.replaceTextRange(content.getCharCount(), 0, line + eol);
+				content.replaceTextRange(0, 0, line);
+
+			//   read next lines
+			while((line = buffer.readLine()) != null)
+			{
+				content.replaceTextRange(content.getCharCount(), 0, eol);
+				if(line.length() > 0 && line.charAt(line.length() - 1) == 0xb6)
+					content.replaceTextRange(content.getCharCount(), 0, line.substring(0, line.length() - 1) + PARAGRAPH_END);
+				else
+					content.replaceTextRange(content.getCharCount(), 0, line);
+			}
 		}
+
+		if(returnAtEnd)
+			content.replaceTextRange(content.getCharCount(), 0, eol);
 
 		clearChanges();
 		brailleText.setCaretOffset(caretOffset);
@@ -997,6 +1013,8 @@ public class BZStyledText
 	 */
 	public void writeBZY(Writer writer) throws IOException
 	{
+		String line;
+
 		//   write configuration lines
 		writer.write("Version: " + versionMajor + ' ' + versionMinor + ' ' + versionPatch + eol);
 
@@ -1010,16 +1028,26 @@ public class BZStyledText
 		else
 			writer.write("ascii" + eol);
 
+		writer.write("ReturnAtEnd: " + (content.getLine(content.getLineCount() - 1).length() == 0) + eol);
+
 		writer.write("HeaderEnd:" + eol);
 
+		//   write first line
+		line = content.getLine(0);
+		if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
+			writer.write(line.substring(0, line.length() - 1) + (char)0xb6);
+		else
+			writer.write(line);
+
 		//   write text
-		for(int i = 0; i < content.getLineCount(); i++)
+		for(int i = 1; i < content.getLineCount(); i++)
 		{
-			String line = content.getLine(i);
+			writer.write(eol);
+			line = content.getLine(i);
 			if(line.length() > 0 && line.charAt(line.length() - 1) == PARAGRAPH_END)
-				writer.write(line.substring(0, line.length() - 1) + (char)0xb6 + eol);
+				writer.write(line.substring(0, line.length() - 1) + (char)0xb6);
 			else
-				writer.write(line + eol);
+				writer.write(line);
 		}
 
 		writer.flush();
