@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 /**
  * <p>
@@ -41,6 +42,9 @@ import java.io.PrintWriter;
 public final class BZSettings extends BZBase
 {
 	private final File file;
+
+	private final ArrayList<String> recentFiles = new ArrayList<>(31);
+	private int recentFilesMax = 31;
 
 	private Point shellSize;
 	private boolean shellMaximized;
@@ -125,6 +129,37 @@ public final class BZSettings extends BZBase
 	public BZSettings(BZStyledText bzStyledText)
 	{
 		this(bzStyledText, null);
+	}
+
+	ArrayList<String> getRecentFiles()
+	{
+		return recentFiles;
+	}
+
+	int getRecentFilesMax()
+	{
+		return recentFilesMax;
+	}
+
+	void removeRecentFile(String fileName)
+	{
+		for(String recentFile: recentFiles)
+		if(recentFile.equals(fileName))
+		{
+			recentFiles.remove(recentFile);
+			return;
+		}
+	}
+
+	void addRecentFile(String fileName)
+	{
+		//   check for duplicates
+		removeRecentFile(fileName);
+
+		recentFiles.add(0, fileName);
+		if(recentFiles.size() > 6)
+		for(int i = 5; i < recentFiles.size(); i++)
+			recentFiles.remove(i);
 	}
 
 	private boolean readLine(String line)
@@ -242,6 +277,12 @@ public final class BZSettings extends BZBase
 			                                   Integer.parseInt(tokens[1])));
 			break;
 
+		case "recentFilesMax": recentFilesMax = Integer.parseInt(value);  break;
+		case "recentFile":
+
+			if(recentFiles.size() < recentFilesMax)
+				recentFiles.add(value);  break;//TODO:  rereading settings?
+
 		default:  return false;
 		}
 
@@ -337,6 +378,12 @@ public final class BZSettings extends BZBase
 		               + fontData.getHeight() + ' '
 		               + fontData.getStyle() + ' '
 		               + fontData.getName());
+
+		writer.println();
+
+		writer.println("recentFilesMax " + recentFilesMax);
+		for(String recentFile : recentFiles)
+			writer.println("recentFile " + recentFile);
 
 		writer.println();
 	}

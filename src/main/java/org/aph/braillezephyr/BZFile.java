@@ -50,6 +50,11 @@ public final class BZFile extends BZBase
 		super(bzStyledText);
 	}
 
+	String getFileName()
+	{
+		return fileName;
+	}
+
 	boolean newFile()
 	{
 		//   check if text has been modified

@@ -41,6 +41,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * <p>
@@ -52,20 +53,30 @@ import java.io.IOException;
 public final class BZMenu extends BZBase
 {
 	private final BZFile bzFile;
+	private final BZSettings bzSettings;
+
+	private Menu recentFilesMenu;
 
 	/**
 	 * <p>
 	 * Creates a new <code>BZMenu</code> object.
 	 * </p>
 	 *
+	 * <p>
+	 * If <code>bzSettings</code> is null, then there will be no Open Recent
+	 * menu item.
+	 * </p>
+	 *
 	 * @param bzStyledText the bzStyledText object to operate on (cannot be null)
 	 * @param bzFile the bzFile object for file operations (cannot be null)
+	 * @param bzSettings the bzSettings object for recent files.
 	 */
-	public BZMenu(BZStyledText bzStyledText, BZFile bzFile)
+	public BZMenu(BZStyledText bzStyledText, BZFile bzFile, BZSettings bzSettings)
 	{
 		super(bzStyledText);
 
 		this.bzFile = bzFile;
+		this.bzSettings = bzSettings;
 
 		Menu menuBar = new Menu(parentShell, SWT.BAR);
 		parentShell.setMenuBar(menuBar);
@@ -81,6 +92,16 @@ public final class BZMenu extends BZBase
 
 		new NewHandler().addMenuItemTo(menu, "&New");
 		new OpenHandler().addMenuItemTo(menu, "&Open\tCtrl+O", SWT.MOD1 | 'o');
+
+		if(bzSettings != null)
+		{
+			recentFilesMenu = new Menu(menu);
+			ArrayList<String> recentFiles = bzSettings.getRecentFiles();
+			for(String fileName : recentFiles)
+				new OpenRecentHandler().addMenuItemTo(recentFilesMenu, fileName);
+			new BaseAction().addSubMenuItemTo(menu, "Open Recent", recentFilesMenu);
+		}
+
 		new SaveHandler().addMenuItemTo(menu, "&Save\tCtrl+S", SWT.MOD1 | 's');
 		new SaveAsHandler().addMenuItemTo(menu, "Save As\tCtrl+Shift+O", SWT.MOD1 | SWT.MOD2 | 's');
 		new QuitHandler().addMenuItemTo(menu, "Quit\tCtrl+Q", SWT.MOD1 | 'q');
@@ -135,7 +156,42 @@ public final class BZMenu extends BZBase
 		new LogViewerHandler(parentShell).addMenuItemTo(menu, "View Log");
 	}
 
-	private class NewHandler extends AbstractAction
+	/**
+	 * <p>
+	 * Creates a new <code>BZMenu</code> object.
+	 * </p>
+	 *
+	 * @param bzStyledText the bzStyledText object to operate on (cannot be null)
+	 * @param bzFile the bzFile object for file operations (cannot be null)
+	 *
+	 * @see #BZMenu(BZStyledText, BZFile, BZSettings)
+	 */
+	public BZMenu(BZStyledText bzStyledText, BZFile bzFile)
+	{
+		this(bzStyledText, bzFile, null);
+	}
+
+	private void addRecentFile(String fileName)
+	{
+		if(bzSettings == null)
+			return;
+
+		bzSettings.addRecentFile(fileName);
+
+		MenuItem menuItems[] = recentFilesMenu.getItems();
+		for(MenuItem menuItem : menuItems)
+		if(menuItem.getText().equals(fileName))
+		{
+			menuItem.dispose();
+			break;
+		}
+		new OpenRecentHandler().addMenuItemAt(recentFilesMenu, fileName, 0);
+
+		if(recentFilesMenu.getItemCount() > bzSettings.getRecentFilesMax())
+			recentFilesMenu.getItem(recentFilesMenu.getItemCount() - 1).dispose();
+	}
+
+	private class NewHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -144,16 +200,36 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class OpenHandler extends AbstractAction
+	private class OpenHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			bzFile.openFile();
+			if(bzFile.openFile())
+				addRecentFile(bzFile.getFileName());
 		}
 	}
 
-	private class SaveHandler extends AbstractAction
+	private class OpenRecentHandler extends BaseAction
+	{
+		@Override
+		public void widgetSelected(SelectionEvent event)
+		{
+			MenuItem menuItem = (MenuItem)event.widget;
+			String fileName = menuItem.getText();
+			if(bzFile.openFile(fileName))
+			{
+				new OpenRecentHandler().addMenuItemAt(recentFilesMenu, fileName, 0);
+				bzSettings.addRecentFile(fileName);
+			}
+			else
+				bzSettings.removeRecentFile(fileName);
+
+			menuItem.dispose();
+		}
+	}
+
+	private class SaveHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -162,16 +238,17 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class SaveAsHandler extends AbstractAction
+	private class SaveAsHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
 		{
-			bzFile.saveAsFile();
+			if(bzFile.saveAsFile())
+				addRecentFile(bzFile.getFileName());
 		}
 	}
 
-	private class QuitHandler extends AbstractAction
+	private class QuitHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -180,7 +257,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class LoadLineMarginBellHandler extends AbstractAction
+	private class LoadLineMarginBellHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -213,7 +290,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class LoadPageMarginBellHandler extends AbstractAction
+	private class LoadPageMarginBellHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -246,7 +323,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class CutHandler extends AbstractAction
+	private class CutHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -255,7 +332,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class CopyHandler extends AbstractAction
+	private class CopyHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -264,7 +341,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class PasteHandler extends AbstractAction
+	private class PasteHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -273,7 +350,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class UndoHandler extends AbstractAction
+	private class UndoHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -282,7 +359,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class RedoHandler extends AbstractAction
+	private class RedoHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -355,7 +432,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class BrailleFontHandler extends AbstractAction
+	private class BrailleFontHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -369,7 +446,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private class AsciiFontHandler extends AbstractAction
+	private class AsciiFontHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -383,7 +460,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private final class LinesPerPageHandler extends AbstractAction
+	private final class LinesPerPageHandler extends BaseAction
 	{
 		private final Shell parentShell;
 
@@ -462,7 +539,7 @@ public final class BZMenu extends BZBase
 		public void keyReleased(KeyEvent ignored){}
 	}
 
-	private final class CharsPerLineHandler extends AbstractAction
+	private final class CharsPerLineHandler extends BaseAction
 	{
 		private final Shell parentShell;
 
@@ -542,7 +619,7 @@ public final class BZMenu extends BZBase
 		public void keyReleased(KeyEvent ignored){}
 	}
 
-	private final class LineMarginBellHandler extends AbstractAction
+	private final class LineMarginBellHandler extends BaseAction
 	{
 		private final Shell parentShell;
 
@@ -620,7 +697,7 @@ public final class BZMenu extends BZBase
 		public void keyReleased(KeyEvent ignored){}
 	}
 
-	private final class PageMarginBellHandler extends AbstractAction
+	private final class PageMarginBellHandler extends BaseAction
 	{
 		private final Shell parentShell;
 
@@ -698,7 +775,7 @@ public final class BZMenu extends BZBase
 		public void keyReleased(KeyEvent ignored){}
 	}
 
-	private class RewrapFromCursorHandler extends AbstractAction
+	private class RewrapFromCursorHandler extends BaseAction
 	{
 		@Override
 		public void widgetSelected(SelectionEvent ignored)
@@ -707,7 +784,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private final class AboutHandler extends AbstractAction
+	private final class AboutHandler extends BaseAction
 	{
 		private final Shell parentShell;
 
@@ -767,7 +844,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private final class LogViewerHandler extends AbstractAction
+	private final class LogViewerHandler extends BaseAction
 	{
 		private final Shell parentShell;
 
@@ -805,7 +882,7 @@ public final class BZMenu extends BZBase
 		}
 	}
 
-	private static class AbstractAction implements SelectionListener
+	private static class BaseAction implements SelectionListener
 	{
 		private static final boolean isMac = System.getProperty("os.name").toLowerCase().startsWith("mac");
 
@@ -845,6 +922,72 @@ public final class BZMenu extends BZBase
 		MenuItem addMenuItemTo(Menu menu, String tag)
 		{
 			return addMenuItemTo(menu, tag, 0, true);
+		}
+
+		MenuItem addMenuItemAt(Menu menu,
+		                       String tag,
+		                       int accelerator,
+		                       boolean enabled,
+		                       int index)
+		{
+			MenuItem item = new MenuItem(menu, SWT.PUSH, index);
+
+			//   hide accelerators in tags on Macs
+			if(isMac)
+			{
+				int tab = tag.indexOf('\t');
+				if(tab > 0)
+					tag = tag.substring(0, tab);
+			}
+
+			item.setText(tag);
+			if(accelerator != 0)
+				item.setAccelerator(accelerator);
+			item.addSelectionListener(this);
+			item.setEnabled(enabled);
+			return item;
+		}
+
+		MenuItem addMenuItemAt(Menu menu, String tag, int accelerator, int index)
+		{
+			return addMenuItemAt(menu, tag, accelerator, true, index);
+		}
+
+		MenuItem addMenuItemAt(Menu menu, String tag, boolean enabled, int index)
+		{
+			return addMenuItemAt(menu, tag, 0, enabled, index);
+		}
+
+		MenuItem addMenuItemAt(Menu menu, String tag, int index)
+		{
+			return addMenuItemAt(menu, tag, 0, true, index);
+		}
+
+		MenuItem addSubMenuItemTo(Menu menu,
+		                          String tag,
+		                          boolean enabled,
+		                          Menu subMenu)
+		{
+			MenuItem item = new MenuItem(menu, SWT.CASCADE);
+
+			//   hide accelerators in tags on Macs
+			if(isMac)
+			{
+				int tab = tag.indexOf('\t');
+				if(tab > 0)
+					tag = tag.substring(0, tab);
+			}
+
+			item.setText(tag);
+			item.addSelectionListener(this);
+			item.setMenu(subMenu);
+			item.setEnabled(enabled);
+			return item;
+		}
+
+		MenuItem addSubMenuItemTo(Menu menu, String tag, Menu subMenu)
+		{
+			return addSubMenuItemTo(menu, tag, true, subMenu);
 		}
 
 		@Override

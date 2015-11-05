@@ -62,7 +62,7 @@ public final class Main
 		bzStyledText = new BZStyledText(shell);
 		bzFile = new BZFile(bzStyledText);
 		bzSettings = new BZSettings(bzStyledText);
-		new BZMenu(bzStyledText, bzFile);
+		new BZMenu(bzStyledText, bzFile, bzSettings);
 
 		//   assume any argument is a file to open
 		if(args.length > 0)
