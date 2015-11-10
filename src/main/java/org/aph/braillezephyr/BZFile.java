@@ -147,6 +147,24 @@ public final class BZFile extends BZBase
 			fileName = fileDialog.open();
 			if(fileName == null)
 				return false;
+
+			File file = new File(fileName);
+			if(file.exists())
+			{
+				if(!file.isFile())
+				{
+					MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_ERROR | SWT.OK);
+					messageBox.setMessage("Invalid file:  " + fileName);
+					messageBox.open();
+					return false;
+				}
+
+				MessageBox messageBox = new MessageBox(parentShell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+				messageBox.setMessage("Would you like to overwrite " + fileName + '?');
+				int result = messageBox.open();
+				if(result != SWT.YES)
+					return false;
+			}
 		}
 		else
 			fileName = this.fileName;
