@@ -1569,11 +1569,3 @@ public class BZStyledText
 		}
 	}
 }
-
-class BZException extends Exception
-{
-	BZException(String message)
-	{
-		super(message);
-	}
-}
