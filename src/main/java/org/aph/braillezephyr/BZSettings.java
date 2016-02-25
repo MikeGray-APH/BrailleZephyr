@@ -197,11 +197,11 @@ public final class BZSettings extends BZBase
 			}
 			catch(FileNotFoundException exception)
 			{
-				logError("Unable to open line bell sound file", exception);
+				logError("Unable to open line margin sound file", exception);
 			}
 			catch(IOException exception)
 			{
-				logError("Unable to read line bell sound file", exception);
+				logError("Unable to read line margin sound file", exception);
 			}
 			catch(UnsupportedAudioFileException ignore)
 			{
@@ -210,6 +210,30 @@ public final class BZSettings extends BZBase
 			catch(LineUnavailableException ignore)
 			{
 				logError("Line unavailable for line margin bell", value);
+			}
+			break;
+
+		case "lineEndFileName":
+
+			try
+			{
+				bzStyledText.loadLineEndFileName(value);
+			}
+			catch(FileNotFoundException exception)
+			{
+				logError("Unable to open line end sound file", exception);
+			}
+			catch(IOException exception)
+			{
+				logError("Unable to read line end sound file", exception);
+			}
+			catch(UnsupportedAudioFileException ignore)
+			{
+				logError("Sound file unsupported for line end bell", value);
+			}
+			catch(LineUnavailableException ignore)
+			{
+				logError("Line unavailable for line end bell", value);
 			}
 			break;
 
@@ -223,11 +247,11 @@ public final class BZSettings extends BZBase
 			}
 			catch(FileNotFoundException exception)
 			{
-				logError("Unable to open page bell sound file", exception);
+				logError("Unable to open page margin sound file", exception);
 			}
 			catch(IOException exception)
 			{
-				logError("Unable to read page bell sound file", exception);
+				logError("Unable to read page margin sound file", exception);
 			}
 			catch(UnsupportedAudioFileException ignore)
 			{
@@ -346,14 +370,19 @@ public final class BZSettings extends BZBase
 
 	private void writeLines(PrintWriter writer)
 	{
+		String fileName;
+
 		if(shellSize != null)
 			writer.println("size " + shellSize.x + ' ' + shellSize.y + ' ' + shellMaximized);
 
 		writer.println("charsPerLine " + bzStyledText.getCharsPerLine());
 		writer.println("lineMarginBell " + bzStyledText.getLineMarginBell());
-		String fileName = bzStyledText.getLineMarginFileName();
+		fileName = bzStyledText.getLineMarginFileName();
 		if(fileName != null)
 			writer.println("lineMarginFileName " + fileName);
+		fileName = bzStyledText.getLineEndFileName();
+		if(fileName != null)
+			writer.println("lineEndFileName " + fileName);
 
 		writer.println("linesPerPage " + bzStyledText.getLinesPerPage());
 		writer.println("pageMarginBell " + bzStyledText.getPageMarginBell());

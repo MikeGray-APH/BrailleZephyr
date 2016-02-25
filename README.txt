@@ -54,5 +54,8 @@ Miscellaneous
 Margin bell:
 http://www.freesound.org/people/ramsamba/sounds/318687/
 
+End of Line bell:
+https://www.freesound.org/people/Neotone/sounds/75338/
+
 Page bell:
-http://www.get-sounds.com/
+https://www.freesound.org/people/anbo/sounds/34456/

@@ -92,9 +92,13 @@ public class BZStyledText
 	private int lineMarginBell = 33;
 	private Clip lineMarginClip;
 	private String lineMarginFileName;
+
 	private int pageMarginBell = 25;
 	private Clip pageMarginClip;
 	private String pageMarginFileName;
+
+	private Clip lineEndClip;
+	private String lineEndFileName;
 
 	private final List<ExtendedModifyEvent> changes = new ArrayList<>(1000);
 	private int changeIndex, saveIndex;
@@ -159,10 +163,10 @@ public class BZStyledText
 		loadFont("BrailleZephyr_8ws.otf");
 		loadFont("BrailleZephyr_8wsb.otf");
 
-		//   load margin bell
+		//   load line margin bell
 		try
 		{
-			InputStream inputStreamBellMargin = new BufferedInputStream(getClass().getResourceAsStream("/sounds/margin_bell.wav"));
+			InputStream inputStreamBellMargin = new BufferedInputStream(getClass().getResourceAsStream("/sounds/line_margin_bell.wav"));
 			AudioInputStream audioInputStreamMargin = AudioSystem.getAudioInputStream(inputStreamBellMargin);
 			DataLine.Info dataLineInfoMargin = new DataLine.Info(Clip.class, audioInputStreamMargin.getFormat());
 			lineMarginClip = (Clip)AudioSystem.getLine(dataLineInfoMargin);
@@ -184,10 +188,10 @@ public class BZStyledText
 			lineMarginClip = null;
 		}
 
-		//   load page bell
+		//   load page margin bell
 		try
 		{
-			InputStream inputStreamBellPage = new BufferedInputStream(getClass().getResourceAsStream("/sounds/page_bell.wav"));
+			InputStream inputStreamBellPage = new BufferedInputStream(getClass().getResourceAsStream("/sounds/page_margin_bell.wav"));
 			AudioInputStream audioInputStreamPage = AudioSystem.getAudioInputStream(inputStreamBellPage);
 			DataLine.Info dataLineInfoPage = new DataLine.Info(Clip.class, audioInputStreamPage.getFormat());
 			pageMarginClip = (Clip)AudioSystem.getLine(dataLineInfoPage);
@@ -195,7 +199,7 @@ public class BZStyledText
 		}
 		catch(IOException exception)
 		{
-			logWriter.println("ERROR:  Unable to read default line page bell file:  " + exception.getMessage());
+			logWriter.println("ERROR:  Unable to read default page margin bell file:  " + exception.getMessage());
 			pageMarginClip = null;
 		}
 		catch(UnsupportedAudioFileException exception)
@@ -207,6 +211,31 @@ public class BZStyledText
 		{
 			logWriter.println("ERROR:  Line unavailable for default page margin bell:  " + exception.getMessage());
 			pageMarginClip = null;
+		}
+
+		//   load line end bell
+		try
+		{
+			InputStream inputStreamBellPage = new BufferedInputStream(getClass().getResourceAsStream("/sounds/line_end_bell.wav"));
+			AudioInputStream audioInputStreamPage = AudioSystem.getAudioInputStream(inputStreamBellPage);
+			DataLine.Info dataLineInfoPage = new DataLine.Info(Clip.class, audioInputStreamPage.getFormat());
+			lineEndClip = (Clip)AudioSystem.getLine(dataLineInfoPage);
+			lineEndClip.open(audioInputStreamPage);
+		}
+		catch(IOException exception)
+		{
+			logWriter.println("ERROR:  Unable to read default line end bell file:  " + exception.getMessage());
+			lineEndClip = null;
+		}
+		catch(UnsupportedAudioFileException exception)
+		{
+			logWriter.println("ERROR:  Sound file unsupported for default line end bell:  " + exception.getMessage());
+			lineEndClip = null;
+		}
+		catch(LineUnavailableException exception)
+		{
+			logWriter.println("ERROR:  Line unavailable for default line end bell:  " + exception.getMessage());
+			lineEndClip = null;
 		}
 
 		brailleText = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -535,6 +564,59 @@ public class BZStyledText
 		pageMarginFileName = fileName;
 		if(clip != null)
 			clip.close();
+	}
+
+	/**
+	 * <p>
+	 * Loads the sound file specified by fileName and uses it for the line end
+	 * bell.
+	 *
+	 * @param fileName the name of the file to load
+	 *
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 * @throws UnsupportedAudioFileException
+	 * @throws LineUnavailableException
+	 *
+	 * @see #getLineEndFileName()
+	 * </p>
+	 */
+	public void loadLineEndFileName(String fileName) throws FileNotFoundException,
+	                                                        IOException,
+	                                                        UnsupportedAudioFileException,
+	                                                        LineUnavailableException
+	{
+		InputStream inputStream = new BufferedInputStream(new FileInputStream(fileName));
+		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(inputStream);
+		DataLine.Info dataLineInfo = new DataLine.Info(Clip.class, audioInputStream.getFormat());
+		Clip clip = lineEndClip;
+		try
+		{
+			lineEndClip = (Clip)AudioSystem.getLine(dataLineInfo);
+			lineEndClip.open(audioInputStream);
+		}
+		catch(IOException | LineUnavailableException exception)
+		{
+			lineEndClip = clip;
+			throw exception;
+		}
+		lineEndFileName = fileName;
+		if(clip != null)
+			clip.close();
+	}
+
+	/**
+	 * <p>
+	 * Returns the file name of the sound file used for the line end bell.
+	 *
+	 * @return the current file name or <code>null</code> if none
+	 *
+	 * @see #loadLineEndFileName(String)
+	 * </p>
+	 */
+	public String getLineEndFileName()
+	{
+		return lineEndFileName;
 	}
 
 	/**
@@ -1173,9 +1255,8 @@ public class BZStyledText
 			int lineIndex = source.getLineAtOffset(caretOffset);
 			int lineOffset = source.getOffsetAtLine(lineIndex);
 
-			//   play margin bell
-			if(lineMarginClip != null && lineMarginBell > 0)
-			if(lineMarginBell > 0 && caretOffset == prevCaretOffset + 1)
+			//   play line margin bell
+			if(lineMarginClip != null && lineMarginBell > 0 && caretOffset == prevCaretOffset + 1)
 			{
 				if(caretOffset - lineOffset == lineMarginBell)
 				if(!lineMarginClip.isActive())
@@ -1184,6 +1265,18 @@ public class BZStyledText
 					lineMarginClip.start();
 				}
 			}
+
+			//   play line end bell
+			if(lineEndClip != null && charsPerLine > 0 && caretOffset == prevCaretOffset + 1)
+			{
+				if(caretOffset - lineOffset == charsPerLine)
+					if(!lineEndClip.isActive())
+					{
+						lineEndClip.setFramePosition(0);
+						lineEndClip.start();
+					}
+			}
+
 			prevCaretOffset = caretOffset;
 
 			//   scroll other text to match current

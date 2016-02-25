@@ -106,8 +106,9 @@ public final class BZMenu extends BZBase
 		new SaveAsHandler().addMenuItemTo(menu, "Save As\tCtrl+Shift+O", SWT.MOD1 | SWT.MOD2 | 's');
 		new QuitHandler().addMenuItemTo(menu, "Quit\tCtrl+Q", SWT.MOD1 | 'q');
 		new MenuItem(menu, SWT.SEPARATOR);
-		new LoadLineMarginBellHandler().addMenuItemTo(menu, "Load Line Bell");
-		new LoadPageMarginBellHandler().addMenuItemTo(menu, "Load Page Bell");
+		new LoadLineMarginBellHandler().addMenuItemTo(menu, "Load Line Margin Bell");
+		new LoadPageMarginBellHandler().addMenuItemTo(menu, "Load Page Margin Bell");
+		new LoadLineEndBellHandler().addMenuItemTo(menu, "Load Line End Bell");
 
 		//   edit menu
 		menu = new Menu(menuBar);
@@ -319,6 +320,39 @@ public final class BZMenu extends BZBase
 			catch(LineUnavailableException ignore)
 			{
 				logError("Line unavailable for page margin bell", fileName);
+			}
+		}
+	}
+
+	private class LoadLineEndBellHandler extends BaseAction
+	{
+		@Override
+		public void widgetSelected(SelectionEvent ignored)
+		{
+			FileDialog fileDialog = new FileDialog(parentShell, SWT.OPEN);
+			fileDialog.setFileName(bzStyledText.getLineEndFileName());
+			String fileName = fileDialog.open();
+			if(fileName == null)
+				return;
+			try
+			{
+				bzStyledText.loadLineEndFileName(fileName);
+			}
+			catch(FileNotFoundException exception)
+			{
+				logError("Unable to open file", exception);
+			}
+			catch(IOException exception)
+			{
+				logError("Unable to read file", exception);
+			}
+			catch(UnsupportedAudioFileException ignore)
+			{
+				logError("Sound file unsupported for page margin bell", fileName);
+			}
+			catch(LineUnavailableException ignore)
+			{
+				logError("Line unavailable for line end bell", fileName);
 			}
 		}
 	}
