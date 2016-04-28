@@ -84,6 +84,10 @@ public final class BZMenu extends BZBase
 		Menu menu;
 		MenuItem item;
 
+		String mod1KeyName = "Ctrl";
+		if(System.getProperty("os.name").toLowerCase().startsWith("mac"))
+			mod1KeyName = "⌘";
+
 		//   file menu
 		menu = new Menu(menuBar);
 		item = new MenuItem(menuBar, SWT.CASCADE);
@@ -91,7 +95,7 @@ public final class BZMenu extends BZBase
 		item.setMenu(menu);
 
 		new NewHandler().addMenuItemTo(menu, "&New");
-		new OpenHandler().addMenuItemTo(menu, "&Open\tCtrl+O", SWT.MOD1 | 'o');
+		new OpenHandler().addMenuItemTo(menu, "&Open\t" + mod1KeyName + "+O", SWT.MOD1 | 'o');
 
 		if(bzSettings != null)
 		{
@@ -102,9 +106,9 @@ public final class BZMenu extends BZBase
 			new BaseAction().addSubMenuItemTo(menu, "Open Recent", recentFilesMenu);
 		}
 
-		new SaveHandler().addMenuItemTo(menu, "&Save\tCtrl+S", SWT.MOD1 | 's');
-		new SaveAsHandler().addMenuItemTo(menu, "Save As\tCtrl+Shift+O", SWT.MOD1 | SWT.MOD2 | 's');
-		new QuitHandler().addMenuItemTo(menu, "Quit\tCtrl+Q", SWT.MOD1 | 'q');
+		new SaveHandler().addMenuItemTo(menu, "&Save\t" + mod1KeyName + "+S", SWT.MOD1 | 's');
+		new SaveAsHandler().addMenuItemTo(menu, "Save As\t" + mod1KeyName + "+Shift+O", SWT.MOD1 | SWT.MOD2 | 's');
+		new QuitHandler().addMenuItemTo(menu, "Quit\t" + mod1KeyName + "+Q", SWT.MOD1 | 'q');
 		new MenuItem(menu, SWT.SEPARATOR);
 		new LoadLineMarginBellHandler().addMenuItemTo(menu, "Load Line Margin Bell");
 		new LoadPageMarginBellHandler().addMenuItemTo(menu, "Load Page Margin Bell");
@@ -117,12 +121,12 @@ public final class BZMenu extends BZBase
 		item.setMenu(menu);
 
 		//   cut, copy, and paste accelerators are handled by StyledText.
-		new CutHandler().addMenuItemTo(menu, "Cut\tCtrl+X");
-		new CopyHandler().addMenuItemTo(menu, "Copy\tCtrl+C");
-		new PasteHandler().addMenuItemTo(menu, "Paste\tCtrl+V");
+		new CutHandler().addMenuItemTo(menu, "Cut\t" + mod1KeyName + "+X");
+		new CopyHandler().addMenuItemTo(menu, "Copy\t" + mod1KeyName + "+C");
+		new PasteHandler().addMenuItemTo(menu, "Paste\t" + mod1KeyName + "+V");
 		new MenuItem(menu, SWT.SEPARATOR);
-		new UndoHandler().addMenuItemTo(menu, "Undo\tCtrl+Z", SWT.MOD1 | 'z');
-		new RedoHandler().addMenuItemTo(menu, "Redo\tCtrl+Shift+Z", SWT.MOD1 | SWT.MOD2 | 'z');
+		new UndoHandler().addMenuItemTo(menu, "Undo\t" + mod1KeyName + "+Z", SWT.MOD1 | 'z');
+		new RedoHandler().addMenuItemTo(menu, "Redo\t" + mod1KeyName + "+Shift+Z", SWT.MOD1 | SWT.MOD2 | 'z');
 
 		//   view menu
 		menu = new Menu(menuBar);
@@ -144,7 +148,7 @@ public final class BZMenu extends BZBase
 		new CharsPerLineHandler(parentShell).addMenuItemTo(menu, "Chars Per Line");
 		new LineMarginBellHandler(parentShell).addMenuItemTo(menu, "Line Margin Bell", bzStyledText.getLineMarginBell() != -1);
 		new PageMarginBellHandler(parentShell).addMenuItemTo(menu, "Page Margin Bell", bzStyledText.getPageMarginBell() != -1);
-		new RewrapFromCursorHandler().addMenuItemTo(menu, "Rewrap From Cursor\tCtrl+F", SWT.MOD1 | 'F');
+		new RewrapFromCursorHandler().addMenuItemTo(menu, "Rewrap From Cursor\t" + mod1KeyName + "+F", SWT.MOD1 | 'F');
 
 		//   help menu
 		menu = new Menu(menuBar);
@@ -918,23 +922,12 @@ public final class BZMenu extends BZBase
 
 	private static class BaseAction implements SelectionListener
 	{
-		private static final boolean isMac = System.getProperty("os.name").toLowerCase().startsWith("mac");
-
 		MenuItem addMenuItemTo(Menu menu,
 		                       String tag,
 		                       int accelerator,
 		                       boolean enabled)
 		{
 			MenuItem item = new MenuItem(menu, SWT.PUSH);
-
-			//   hide accelerators in tags on Macs
-			if(isMac)
-			{
-				int tab = tag.indexOf('\t');
-				if(tab > 0)
-					tag = tag.substring(0, tab);
-			}
-
 			item.setText(tag);
 			if(accelerator != 0)
 				item.setAccelerator(accelerator);
@@ -965,15 +958,6 @@ public final class BZMenu extends BZBase
 		                       int index)
 		{
 			MenuItem item = new MenuItem(menu, SWT.PUSH, index);
-
-			//   hide accelerators in tags on Macs
-			if(isMac)
-			{
-				int tab = tag.indexOf('\t');
-				if(tab > 0)
-					tag = tag.substring(0, tab);
-			}
-
 			item.setText(tag);
 			if(accelerator != 0)
 				item.setAccelerator(accelerator);
@@ -1003,15 +987,6 @@ public final class BZMenu extends BZBase
 		                          Menu subMenu)
 		{
 			MenuItem item = new MenuItem(menu, SWT.CASCADE);
-
-			//   hide accelerators in tags on Macs
-			if(isMac)
-			{
-				int tab = tag.indexOf('\t');
-				if(tab > 0)
-					tag = tag.substring(0, tab);
-			}
-
 			item.setText(tag);
 			item.addSelectionListener(this);
 			item.setMenu(subMenu);
