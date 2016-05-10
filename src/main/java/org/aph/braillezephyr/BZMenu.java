@@ -84,9 +84,13 @@ public final class BZMenu extends BZBase
 		Menu menu;
 		MenuItem item;
 
-		String mod1KeyName = "Ctrl";
+		String mod1KeyName = "Ctrl+";
+		String mod2KeyName = "Shift+";
 		if(System.getProperty("os.name").toLowerCase().startsWith("mac"))
+		{
 			mod1KeyName = "⌘";
+			mod2KeyName = "⇧";
+		}
 
 		//   file menu
 		menu = new Menu(menuBar);
@@ -95,7 +99,7 @@ public final class BZMenu extends BZBase
 		item.setMenu(menu);
 
 		new NewHandler().addMenuItemTo(menu, "&New");
-		new OpenHandler().addMenuItemTo(menu, "&Open\t" + mod1KeyName + "+O", SWT.MOD1 | 'o');
+		new OpenHandler().addMenuItemTo(menu, "&Open\t" + mod1KeyName + "O", SWT.MOD1 | 'o');
 
 		if(bzSettings != null)
 		{
@@ -106,9 +110,9 @@ public final class BZMenu extends BZBase
 			new BaseAction().addSubMenuItemTo(menu, "Open Recent", recentFilesMenu);
 		}
 
-		new SaveHandler().addMenuItemTo(menu, "&Save\t" + mod1KeyName + "+S", SWT.MOD1 | 's');
-		new SaveAsHandler().addMenuItemTo(menu, "Save As\t" + mod1KeyName + "+Shift+O", SWT.MOD1 | SWT.MOD2 | 's');
-		new QuitHandler().addMenuItemTo(menu, "Quit\t" + mod1KeyName + "+Q", SWT.MOD1 | 'q');
+		new SaveHandler().addMenuItemTo(menu, "&Save\t" + mod1KeyName + "S", SWT.MOD1 | 's');
+		new SaveAsHandler().addMenuItemTo(menu, "Save As\t" + mod2KeyName + mod1KeyName + "O", SWT.MOD1 | SWT.MOD2 | 's');
+		new QuitHandler().addMenuItemTo(menu, "Quit\t" + mod1KeyName + "Q", SWT.MOD1 | 'q');
 		new MenuItem(menu, SWT.SEPARATOR);
 		new LoadLineMarginBellHandler().addMenuItemTo(menu, "Load Line Margin Bell");
 		new LoadPageMarginBellHandler().addMenuItemTo(menu, "Load Page Margin Bell");
@@ -121,12 +125,12 @@ public final class BZMenu extends BZBase
 		item.setMenu(menu);
 
 		//   cut, copy, and paste accelerators are handled by StyledText.
-		new CutHandler().addMenuItemTo(menu, "Cut\t" + mod1KeyName + "+X");
-		new CopyHandler().addMenuItemTo(menu, "Copy\t" + mod1KeyName + "+C");
-		new PasteHandler().addMenuItemTo(menu, "Paste\t" + mod1KeyName + "+V");
+		new CutHandler().addMenuItemTo(menu, "Cut\t" + mod1KeyName + "X");
+		new CopyHandler().addMenuItemTo(menu, "Copy\t" + mod1KeyName + "C");
+		new PasteHandler().addMenuItemTo(menu, "Paste\t" + mod1KeyName + "V");
 		new MenuItem(menu, SWT.SEPARATOR);
-		new UndoHandler().addMenuItemTo(menu, "Undo\t" + mod1KeyName + "+Z", SWT.MOD1 | 'z');
-		new RedoHandler().addMenuItemTo(menu, "Redo\t" + mod1KeyName + "+Shift+Z", SWT.MOD1 | SWT.MOD2 | 'z');
+		new UndoHandler().addMenuItemTo(menu, "Undo\t" + mod1KeyName + "Z", SWT.MOD1 | 'z');
+		new RedoHandler().addMenuItemTo(menu, "Redo\t" + mod2KeyName + mod1KeyName + "Z", SWT.MOD1 | SWT.MOD2 | 'z');
 
 		//   view menu
 		menu = new Menu(menuBar);
@@ -148,7 +152,7 @@ public final class BZMenu extends BZBase
 		new CharsPerLineHandler(parentShell).addMenuItemTo(menu, "Chars Per Line");
 		new LineMarginBellHandler(parentShell).addMenuItemTo(menu, "Line Margin Bell", bzStyledText.getLineMarginBell() != -1);
 		new PageMarginBellHandler(parentShell).addMenuItemTo(menu, "Page Margin Bell", bzStyledText.getPageMarginBell() != -1);
-		new RewrapFromCursorHandler().addMenuItemTo(menu, "Rewrap From Cursor\t" + mod1KeyName + "+F", SWT.MOD1 | 'F');
+		new RewrapFromCursorHandler().addMenuItemTo(menu, "Rewrap From Cursor\t" + mod1KeyName + "F", SWT.MOD1 | 'F');
 
 		//   help menu
 		menu = new Menu(menuBar);
