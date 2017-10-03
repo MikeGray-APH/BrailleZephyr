@@ -13,6 +13,10 @@
  * limitations under the License.
  */
 
+plugins {
+	id 'edu.sc.seis.launch4j' version '1.6.2'
+}
+
 apply plugin: 'java'
 apply plugin: 'application'
 
@@ -20,7 +24,7 @@ sourceCompatibility = '1.7'
 targetCompatibility = '1.7'
 
 group = 'org.aph.braillezephyr'
-version = '0.1'
+version = '1.0'
 mainClassName = 'org.aph.braillezephyr.Main'
 
 String swtJar
@@ -142,6 +146,22 @@ task allJars {
 
 run {
 	systemProperties['braillezephyr.version'] = version
+}
+
+task copyIcon(type: Copy) {
+	from 'BrailleZephyr.ico'
+	into 'build/launch4j'
+}
+
+afterEvaluate {
+	copyL4jLib.dependsOn copyIcon
+}
+
+launch4j {
+	mainClassName = project.mainClassName
+	icon = 'BrailleZephyr.ico'
+	copyConfigurable = project.tasks.win64Jar.outputs.files
+	jar = "lib/${project.tasks.win64Jar.archiveName}"
 }
 
 apply plugin: 'eclipse'
