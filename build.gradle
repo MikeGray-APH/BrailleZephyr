@@ -14,162 +14,178 @@
  */
 
 plugins {
-	id 'edu.sc.seis.launch4j' version '1.6.2'
+	id 'java'
+	id 'application'
+	id "org.beryx.jlink" version "2.14.0"
 }
 
-apply plugin: 'java'
-apply plugin: 'application'
-
-sourceCompatibility = '1.7'
-targetCompatibility = '1.7'
+sourceCompatibility = '9'
+targetCompatibility = '9'
 
 group = 'org.aph.braillezephyr'
-version = '1.0'
+version = '0.1.0'
 mainClassName = 'org.aph.braillezephyr.Main'
+ext.moduleName = 'org.aph.braillezephyr'
 
-String swtJar
+/* Older versions of SWT under the groupId 'org.eclipse.swt' do not have:
+ *    Automatic-Module-Name: org.eclipse.swt
+ * in the jar manifest file and osgi platform names do not play well with java
+ * automatic modules names.  So they were copied into the 'build/dependencies/'
+ * directory and renamed to 'org.eclipse.swt.jar'.  These are version 4.+
+ *
+ * Newer versions of SWT under the groupId 'org.eclipse.platform' do have an
+ * automatic module name in the jar manifest file, but also have a
+ * ${osgi.platform} dependency that gradle cannot seem to handle, requiring
+ * module substitution.  These are version 3.+
+ */
+String swtVersion = '3.+'
+
+String swtName
 switch(System.getProperty('os.name').toLowerCase().split()[0])
 {
 case 'mac':
-	swtJar = 'org.eclipse.swt.cocoa.macosx.x86_64'
+
+	swtName = 'org.eclipse.swt.cocoa.macosx.x86_64'
 	applicationDefaultJvmArgs.add('-XstartOnFirstThread')
 	break
 
 case 'windows':
-	swtJar = 'org.eclipse.swt.win32.win32.x86_64'
+
+	swtName = 'org.eclipse.swt.win32.win32.x86_64'
+	new File(project.getBuildDir().getPath() + '\\AppData\\Local\\BrailleZephyr\\' + version).mkdirs()
 	break
 
+case 'linux':
 default:
-	swtJar = 'org.eclipse.swt.gtk.linux.x86_64'
+
+	swtName = 'org.eclipse.swt.gtk.linux.x86_64'
+	new File(project.getBuildDir().getPath() + '/.config/BrailleZephyr/').mkdirs()
 	break
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+configurations {
+	swtModulize
+}
+
+//   deal with ${osgi.platform}
+configurations.all {
+	resolutionStrategy {
+		dependencySubstitution {
+			substitute module('org.eclipse.platform:org.eclipse.swt.${osgi.platform}') with module("org.eclipse.platform:$swtName:$swtVersion")
+		}
+	}
 }
 
 dependencies {
-	compile group: 'org.eclipse.swt', name: swtJar, version: '4.+'
-	archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.gtk.linux.x86_64', version: '4.+'
-	archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.gtk.linux.x86', version: '4.+'
-	archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.win32.win32.x86_64', version: '4.+'
-	archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.win32.win32.x86', version: '4.+'
-	archives group: 'org.eclipse.swt', name: 'org.eclipse.swt.cocoa.macosx.x86_64', version: '4.+'
+	//	implementation group: 'org.eclipse.platform', name: swtName, version: swtVersion   // or name:  'org.eclipse.swt'?
+	implementation files("build/dependencies/org.eclipse.swt.jar")
+	swtModulize group: 'org.eclipse.platform', name: swtName, version: swtVersion
+	swtModulize group: 'org.eclipse.platform', name: swtName, version: swtVersion, classifier: 'sources'
+	swtModulize group: 'org.eclipse.platform', name: swtName, version: swtVersion, classifier: 'javadoc'
+
+	archives group: 'org.eclipse.platform', name: swtName, version: swtVersion
+	//	archives files("build/dependencies/org.eclipse.swt.jar")
 }
 
-ext.defaultManifest = manifest {
-	attributes('Main-Class': mainClassName,
-	           'Implementation-Version': version)
+compileJava {
+	inputs.property("moduleName", moduleName)
+	doFirst {
+		options.compilerArgs = [
+			'--module-path', classpath.asPath,
+			'-encoding', 'utf8'
+		]
+		classpath = files()
+
+		copy {
+			from configurations.swtModulize
+			into 'build/tmp/swt'
+		}
+
+		copy {
+			from 'build/tmp/swt'
+			include 'org.*.swt.*.jar'
+			into 'build/dependencies'
+			rename 'org.*.swt.*[0-9].jar', 'org.eclipse.swt.jar'
+			rename 'org.*.swt.*[0-9]-sources.jar', 'org.eclipse.swt-sources.jar'
+			rename 'org.*.swt.*[0-9]-javadoc.jar', 'org.eclipse.swt-javadoc.jar'
+		}
+	}
+
+	String[] lines = file('src/main/java/module-info.java') as String[]
+	boolean hasSWTModuleName = false;
+	for(line in lines)
+		if(line.contains(swtName))
+		{
+			hasSWTModuleName = true;
+			break;
+		}
+	if(!hasSWTModuleName)
+	{
+		println "writing module-info.java"
+		new File('src/main/java', 'module-info.java').text = """module org.aph.braillezephyr {
+	exports org.aph.braillezephyr;
+	requires java.desktop;
+	requires $swtName;
+}
+"""
+	}
+
+	doLast {
+		new File(buildDir, "version.txt").text = version
+		new File(buildDir, "build-time.txt").text = new Date()
+	}
 }
 
 jar {
-	manifest = project.manifest {
-		from defaultManifest
+	manifest {
+		attributes (
+			'Main-Class': mainClassName,
+			'Implementation-Name': System.getProperty('os.name'),
+			'Implementation-Version': version,
+			'Implementation-Vender': 'American Printing House for the Blind',
+			'Implementation-URL': 'www.aph.org'
+		)
 	}
-
-	baseName = 'BrailleZephyr'
 }
 
-task linux32Jar(type: Jar) {
-	appendix = 'linux-x86'
-
-	manifest = project.manifest {
-		from defaultManifest
+jlink {
+	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+	launcher{
+		name = 'BrailleZephyr'
 	}
-
-	from {
-		zipTree configurations.archives.find { it.getName().contains('linux.x86-') }
-	}
-
-	with jar
-}
-
-task linux64Jar(type: Jar) {
-	appendix = 'linux-x86_64'
-
-	manifest = project.manifest {
-		from defaultManifest
-	}
-
-	from {
-		zipTree configurations.archives.find { it.getName().contains('linux.x86_64') }
-	}
-
-	with jar
-}
-
-task win32Jar(type: Jar) {
-	appendix = 'windows-x86'
-
-	manifest = project.manifest {
-		from defaultManifest
-	}
-
-	from {
-		zipTree configurations.archives.find { it.getName().contains('win32.x86-') }
-	}
-
-	with jar
-}
-
-task win64Jar(type: Jar) {
-	appendix = 'windows-x86_64'
-
-	manifest = project.manifest {
-		from defaultManifest
-	}
-
-	from {
-		zipTree configurations.archives.find { it.getName().contains('win32.x86_64') }
-	}
-
-	with jar
-}
-
-task macxJar(type: Jar) {
-	appendix = 'macosx-x86_64'
-
-	manifest = project.manifest {
-		from defaultManifest
-	}
-
-	from {
-		zipTree configurations.archives.find { it.getName().contains('macosx.x86_64') }
-	}
-
-	with jar
-}
-
-task allJars {
-	dependsOn linux32Jar
-	dependsOn linux64Jar
-	dependsOn win32Jar
-	dependsOn win64Jar
-	dependsOn macxJar
 }
 
 run {
 	systemProperties['braillezephyr.version'] = version
 }
 
-task copyIcon(type: Copy) {
-	from 'BrailleZephyr.ico'
-	into 'build/launch4j'
+task fullJar(type : Jar) {
+
+	manifest {
+		attributes (
+			'Main-Class': mainClassName,
+			'Implementation-Name': 'BrailleZephyr ' + System.getProperty('os.name'),
+			'Implementation-Version': version,
+			'Implementation-Vender': 'American Printing House for the Blind',
+			'Implementation-URL': 'www.aph.org'
+		)
+	}
+
+	from(configurations.archives.collect { it.isDirectory() ? it : zipTree(it) }) {
+		exclude "META-INF/*.SF"
+		exclude "META-INF/*.DSA"
+		exclude "META-INF/*.RSA"
+	}
+
+	with jar
 }
 
-afterEvaluate {
-	copyL4jLib.dependsOn copyIcon
-}
-
-launch4j {
-	mainClassName = project.mainClassName
-	icon = 'BrailleZephyr.ico'
-	copyConfigurable = project.tasks.win64Jar.outputs.files
-	jar = "lib/${project.tasks.win64Jar.archiveName}"
-}
-
-apply plugin: 'eclipse'
-
-task wrapper(type: Wrapper) {
-	gradleVersion = '2.5'
-}
-
-repositories {
-	mavenCentral()
+task copyDeps(type: Copy) {
+	from configurations.archives
+	into 'build/deps'
 }
